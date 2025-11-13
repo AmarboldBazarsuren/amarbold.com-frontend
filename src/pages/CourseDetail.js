@@ -1,0 +1,237 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { 
+  PlayCircle, Clock, BookOpen, Star, CheckCircle, Lock, 
+  ChevronDown, ChevronUp, Users, Award, ArrowLeft 
+} from 'lucide-react';
+import axios from 'axios';
+import './CourseDetail.css';
+
+function CourseDetail() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [course, setCourse] = useState(null);
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [purchasing, setPurchasing] = useState(false);
+
+  useEffect(() => {
+    fetchCourseDetail();
+  }, [id]);
+
+  const fetchCourseDetail = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`http://localhost:5000/api/courses/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data.success) {
+        setCourse(response.data.course);
+        setIsEnrolled(response.data.isEnrolled);
+      }
+    } catch (error) {
+      console.error('Хичээлийн мэдээлэл татахад алдаа гарлаа:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEnroll = async () => {
+    setPurchasing(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `http://localhost:5000/api/courses/${id}/enroll`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setIsEnrolled(true);
+      alert('Амжилттай бүртгүүллээ!');
+    } catch (error) {
+      alert(error.response?.data?.message || 'Бүртгүүлэхэд алдаа гарлаа');
+    } finally {
+      setPurchasing(false);
+    }
+  };
+
+  const toggleSection = (sectionId) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
+  };
+
+  if (loading) {
+    return (
+      <div className="course-detail-loading">
+        <div className="loader"></div>
+        <p>Хичээл уншиж байна...</p>
+      </div>
+    );
+  }
+
+  if (!course) {
+    return (
+      <div className="course-not-found">
+        <h2>Хичээл олдсонгүй</h2>
+        <button className="btn btn-primary" onClick={() => navigate('/dashboard')}>
+          Буцах
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="course-detail">
+      <button className="btn-back" onClick={() => navigate(-1)}>
+        <ArrowLeft size={20} />
+        Буцах
+      </button>
+
+      <div className="course-hero">
+        <div className="course-hero-content">
+          <div className="course-category-badge">{course.category}</div>
+          <h1 className="course-hero-title">{course.title}</h1>
+          <p className="course-hero-description">{course.description}</p>
+          
+          <div className="course-hero-meta">
+            <div className="meta-item">
+              <Star size={20} />
+              <span>{course.rating || '4.8'} үнэлгээ</span>
+            </div>
+            <div className="meta-item">
+              <Users size={20} />
+              <span>{course.students || '0'} суралцагч</span>
+            </div>
+            <div className="meta-item">
+              <Clock size={20} />
+              <span>{course.duration || '10'} цаг</span>
+            </div>
+            <div className="meta-item">
+              <BookOpen size={20} />
+              <span>{course.sections?.length || 0} бүлэг</span>
+            </div>
+          </div>
+
+          <div className="course-instructor">
+            <div className="instructor-avatar">
+              {course.instructor?.name?.charAt(0) || 'B'}
+            </div>
+            <div>
+              <div className="instructor-label">Багш</div>
+              <div className="instructor-name">{course.instructor?.name || 'Багш нэр'}</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="course-hero-card">
+          <div className="course-thumbnail">
+            <img src={course.thumbnail || '/placeholder-course.jpg'} alt={course.title} />
+          </div>
+          <div className="course-price-section">
+            {course.is_free || course.price === 0 ? (
+              <div className="price-free">Үнэгүй</div>
+            ) : (
+              <div className="price">₮{course.price?.toLocaleString()}</div>
+            )}
+            {!isEnrolled ? (
+              <button 
+                className="btn btn-primary btn-full"
+                onClick={handleEnroll}
+                disabled={purchasing}
+              >
+                {purchasing ? (
+                  <>
+                    <div className="spinner"></div>
+                    Бүртгүүлж байна...
+                  </>
+                ) : (
+                  <>
+                    <PlayCircle size={20} />
+                    Хичээл авах
+                  </>
+                )}
+              </button>
+            ) : (
+              <button className="btn btn-success btn-full" disabled>
+                <CheckCircle size={20} />
+                Бүртгүүлсэн
+              </button>
+            )}
+          </div>
+          <div className="course-includes">
+            <h4>Энэ хичээлд орно:</h4>
+            <ul>
+              <li><PlayCircle size={16} /> Видео хичээлүүд</li>
+              <li><Clock size={16} /> {course.duration || '10'} цагийн контент</li>
+              <li><BookOpen size={16} /> Дэлгэрэнгүй материал</li>
+              <li><Award size={16} /> Гэрчилгээ олгоно</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {course.sections && course.sections.length > 0 && (
+        <div className="course-content-section">
+          <h2 className="section-title">Хичээлийн агуулга</h2>
+          <div className="course-curriculum">
+            {course.sections.map((section, index) => (
+              <div key={section.id || index} className="curriculum-section">
+                <div 
+                  className="section-header"
+                  onClick={() => toggleSection(section.id || index)}
+                >
+                  <div className="section-info">
+                    <h3>{section.title}</h3>
+                    <span className="section-meta">
+                      {section.lessons?.length || 0} хичээл
+                    </span>
+                  </div>
+                  {expandedSections[section.id || index] ? (
+                    <ChevronUp size={20} />
+                  ) : (
+                    <ChevronDown size={20} />
+                  )}
+                </div>
+                
+                {expandedSections[section.id || index] && section.lessons && (
+                  <div className="section-lessons">
+                    {section.lessons.map((lesson, lessonIndex) => (
+                      <div 
+                        key={lesson.id || lessonIndex} 
+                        className={`lesson-item ${!isEnrolled && !lesson.is_free_preview ? 'locked' : ''}`}
+                      >
+                        <div className="lesson-info">
+                          {isEnrolled || lesson.is_free_preview ? (
+                            <PlayCircle size={18} />
+                          ) : (
+                            <Lock size={18} />
+                          )}
+                          <span className="lesson-title">{lesson.title}</span>
+                        </div>
+                        <span className="lesson-duration">
+                          {Math.floor(lesson.duration / 60)}:{String(lesson.duration % 60).padStart(2, '0')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="course-description-section">
+        <h2 className="section-title">Хичээлийн тухай</h2>
+        <div className="course-description-content">
+          <p>{course.fullDescription || course.full_description || course.description}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default CourseDetail; 
