@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Users, Shield, Ban, Check, Search, Filter, UserPlus } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Users, Search, Filter, UserPlus } from 'lucide-react';
 import axios from 'axios';
 import './AdminUsers.css';
 
-function AdminUsers({ currentUser }) {
+function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -16,11 +16,11 @@ function AdminUsers({ currentUser }) {
     password: ''
   });
 
-  useEffect(() => {
-    fetchUsers();
-  }, [filterRole, filterStatus]);
+  // ✅ Одоогийн хэрэглэгчийн эрхийг авах
+  const [currentUser, setCurrentUser] = useState(null);
 
-  const fetchUsers = async () => {
+  // ✅ useCallback ашиглаж fetchUsers-г тогтмол болгох
+  const fetchUsers = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       let url = 'http://localhost:5000/api/admin/users?';
@@ -41,7 +41,13 @@ function AdminUsers({ currentUser }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterRole, filterStatus, searchQuery]);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    setCurrentUser(user);
+    fetchUsers();
+  }, [fetchUsers]); // ✅ fetchUsers-г dependency-д нэмэх
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -63,7 +69,12 @@ function AdminUsers({ currentUser }) {
     }
   };
 
+  // ✅ Веб дээрээс эрх өөрчлөх функц
   const handleRoleChange = async (userId, newRole) => {
+    if (!window.confirm(`Энэ хэрэглэгчийг ${newRole === 'admin' ? 'Super Admin' : newRole === 'test_admin' ? 'Test Admin' : 'Хэрэглэгч'} болгох уу?`)) {
+      return;
+    }
+
     try {
       const token = localStorage.getItem('token');
       await axios.put(
@@ -115,6 +126,7 @@ function AdminUsers({ currentUser }) {
           <h1>Хэрэглэгчид</h1>
           <p>{users.length} хэрэглэгч</p>
         </div>
+        {/* ✅ Зөвхөн Super Admin л Test Admin үүсгэнэ */}
         {currentUser?.role === 'admin' && (
           <button 
             className="btn btn-primary"
@@ -245,8 +257,10 @@ function AdminUsers({ currentUser }) {
                   <td>{new Date(user.created_at).toLocaleDateString('mn-MN')}</td>
                   <td>
                     <div className="action-dropdown">
-                      {user.id !== currentUser?.id && user.role !== 'admin' && (
+                      {/* ✅ Өөрийгөө болон Super Admin-г өөрчилж болохгүй */}
+                      {user.id !== currentUser?.id && user.role !== 'admin' && currentUser?.role === 'admin' && (
                         <>
+                          {/* Статус солих */}
                           <select 
                             onChange={(e) => handleStatusChange(user.id, e.target.value)}
                             value={user.status}
@@ -257,17 +271,16 @@ function AdminUsers({ currentUser }) {
                             <option value="banned">Хаах</option>
                           </select>
 
-                          {currentUser?.role === 'admin' && (
-                            <select 
-                              onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                              value={user.role}
-                              className="role-select"
-                            >
-                              <option value="user">Хэрэглэгч</option>
-                              <option value="test_admin">Test Admin</option>
-                              <option value="admin">Admin</option>
-                            </select>
-                          )}
+                          {/* ✅ Эрх солих - Зөвхөн Super Admin */}
+                          <select 
+                            onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                            value={user.role}
+                            className="role-select"
+                          >
+                            <option value="user">Хэрэглэгч</option>
+                            <option value="test_admin">Test Admin</option>
+                            <option value="admin">Super Admin</option>
+                          </select>
                         </>
                       )}
                       {user.id === currentUser?.id && <span className="self-indicator">Та</span>}

@@ -49,7 +49,12 @@ function AdminDashboard() {
     thumbnail: ''
   });
 
+  // ✅ Одоогийн хэрэглэгчийн эрхийг авах
+  const [currentUser, setCurrentUser] = useState(null);
+
   useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    setCurrentUser(user);
     fetchStats();
     fetchAllCourses();
   }, []);
@@ -68,21 +73,24 @@ function AdminDashboard() {
     }
   };
 
-  const fetchAllCourses = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/courses?status=all', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (response.data.success) {
-        setCourses(response.data.data || []);
-      }
-    } catch (error) {
-      console.error('Хичээлүүд татахад алдаа:', error);
-    } finally {
-      setLoading(false);
+  // ✅ fetchAllCourses функцийг засах (мөр 62 орчим)
+
+const fetchAllCourses = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    // ✅ Admin courses API ашиглах
+    const response = await axios.get('http://localhost:5000/api/admin/courses', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (response.data.success) {
+      setCourses(response.data.data || []);
     }
-  };
+  } catch (error) {
+    console.error('Хичээлүүд татахад алдаа:', error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -240,6 +248,7 @@ function AdminDashboard() {
     <div className="admin-dashboard">
       <div className="admin-header">
         <h1>Админ самбар</h1>
+        {/* ✅ Test Admin БАС хичээл нэмнэ */}
         <button 
           className="btn btn-primary"
           onClick={() => {
@@ -254,45 +263,55 @@ function AdminDashboard() {
       </div>
 
       {/* Statistics */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">
-            <Users size={32} />
-          </div>
-          <div className="stat-content">
-            <div className="stat-value">{stats.totalUsers}</div>
-            <div className="stat-label">Нийт хэрэглэгчид</div>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">
-            <BookOpen size={32} />
-          </div>
-          <div className="stat-content">
-            <div className="stat-value">{stats.totalCourses}</div>
-            <div className="stat-label">Нийт хичээлүүд</div>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">
-            <TrendingUp size={32} />
-          </div>
-          <div className="stat-content">
-            <div className="stat-value">{stats.totalEnrollments}</div>
-            <div className="stat-label">Бүртгэлүүд</div>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">
-            <DollarSign size={32} />
-          </div>
-          <div className="stat-content">
-            <div className="stat-value">₮{stats.totalRevenue.toLocaleString()}</div>
-            <div className="stat-label">Нийт орлого</div>
-          </div>
-        </div>
-      </div>
+      // ✅ Statistics хэсгийг засах (мөр 400 орчим)
 
+{/* Statistics */}
+<div className="stats-grid">
+  {/* ✅ Зөвхөн Super Admin хэрэглэгчдийн тоог харна */}
+  {currentUser?.role === 'admin' && (
+    <div className="stat-card">
+      <div className="stat-icon">
+        <Users size={32} />
+      </div>
+      <div className="stat-content">
+        <div className="stat-value">{stats.totalUsers}</div>
+        <div className="stat-label">Нийт хэрэглэгчид</div>
+      </div>
+    </div>
+  )}
+  
+  <div className="stat-card">
+    <div className="stat-icon">
+      <BookOpen size={32} />
+    </div>
+    <div className="stat-content">
+      <div className="stat-value">{stats.totalCourses}</div>
+      <div className="stat-label">
+        {currentUser?.role === 'test_admin' ? 'Миний хичээлүүд' : 'Нийт хичээлүүд'}
+      </div>
+    </div>
+  </div>
+  
+  <div className="stat-card">
+    <div className="stat-icon">
+      <TrendingUp size={32} />
+    </div>
+    <div className="stat-content">
+      <div className="stat-value">{stats.totalEnrollments}</div>
+      <div className="stat-label">Бүртгэлүүд</div>
+    </div>
+  </div>
+  
+  <div className="stat-card">
+    <div className="stat-icon">
+      <DollarSign size={32} />
+    </div>
+    <div className="stat-content">
+      <div className="stat-value">₮{stats.totalRevenue.toLocaleString()}</div>
+      <div className="stat-label">Нийт орлого</div>
+    </div>
+  </div>
+</div>
       {/* Course Form Modal */}
       {showCourseForm && (
         <div className="modal-overlay" onClick={() => setShowCourseForm(false)}>
@@ -609,81 +628,93 @@ function AdminDashboard() {
       )}
 
       {/* Courses Table */}
-      <div className="courses-section">
-        <h2>Бүх хичээлүүд ({courses.length})</h2>
-        {loading ? (
-          <div className="loading">Уншиж байна...</div>
-        ) : courses.length === 0 ? (
-          <div className="empty-state">
-            <BookOpen size={64} />
-            <p>Хичээл байхгүй байна</p>
-          </div>
-        ) : (
-          <div className="courses-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Нэр</th>
-                  <th>Ангилал</th>
-                  <th>Үнэ</th>
-                  <th>Суралцагчид</th>
-                  <th>Үйлдэл</th>
-                </tr>
-              </thead>
-              <tbody>
-                {courses.map(course => (
-                  <tr key={course.id}>
-                    <td>{course.id}</td>
-                    <td>{course.title}</td>
-                    <td>{course.category}</td>
-                    <td>
-                      {course.is_free ? (
-                        <span className="badge-free">Үнэгүй</span>
-                      ) : (
-                        `₮${course.price.toLocaleString()}`
-                      )}
-                    </td>
-                    <td>{course.students || 0}</td>
-                    <td>
-                      <div className="action-buttons">
-                        <button 
-                          className="btn-icon"
-                          onClick={() => handleManageCourse(course)}
-                          title="Агуулга удирдах"
-                        >
-                          <BookOpen size={16} />
-                        </button>
-                        <button 
-                          className="btn-icon"
-                          onClick={() => window.open(`/course/${course.id}`, '_blank')}
-                          title="Үзэх"
-                        >
-                          <Eye size={16} />
-                        </button>
-                        <button 
-                          className="btn-icon"
-                          onClick={() => handleEdit(course)}
-                          title="Засах"
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <button 
-                          className="btn-icon btn-danger"
-                          onClick={() => handleDelete(course.id)}
-                          title="Устгах"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      {/* Courses Table */}
+<div className="courses-section">
+  <h2>
+    {currentUser?.role === 'test_admin' 
+      ? `Миний хичээлүүд (${courses.length})` 
+      : `Бүх хичээлүүд (${courses.length})`}
+  </h2>
+  {loading ? (
+    <div className="loading">Уншиж байна...</div>
+  ) : courses.length === 0 ? (
+    <div className="empty-state">
+      <BookOpen size={64} />
+      <p>
+        {currentUser?.role === 'test_admin' 
+          ? 'Та одоогоор хичээл нэмээгүй байна' 
+          : 'Хичээл байхгүй байна'}
+      </p>
+    </div>
+  ) : (
+    <div className="courses-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Нэр</th>
+            <th>Ангилал</th>
+            <th>Үнэ</th>
+            <th>Суралцагчид</th>
+            <th>Үйлдэл</th>
+          </tr>
+        </thead>
+        <tbody>
+          {courses.map(course => (
+            <tr key={course.id}>
+              <td>{course.id}</td>
+              <td>{course.title}</td>
+              <td>{course.category}</td>
+              <td>
+                {course.is_free ? (
+                  <span className="badge-free">Үнэгүй</span>
+                ) : (
+                  `₮${course.price.toLocaleString()}`
+                )}
+              </td>
+              <td>{course.students || 0}</td>
+        <td>
+  <div className="action-buttons">
+    <button 
+      className="btn-icon"
+      onClick={() => handleManageCourse(course)}
+      title="Агуулга удирдах"
+    >
+      <BookOpen size={16} />
+    </button>
+    <button 
+      className="btn-icon"
+      onClick={() => window.open(`/course/${course.id}`, '_blank')}
+      title="Үзэх"
+    >
+      <Eye size={16} />
+    </button>
+    <button 
+      className="btn-icon"
+      onClick={() => handleEdit(course)}
+      title="Засах"
+    >
+      <Edit size={16} />
+    </button>
+    {/* ✅ Зөвхөн Super Admin л устгана */}
+    {currentUser?.role === 'admin' && (
+      <button 
+        className="btn-icon btn-danger"
+        onClick={() => handleDelete(course.id)}
+        title="Устгах"
+      >
+        <Trash2 size={16} />
+      </button>
+    )}
+  </div>
+</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</div>
     </div>
   );
 }

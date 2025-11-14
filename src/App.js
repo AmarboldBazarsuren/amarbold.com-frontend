@@ -107,11 +107,11 @@ function App() {
           } 
         />
 
-        {/* 🆕 My Students route — АЛДАА АРИЛНА */}
+        {/* My Students route */}
         <Route 
           path="/my-students"
           element={
-            user ? (
+            user && (user.role === 'admin' || user.role === 'test_admin') ? (
               <Layout user={user} onLogout={handleLogout}>
                 <MyStudents />
               </Layout>
@@ -119,11 +119,11 @@ function App() {
           }
         />
 
-        {/* Admin routes */}
+        {/* ✅ Admin Dashboard route - Admin болон Test Admin хоёулаа нэвтэрнэ */}
         <Route 
           path="/admin" 
           element={
-            user && user.role === 'admin' ? (
+            user && (user.role === 'admin' || user.role === 'test_admin') ? (
               <Layout user={user} onLogout={handleLogout}>
                 <AdminDashboard />
               </Layout>
@@ -131,6 +131,7 @@ function App() {
           }
         />
 
+        {/* ✅ Admin Users route - Зөвхөн Super Admin */}
         <Route 
           path="/admin/users" 
           element={

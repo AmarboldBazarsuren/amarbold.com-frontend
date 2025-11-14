@@ -11,11 +11,11 @@ function Layout({ children, user, onLogout }) {
 
   const navItems = [
     { path: '/dashboard', icon: Home, label: 'Dashboard' },
-    { path: '/my-courses', icon: BookOpen, label: 'Миний хичээлүүд' },
+    { path: '/my-courses', icon: BookOpen, label: 'Худалдаж авсан хичээлүүд' },
     { path: '/profile', icon: User, label: 'Профайл' },
   ];
 
-  // Admin эрхтэй бол Admin хэсэг нэмэх
+  // ✅ Admin эсвэл Test Admin эрхтэй бол Admin хэсэг нэмэх
   if (user?.role === 'admin' || user?.role === 'test_admin') {
     navItems.push({ 
       path: '/admin', 
@@ -33,7 +33,7 @@ function Layout({ children, user, onLogout }) {
     });
   }
 
-  // Зөвхөн admin эрхтэй бол Users удирдлага нэмэх
+  // ✅ Зөвхөн Super Admin эрхтэй бол Users удирдлага нэмэх
   if (user?.role === 'admin') {
     navItems.push({ 
       path: '/admin/users', 
