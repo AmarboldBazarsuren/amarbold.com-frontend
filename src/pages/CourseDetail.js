@@ -17,9 +17,44 @@ function CourseDetail() {
   const [purchasing, setPurchasing] = useState(false);
   const [instructorProfile, setInstructorProfile] = useState(null);
 
-  // ❌ Эдгээр state-үүдийг УСТГА - Popup хэрэггүй болсон
-  // const [showVideoPlayer, setShowVideoPlayer] = useState(false);
-  // const [currentLesson, setCurrentLesson] = useState(null);
+  // ✅ САЙЖРУУЛСАН YouTube Video ID функц
+  const getYouTubeVideoId = (url) => {
+    if (!url) return null;
+    
+    try {
+      const urlObj = new URL(url);
+      
+      // youtu.be хэлбэр
+      if (urlObj.hostname === 'youtu.be') {
+        return urlObj.pathname.slice(1).split('?')[0];
+      }
+      
+      // youtube.com хэлбэр
+      if (urlObj.hostname.includes('youtube.com')) {
+        // watch?v= хэлбэр
+        if (urlObj.searchParams.has('v')) {
+          return urlObj.searchParams.get('v');
+        }
+        
+        // embed/ хэлбэр
+        if (urlObj.pathname.includes('/embed/')) {
+          return urlObj.pathname.split('/embed/')[1].split('?')[0];
+        }
+        
+        // /v/ хэлбэр
+        if (urlObj.pathname.includes('/v/')) {
+          return urlObj.pathname.split('/v/')[1].split('?')[0];
+        }
+      }
+      
+      return null;
+    } catch (e) {
+      // URL parse хийж чадахгүй бол regex ашиглана
+      const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[7].length === 11) ? match[7] : null;
+    }
+  };
 
   useEffect(() => {
     const fetchCourseDetail = async () => {
@@ -87,15 +122,12 @@ function CourseDetail() {
     }));
   };
 
-  // ✅ ШИНЭ: Хичээл дарахад шууд LessonPlayer хуудас руу шилжинэ
   const handleLessonClick = (lesson) => {
-    // Бүртгүүлсэн эсвэл үнэгүй хичээл эсэхийг шалгах
     if (!isEnrolled && !lesson.is_free_preview) {
       alert('Энэ хичээлийг үзэхийн тулд эхлээд бүртгүүлнэ үү');
       return;
     }
 
-    // ✅ Шууд LessonPlayer хуудас руу шилжинэ
     navigate(`/course/${id}/learn`);
   };
 
@@ -209,7 +241,6 @@ function CourseDetail() {
                   <CheckCircle size={20} />
                   Бүртгүүлсэн
                 </button>
-                {/* ✅ Хичээл үзэх товч */}
                 <button 
                   className="btn btn-primary btn-full"
                   onClick={() => navigate(`/course/${id}/learn`)}
@@ -233,7 +264,6 @@ function CourseDetail() {
         </div>
       </div>
 
-      {/* ✅ Хичээлийн агуулга - Дарахад LessonPlayer руу шилжинэ */}
       {course.sections?.length > 0 && (
         <div className="course-content-section">
           <h2 className="section-title">Хичээлийн агуулга</h2>
@@ -292,8 +322,6 @@ function CourseDetail() {
           </div>
         </div>
       )}
-
-      {/* ❌ VIDEO PLAYER MODAL-г бүтнээр УСТГАХ - Popup хэрэггүй болсон */}
 
       <div className="course-description-section">
         <h2 className="section-title">Хичээлийн тухай</h2>

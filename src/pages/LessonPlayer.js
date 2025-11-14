@@ -13,6 +13,45 @@ function LessonPlayer() {
   const [loading, setLoading] = useState(true);
   const [isEnrolled, setIsEnrolled] = useState(false);
 
+  // ✅ САЙЖРУУЛСАН YouTube Video ID функц
+  const getYouTubeVideoId = (url) => {
+    if (!url) return null;
+    
+    try {
+      const urlObj = new URL(url);
+      
+      // youtu.be хэлбэр
+      if (urlObj.hostname === 'youtu.be') {
+        return urlObj.pathname.slice(1).split('?')[0];
+      }
+      
+      // youtube.com хэлбэр
+      if (urlObj.hostname.includes('youtube.com')) {
+        // watch?v= хэлбэр
+        if (urlObj.searchParams.has('v')) {
+          return urlObj.searchParams.get('v');
+        }
+        
+        // embed/ хэлбэр
+        if (urlObj.pathname.includes('/embed/')) {
+          return urlObj.pathname.split('/embed/')[1].split('?')[0];
+        }
+        
+        // /v/ хэлбэр
+        if (urlObj.pathname.includes('/v/')) {
+          return urlObj.pathname.split('/v/')[1].split('?')[0];
+        }
+      }
+      
+      return null;
+    } catch (e) {
+      // URL parse хийж чадахгүй бол regex ашиглана
+      const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[7].length === 11) ? match[7] : null;
+    }
+  };
+
   useEffect(() => {
     fetchCourse();
   }, [courseId]);
@@ -50,20 +89,12 @@ function LessonPlayer() {
     }
   };
 
-  const getYouTubeVideoId = (url) => {
-    if (!url) return null;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-  };
-
   const handleLessonClick = (lesson) => {
     if (!isEnrolled && !lesson.is_free_preview) {
       alert('Энэ хичээлийг үзэхийн тулд эхлээд бүртгүүлнэ үү');
       return;
     }
     setCurrentLesson(lesson);
-    // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -181,7 +212,7 @@ function LessonPlayer() {
                 ></iframe>
               ) : (
                 <div className="video-error">
-                  <p>Видео тоглуулах боломжгүй</p>
+                  <p>Видео тоглуулах боломжгүй. YouTube URL: {currentLesson.video_url || 'хоосон'}</p>
                 </div>
               )}
             </div>
