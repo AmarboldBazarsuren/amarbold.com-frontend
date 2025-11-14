@@ -11,7 +11,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
 import MyStudents from './pages/MyStudents';
 import Layout from './components/Layout';
-
+import LessonPlayer from './pages/LessonPlayer';
 import './App.css';
 
 function App() {
@@ -142,7 +142,14 @@ function App() {
             ) : <Navigate to="/login" />
           }
         />
-
+<Route 
+  path="/course/:courseId/learn" 
+  element={
+    user ? (
+      <LessonPlayer />
+    ) : <Navigate to="/login" />
+  } 
+/>
       </Routes>
     </Router>
   );

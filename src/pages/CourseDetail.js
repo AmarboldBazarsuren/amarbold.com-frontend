@@ -17,7 +17,10 @@ function CourseDetail() {
   const [purchasing, setPurchasing] = useState(false);
   const [instructorProfile, setInstructorProfile] = useState(null);
 
-  // --- Fetch course detail ---
+  // ❌ Эдгээр state-үүдийг УСТГА - Popup хэрэггүй болсон
+  // const [showVideoPlayer, setShowVideoPlayer] = useState(false);
+  // const [currentLesson, setCurrentLesson] = useState(null);
+
   useEffect(() => {
     const fetchCourseDetail = async () => {
       try {
@@ -39,7 +42,6 @@ function CourseDetail() {
     fetchCourseDetail();
   }, [id]);
 
-  // --- Fetch instructor profile ---
   useEffect(() => {
     if (course?.instructor?.id) {
       const getInstructor = async () => {
@@ -83,6 +85,18 @@ function CourseDetail() {
       ...prev,
       [sectionId]: !prev[sectionId]
     }));
+  };
+
+  // ✅ ШИНЭ: Хичээл дарахад шууд LessonPlayer хуудас руу шилжинэ
+  const handleLessonClick = (lesson) => {
+    // Бүртгүүлсэн эсвэл үнэгүй хичээл эсэхийг шалгах
+    if (!isEnrolled && !lesson.is_free_preview) {
+      alert('Энэ хичээлийг үзэхийн тулд эхлээд бүртгүүлнэ үү');
+      return;
+    }
+
+    // ✅ Шууд LessonPlayer хуудас руу шилжинэ
+    navigate(`/course/${id}/learn`);
   };
 
   if (loading) {
@@ -137,13 +151,26 @@ function CourseDetail() {
             </div>
           </div>
 
-          <div className="course-instructor">
-            <div className="instructor-avatar">
-              {course.instructor?.name?.charAt(0) || 'B'}
-            </div>
-            <div>
-              <div className="instructor-label">Багш</div>
-              <div className="instructor-name">{course.instructor?.name || 'Багш нэр'}</div>
+          <div className="course-instructor-card">
+            <div className="instructor-label">Багш</div>
+            <div className="instructor-content">
+              {instructorProfile?.profile_image ? (
+                <img 
+                  src={instructorProfile.profile_image} 
+                  alt={course.instructor?.name}
+                  className="instructor-image"
+                />
+              ) : (
+                <div className="instructor-avatar-large">
+                  {course.instructor?.name?.charAt(0) || 'B'}
+                </div>
+              )}
+              <div className="instructor-info">
+                <div className="instructor-name">{course.instructor?.name || 'Багш нэр'}</div>
+                {instructorProfile?.teaching_categories && (
+                  <div className="instructor-category">{instructorProfile.teaching_categories}</div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -177,10 +204,21 @@ function CourseDetail() {
                 )}
               </button>
             ) : (
-              <button className="btn btn-success btn-full" disabled>
-                <CheckCircle size={20} />
-                Бүртгүүлсэн
-              </button>
+              <>
+                <button className="btn btn-success btn-full" disabled>
+                  <CheckCircle size={20} />
+                  Бүртгүүлсэн
+                </button>
+                {/* ✅ Хичээл үзэх товч */}
+                <button 
+                  className="btn btn-primary btn-full"
+                  onClick={() => navigate(`/course/${id}/learn`)}
+                  style={{ marginTop: '12px' }}
+                >
+                  <PlayCircle size={20} />
+                  Хичээл үзэх
+                </button>
+              </>
             )}
           </div>
           <div className="course-includes">
@@ -195,6 +233,7 @@ function CourseDetail() {
         </div>
       </div>
 
+      {/* ✅ Хичээлийн агуулга - Дарахад LessonPlayer руу шилжинэ */}
       {course.sections?.length > 0 && (
         <div className="course-content-section">
           <h2 className="section-title">Хичээлийн агуулга</h2>
@@ -220,24 +259,32 @@ function CourseDetail() {
                 
                 {expandedSections[section.id || index] && section.lessons?.length > 0 && (
                   <div className="section-lessons">
-                    {section.lessons.map((lesson, lessonIndex) => (
-                      <div 
-                        key={lesson.id || lessonIndex} 
-                        className={`lesson-item ${!isEnrolled && !lesson.is_free_preview ? 'locked' : ''}`}
-                      >
-                        <div className="lesson-info">
-                          {isEnrolled || lesson.is_free_preview ? (
-                            <PlayCircle size={18} />
-                          ) : (
-                            <Lock size={18} />
-                          )}
-                          <span className="lesson-title">{lesson.title}</span>
+                    {section.lessons.map((lesson, lessonIndex) => {
+                      const canPlay = isEnrolled || lesson.is_free_preview;
+                      return (
+                        <div 
+                          key={lesson.id || lessonIndex} 
+                          className={`lesson-item ${!canPlay ? 'locked' : 'playable'}`}
+                          onClick={() => canPlay && handleLessonClick(lesson)}
+                          style={{ cursor: canPlay ? 'pointer' : 'not-allowed' }}
+                        >
+                          <div className="lesson-info">
+                            {canPlay ? (
+                              <PlayCircle size={18} />
+                            ) : (
+                              <Lock size={18} />
+                            )}
+                            <span className="lesson-title">{lesson.title}</span>
+                            {lesson.is_free_preview && (
+                              <span className="free-preview-badge">Үнэгүй</span>
+                            )}
+                          </div>
+                          <span className="lesson-duration">
+                            {Math.floor((lesson.duration || 0) / 60)}:{String((lesson.duration || 0) % 60).padStart(2,'0')}
+                          </span>
                         </div>
-                        <span className="lesson-duration">
-                          {Math.floor((lesson.duration || 0) / 60)}:{String((lesson.duration || 0) % 60).padStart(2,'0')}
-                        </span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -245,6 +292,8 @@ function CourseDetail() {
           </div>
         </div>
       )}
+
+      {/* ❌ VIDEO PLAYER MODAL-г бүтнээр УСТГАХ - Popup хэрэггүй болсон */}
 
       <div className="course-description-section">
         <h2 className="section-title">Хичээлийн тухай</h2>

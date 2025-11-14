@@ -26,6 +26,9 @@ function AdminDashboard() {
     description: '',
     order_number: 0
   });
+  
+  const [editingSection, setEditingSection] = useState(null);
+  
   const [showLessonForm, setShowLessonForm] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
   const [lessonFormData, setLessonFormData] = useState({
@@ -36,6 +39,9 @@ function AdminDashboard() {
     order_number: 0,
     is_free_preview: false
   });
+  
+  const [editingLesson, setEditingLesson] = useState(null);
+  
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     title: '',
@@ -49,7 +55,6 @@ function AdminDashboard() {
     thumbnail: ''
   });
 
-  // ✅ Одоогийн хэрэглэгчийн эрхийг авах
   const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
@@ -73,24 +78,21 @@ function AdminDashboard() {
     }
   };
 
-  // ✅ fetchAllCourses функцийг засах (мөр 62 орчим)
-
-const fetchAllCourses = async () => {
-  try {
-    const token = localStorage.getItem('token');
-    // ✅ Admin courses API ашиглах
-    const response = await axios.get('http://localhost:5000/api/admin/courses', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (response.data.success) {
-      setCourses(response.data.data || []);
+  const fetchAllCourses = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5000/api/admin/courses', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setCourses(response.data.data || []);
+      }
+    } catch (error) {
+      console.error('Хичээлүүд татахад алдаа:', error);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error('Хичээлүүд татахад алдаа:', error);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -106,7 +108,6 @@ const fetchAllCourses = async () => {
       const token = localStorage.getItem('token');
       
       if (editingCourse) {
-        // Update course
         await axios.put(
           `http://localhost:5000/api/admin/courses/${editingCourse.id}`,
           { ...formData, status: 'published' },
@@ -114,7 +115,6 @@ const fetchAllCourses = async () => {
         );
         alert('Хичээл амжилттай шинэчлэгдлээ');
       } else {
-        // Create course
         await axios.post(
           'http://localhost:5000/api/admin/courses',
           formData,
@@ -205,14 +205,52 @@ const fetchAllCourses = async () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post(
-        `http://localhost:5000/api/admin/courses/${selectedCourse.id}/sections`,
-        sectionFormData,
+      
+      if (editingSection) {
+        await axios.put(
+          `http://localhost:5000/api/admin/sections/${editingSection.id}`,
+          sectionFormData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        alert('Section амжилттай шинэчлэгдлээ');
+      } else {
+        await axios.post(
+          `http://localhost:5000/api/admin/courses/${selectedCourse.id}/sections`,
+          sectionFormData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        alert('Section амжилттай нэмэгдлээ');
+      }
+      
+      setSectionFormData({ title: '', description: '', order_number: 0 });
+      setEditingSection(null);
+      setShowSectionForm(false);
+      fetchCourseSections(selectedCourse.id);
+    } catch (error) {
+      alert(error.response?.data?.message || 'Алдаа гарлаа');
+    }
+  };
+
+  const handleEditSection = (section) => {
+    setEditingSection(section);
+    setSectionFormData({
+      title: section.title,
+      description: section.description || '',
+      order_number: section.order_number || 0
+    });
+    setShowSectionForm(true);
+  };
+
+  const handleDeleteSection = async (sectionId) => {
+    if (!window.confirm('Энэ section-ийг устгах уу?')) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(
+        `http://localhost:5000/api/admin/sections/${sectionId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert('Section амжилттай нэмэгдлээ');
-      setSectionFormData({ title: '', description: '', order_number: 0 });
-      setShowSectionForm(false);
+      alert('Section амжилттай устгагдлаа');
       fetchCourseSections(selectedCourse.id);
     } catch (error) {
       alert(error.response?.data?.message || 'Алдаа гарлаа');
@@ -223,12 +261,23 @@ const fetchAllCourses = async () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post(
-        `http://localhost:5000/api/admin/sections/${selectedSection.id}/lessons`,
-        lessonFormData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      alert('Хичээл амжилттай нэмэгдлээ');
+      
+      if (editingLesson) {
+        await axios.put(
+          `http://localhost:5000/api/admin/lessons/${editingLesson.id}`,
+          lessonFormData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        alert('Хичээл амжилттай шинэчлэгдлээ');
+      } else {
+        await axios.post(
+          `http://localhost:5000/api/admin/sections/${selectedSection.id}/lessons`,
+          lessonFormData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        alert('Хичээл амжилттай нэмэгдлээ');
+      }
+      
       setLessonFormData({
         title: '',
         description: '',
@@ -237,7 +286,38 @@ const fetchAllCourses = async () => {
         order_number: 0,
         is_free_preview: false
       });
+      setEditingLesson(null);
       setShowLessonForm(false);
+      fetchCourseSections(selectedCourse.id);
+    } catch (error) {
+      alert(error.response?.data?.message || 'Алдаа гарлаа');
+    }
+  };
+
+  const handleEditLesson = (lesson) => {
+    setEditingLesson(lesson);
+    setLessonFormData({
+      title: lesson.title,
+      description: lesson.description || '',
+      video_url: lesson.video_url || '',
+      duration: lesson.duration || 0,
+      order_number: lesson.order_number || 0,
+      is_free_preview: lesson.is_free_preview || false
+    });
+    setSelectedSection({ id: lesson.section_id });
+    setShowLessonForm(true);
+  };
+
+  const handleDeleteLesson = async (lessonId) => {
+    if (!window.confirm('Энэ хичээлийг устгах уу?')) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(
+        `http://localhost:5000/api/admin/lessons/${lessonId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert('Хичээл амжилттай устгагдлаа');
       fetchCourseSections(selectedCourse.id);
     } catch (error) {
       alert(error.response?.data?.message || 'Алдаа гарлаа');
@@ -248,7 +328,6 @@ const fetchAllCourses = async () => {
     <div className="admin-dashboard">
       <div className="admin-header">
         <h1>Админ самбар</h1>
-        {/* ✅ Test Admin БАС хичээл нэмнэ */}
         <button 
           className="btn btn-primary"
           onClick={() => {
@@ -263,55 +342,52 @@ const fetchAllCourses = async () => {
       </div>
 
       {/* Statistics */}
-      // ✅ Statistics хэсгийг засах (мөр 400 орчим)
+      <div className="stats-grid">
+        {currentUser?.role === 'admin' && (
+          <div className="stat-card">
+            <div className="stat-icon">
+              <Users size={32} />
+            </div>
+            <div className="stat-content">
+              <div className="stat-value">{stats.totalUsers}</div>
+              <div className="stat-label">Нийт хэрэглэгчид</div>
+            </div>
+          </div>
+        )}
+        
+        <div className="stat-card">
+          <div className="stat-icon">
+            <BookOpen size={32} />
+          </div>
+          <div className="stat-content">
+            <div className="stat-value">{stats.totalCourses}</div>
+            <div className="stat-label">
+              {currentUser?.role === 'test_admin' ? 'Миний хичээлүүд' : 'Нийт хичээлүүд'}
+            </div>
+          </div>
+        </div>
+        
+        <div className="stat-card">
+          <div className="stat-icon">
+            <TrendingUp size={32} />
+          </div>
+          <div className="stat-content">
+            <div className="stat-value">{stats.totalEnrollments}</div>
+            <div className="stat-label">Бүртгэлүүд</div>
+          </div>
+        </div>
+        
+        <div className="stat-card">
+          <div className="stat-icon">
+            <DollarSign size={32} />
+          </div>
+          <div className="stat-content">
+            <div className="stat-value">₮{stats.totalRevenue.toLocaleString()}</div>
+            <div className="stat-label">Нийт орлого</div>
+          </div>
+        </div>
+      </div>
 
-{/* Statistics */}
-<div className="stats-grid">
-  {/* ✅ Зөвхөн Super Admin хэрэглэгчдийн тоог харна */}
-  {currentUser?.role === 'admin' && (
-    <div className="stat-card">
-      <div className="stat-icon">
-        <Users size={32} />
-      </div>
-      <div className="stat-content">
-        <div className="stat-value">{stats.totalUsers}</div>
-        <div className="stat-label">Нийт хэрэглэгчид</div>
-      </div>
-    </div>
-  )}
-  
-  <div className="stat-card">
-    <div className="stat-icon">
-      <BookOpen size={32} />
-    </div>
-    <div className="stat-content">
-      <div className="stat-value">{stats.totalCourses}</div>
-      <div className="stat-label">
-        {currentUser?.role === 'test_admin' ? 'Миний хичээлүүд' : 'Нийт хичээлүүд'}
-      </div>
-    </div>
-  </div>
-  
-  <div className="stat-card">
-    <div className="stat-icon">
-      <TrendingUp size={32} />
-    </div>
-    <div className="stat-content">
-      <div className="stat-value">{stats.totalEnrollments}</div>
-      <div className="stat-label">Бүртгэлүүд</div>
-    </div>
-  </div>
-  
-  <div className="stat-card">
-    <div className="stat-icon">
-      <DollarSign size={32} />
-    </div>
-    <div className="stat-content">
-      <div className="stat-value">₮{stats.totalRevenue.toLocaleString()}</div>
-      <div className="stat-label">Нийт орлого</div>
-    </div>
-  </div>
-</div>
       {/* Course Form Modal */}
       {showCourseForm && (
         <div className="modal-overlay" onClick={() => setShowCourseForm(false)}>
@@ -458,7 +534,11 @@ const fetchAllCourses = async () => {
             
             <button 
               className="btn btn-primary mb-3"
-              onClick={() => setShowSectionForm(!showSectionForm)}
+              onClick={() => {
+                setShowSectionForm(!showSectionForm);
+                setEditingSection(null);
+                setSectionFormData({ title: '', description: '', order_number: 0 });
+              }}
             >
               <Plus size={16} />
               Шинэ бүлэг нэмэх
@@ -466,7 +546,7 @@ const fetchAllCourses = async () => {
 
             {showSectionForm && (
               <div className="section-form">
-                <h3>Шинэ бүлэг</h3>
+                <h3>{editingSection ? 'Бүлэг засах' : 'Шинэ бүлэг'}</h3>
                 <form onSubmit={handleAddSection}>
                   <div className="input-group">
                     <label>Бүлгийн нэр *</label>
@@ -493,7 +573,22 @@ const fetchAllCourses = async () => {
                       onChange={(e) => setSectionFormData({...sectionFormData, order_number: parseInt(e.target.value)})}
                     />
                   </div>
-                  <button type="submit" className="btn btn-primary">Нэмэх</button>
+                  <div className="form-actions">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => {
+                        setShowSectionForm(false);
+                        setEditingSection(null);
+                        setSectionFormData({ title: '', description: '', order_number: 0 });
+                      }}
+                    >
+                      Болих
+                    </button>
+                    <button type="submit" className="btn btn-primary">
+                      {editingSection ? 'Шинэчлэх' : 'Нэмэх'}
+                    </button>
+                  </div>
                 </form>
               </div>
             )}
@@ -503,16 +598,41 @@ const fetchAllCourses = async () => {
                 <div key={section.id} className="section-card">
                   <div className="section-header-admin">
                     <h3>{idx + 1}. {section.title}</h3>
-                    <button 
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => {
-                        setSelectedSection(section);
-                        setShowLessonForm(true);
-                      }}
-                    >
-                      <Plus size={14} />
-                      Хичээл нэмэх
-                    </button>
+                    <div className="action-buttons">
+                      <button 
+                        className="btn-icon"
+                        onClick={() => handleEditSection(section)}
+                        title="Засах"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button 
+                        className="btn-icon btn-danger"
+                        onClick={() => handleDeleteSection(section.id)}
+                        title="Устгах"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                      <button 
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => {
+                          setSelectedSection(section);
+                          setEditingLesson(null);
+                          setLessonFormData({
+                            title: '',
+                            description: '',
+                            video_url: '',
+                            duration: 0,
+                            order_number: 0,
+                            is_free_preview: false
+                          });
+                          setShowLessonForm(true);
+                        }}
+                      >
+                        <Plus size={14} />
+                        Хичээл нэмэх
+                      </button>
+                    </div>
                   </div>
 
                   {section.lessons && section.lessons.length > 0 ? (
@@ -523,6 +643,22 @@ const fetchAllCourses = async () => {
                           <div className="lesson-meta-admin">
                             {lesson.is_free_preview && <span className="free-badge-small">Үнэгүй</span>}
                             <span>{Math.floor(lesson.duration / 60)}:{String(lesson.duration % 60).padStart(2, '0')}</span>
+                            <div className="action-buttons">
+                              <button 
+                                className="btn-icon"
+                                onClick={() => handleEditLesson(lesson)}
+                                title="Засах"
+                              >
+                                <Edit size={14} />
+                              </button>
+                              <button 
+                                className="btn-icon btn-danger"
+                                onClick={() => handleDeleteLesson(lesson.id)}
+                                title="Устгах"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -543,11 +679,11 @@ const fetchAllCourses = async () => {
         </div>
       )}
 
-      {/* Add Lesson Modal */}
+      {/* Add/Edit Lesson Modal */}
       {showLessonForm && selectedSection && (
         <div className="modal-overlay" onClick={() => setShowLessonForm(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>Хичээл нэмэх - {selectedSection.title}</h2>
+            <h2>{editingLesson ? 'Хичээл засах' : `Хичээл нэмэх`}</h2>
             <form onSubmit={handleAddLesson}>
               <div className="input-group">
                 <label>Хичээлийн нэр *</label>
@@ -569,14 +705,17 @@ const fetchAllCourses = async () => {
               </div>
 
               <div className="input-group">
-                <label>Видео URL *</label>
+                <label>YouTube Video URL *</label>
                 <input
                   type="text"
                   value={lessonFormData.video_url}
                   onChange={(e) => setLessonFormData({...lessonFormData, video_url: e.target.value})}
-                  placeholder="https://youtube.com/watch?v=..."
+                  placeholder="https://www.youtube.com/watch?v=..."
                   required
                 />
+                <small style={{color: '#808080', fontSize: '12px', marginTop: '4px', display: 'block'}}>
+                  Жишээ: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+                </small>
               </div>
 
               <div className="form-row">
@@ -614,12 +753,23 @@ const fetchAllCourses = async () => {
                 <button 
                   type="button" 
                   className="btn btn-secondary"
-                  onClick={() => setShowLessonForm(false)}
+                  onClick={() => {
+                    setShowLessonForm(false);
+                    setEditingLesson(null);
+                    setLessonFormData({
+                      title: '',
+                      description: '',
+                      video_url: '',
+                      duration: 0,
+                      order_number: 0,
+                      is_free_preview: false
+                    });
+                  }}
                 >
                   Болих
                 </button>
                 <button type="submit" className="btn btn-primary">
-                  Нэмэх
+                  {editingLesson ? 'Шинэчлэх' : 'Нэмэх'}
                 </button>
               </div>
             </form>
@@ -628,93 +778,91 @@ const fetchAllCourses = async () => {
       )}
 
       {/* Courses Table */}
-      {/* Courses Table */}
-<div className="courses-section">
-  <h2>
-    {currentUser?.role === 'test_admin' 
-      ? `Миний хичээлүүд (${courses.length})` 
-      : `Бүх хичээлүүд (${courses.length})`}
-  </h2>
-  {loading ? (
-    <div className="loading">Уншиж байна...</div>
-  ) : courses.length === 0 ? (
-    <div className="empty-state">
-      <BookOpen size={64} />
-      <p>
-        {currentUser?.role === 'test_admin' 
-          ? 'Та одоогоор хичээл нэмээгүй байна' 
-          : 'Хичээл байхгүй байна'}
-      </p>
-    </div>
-  ) : (
-    <div className="courses-table">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Нэр</th>
-            <th>Ангилал</th>
-            <th>Үнэ</th>
-            <th>Суралцагчид</th>
-            <th>Үйлдэл</th>
-          </tr>
-        </thead>
-        <tbody>
-          {courses.map(course => (
-            <tr key={course.id}>
-              <td>{course.id}</td>
-              <td>{course.title}</td>
-              <td>{course.category}</td>
-              <td>
-                {course.is_free ? (
-                  <span className="badge-free">Үнэгүй</span>
-                ) : (
-                  `₮${course.price.toLocaleString()}`
-                )}
-              </td>
-              <td>{course.students || 0}</td>
-        <td>
-  <div className="action-buttons">
-    <button 
-      className="btn-icon"
-      onClick={() => handleManageCourse(course)}
-      title="Агуулга удирдах"
-    >
-      <BookOpen size={16} />
-    </button>
-    <button 
-      className="btn-icon"
-      onClick={() => window.open(`/course/${course.id}`, '_blank')}
-      title="Үзэх"
-    >
-      <Eye size={16} />
-    </button>
-    <button 
-      className="btn-icon"
-      onClick={() => handleEdit(course)}
-      title="Засах"
-    >
-      <Edit size={16} />
-    </button>
-    {/* ✅ Зөвхөн Super Admin л устгана */}
-    {currentUser?.role === 'admin' && (
-      <button 
-        className="btn-icon btn-danger"
-        onClick={() => handleDelete(course.id)}
-        title="Устгах"
-      >
-        <Trash2 size={16} />
-      </button>
-    )}
-  </div>
-</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )}
-</div>
+      <div className="courses-section">
+        <h2>
+          {currentUser?.role === 'test_admin' 
+            ? `Миний хичээлүүд (${courses.length})` 
+            : `Бүх хичээлүүд (${courses.length})`}
+        </h2>
+        {loading ? (
+          <div className="loading">Уншиж байна...</div>
+        ) : courses.length === 0 ? (
+          <div className="empty-state">
+            <BookOpen size={64} />
+            <p>
+              {currentUser?.role === 'test_admin' 
+                ? 'Та одоогоор хичээл нэмээгүй байна' 
+                : 'Хичээл байхгүй байна'}
+            </p>
+          </div>
+        ) : (
+          <div className="courses-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Нэр</th>
+                  <th>Ангилал</th>
+                  <th>Үнэ</th>
+                  <th>Суралцагчид</th>
+                  <th>Үйлдэл</th>
+                </tr>
+              </thead>
+              <tbody>
+                {courses.map(course => (
+                  <tr key={course.id}>
+                    <td>{course.id}</td>
+                    <td>{course.title}</td>
+                    <td>{course.category}</td>
+                    <td>
+                      {course.is_free ? (
+                        <span className="badge-free">Үнэгүй</span>
+                      ) : (
+                        `₮${course.price.toLocaleString()}`
+                      )}
+                    </td>
+                    <td>{course.students || 0}</td>
+                    <td>
+                      <div className="action-buttons">
+                        <button 
+                          className="btn-icon"
+                          onClick={() => handleManageCourse(course)}
+                          title="Агуулга удирдах"
+                        >
+                          <BookOpen size={16} />
+                        </button>
+                        <button 
+                          className="btn-icon"
+                          onClick={() => window.open(`/course/${course.id}`, '_blank')}
+                          title="Үзэх"
+                        >
+                          <Eye size={16} />
+                        </button>
+                        <button 
+                          className="btn-icon"
+                          onClick={() => handleEdit(course)}
+                          title="Засах"
+                        >
+                          <Edit size={16} />
+                        </button>
+                        {currentUser?.role === 'admin' && (
+                          <button 
+                            className="btn-icon btn-danger"
+                            onClick={() => handleDelete(course.id)}
+                            title="Устгах"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
