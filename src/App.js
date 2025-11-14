@@ -7,7 +7,11 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import MyCourses from './pages/MyCourses';
 import CourseDetail from './pages/CourseDetail';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminUsers from './pages/AdminUsers';
+import MyStudents from './pages/MyStudents';
 import Layout from './components/Layout';
+
 import './App.css';
 
 function App() {
@@ -15,7 +19,6 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // LocalStorage-оос хэрэглэгчийн мэдээллийг унших
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -45,10 +48,11 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Нүүр хуудас */}
+
+        {/* Home */}
         <Route path="/" element={<Home user={user} />} />
-        
-        {/* Login/Register */}
+
+        {/* Login / Register */}
         <Route 
           path="/login" 
           element={user ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />} 
@@ -58,7 +62,7 @@ function App() {
           element={user ? <Navigate to="/dashboard" /> : <Register onLogin={handleLogin} />} 
         />
 
-        {/* Хамгаалагдсан хуудсууд */}
+        {/* Protected routes */}
         <Route 
           path="/dashboard" 
           element={
@@ -66,11 +70,10 @@ function App() {
               <Layout user={user} onLogout={handleLogout}>
                 <Dashboard />
               </Layout>
-            ) : (
-              <Navigate to="/login" />
-            )
+            ) : <Navigate to="/login" />
           } 
         />
+
         <Route 
           path="/profile" 
           element={
@@ -78,11 +81,10 @@ function App() {
               <Layout user={user} onLogout={handleLogout}>
                 <Profile user={user} />
               </Layout>
-            ) : (
-              <Navigate to="/login" />
-            )
+            ) : <Navigate to="/login" />
           } 
         />
+
         <Route 
           path="/my-courses" 
           element={
@@ -90,11 +92,10 @@ function App() {
               <Layout user={user} onLogout={handleLogout}>
                 <MyCourses />
               </Layout>
-            ) : (
-              <Navigate to="/login" />
-            )
+            ) : <Navigate to="/login" />
           } 
         />
+
         <Route 
           path="/course/:id" 
           element={
@@ -102,11 +103,45 @@ function App() {
               <Layout user={user} onLogout={handleLogout}>
                 <CourseDetail />
               </Layout>
-            ) : (
-              <Navigate to="/login" />
-            )
+            ) : <Navigate to="/login" />
           } 
         />
+
+        {/* 🆕 My Students route — АЛДАА АРИЛНА */}
+        <Route 
+          path="/my-students"
+          element={
+            user ? (
+              <Layout user={user} onLogout={handleLogout}>
+                <MyStudents />
+              </Layout>
+            ) : <Navigate to="/login" />
+          }
+        />
+
+        {/* Admin routes */}
+        <Route 
+          path="/admin" 
+          element={
+            user && user.role === 'admin' ? (
+              <Layout user={user} onLogout={handleLogout}>
+                <AdminDashboard />
+              </Layout>
+            ) : <Navigate to="/login" />
+          }
+        />
+
+        <Route 
+          path="/admin/users" 
+          element={
+            user && user.role === 'admin' ? (
+              <Layout user={user} onLogout={handleLogout}>
+                <AdminUsers />
+              </Layout>
+            ) : <Navigate to="/login" />
+          }
+        />
+
       </Routes>
     </Router>
   );

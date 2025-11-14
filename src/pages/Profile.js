@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { User, Mail, Lock, Shield, Save, Edit2, Award } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Mail, Lock, Shield, Save, Edit2, Award, BookOpen, Camera, Image } from 'lucide-react';
 import axios from 'axios';
 import './Profile.css';
 
+
 function Profile({ user }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingInstructor, setIsEditingInstructor] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -12,9 +14,42 @@ function Profile({ user }) {
     newPassword: '',
     confirmPassword: ''
   });
+  const [instructorData, setInstructorData] = useState({
+    bio: '',
+    teaching_categories: '',
+    profile_image: '',
+    profile_banner: ''
+  });
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user?.role === 'test_admin' || user?.role === 'admin') {
+      fetchInstructorProfile();
+    }
+  }, [user]);
+
+  const fetchInstructorProfile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5000/api/auth/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data.success && response.data.user) {
+        const userData = response.data.user;
+        setInstructorData({
+          bio: userData.bio || '',
+          teaching_categories: userData.teaching_categories || '',
+          profile_image: userData.profile_image || '',
+          profile_banner: userData.profile_banner || ''
+        });
+      }
+    } catch (error) {
+      console.error('Профайл татахад алдаа:', error);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -96,6 +131,29 @@ function Profile({ user }) {
       });
     } catch (err) {
       setError(err.response?.data?.message || 'Нууц үг солихоор алдаа гарлаа');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateInstructorProfile = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        'http://localhost:5000/api/users/instructor-profile',
+        instructorData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setSuccess('Багшийн профайл амжилттай шинэчлэгдлээ');
+      setIsEditingInstructor(false);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Профайл шинэчлэхэд алдаа гарлаа');
     } finally {
       setLoading(false);
     }
@@ -326,6 +384,122 @@ function Profile({ user }) {
             </button>
           </form>
         </div>
+
+        {/* Багшийн танилцуулга - Test Admin болон Admin */}
+        {(user?.role === 'test_admin' || user?.role === 'admin') && (
+          <div className="profile-card">
+            <div className="card-header">
+              <h3>Багшийн танилцуулга</h3>
+              {!isEditingInstructor && (
+                <button 
+                  className="btn-edit"
+                  onClick={() => setIsEditingInstructor(true)}
+                >
+                  <Edit2 size={16} />
+                  Засах
+                </button>
+              )}
+            </div>
+
+            <form onSubmit={handleUpdateInstructorProfile}>
+              <div className="input-group">
+                <label htmlFor="bio">
+                  <User size={16} />
+                  Миний тухай
+                </label>
+                <textarea
+                  id="bio"
+                  name="bio"
+                  value={instructorData.bio}
+                  onChange={(e) => setInstructorData({...instructorData, bio: e.target.value})}
+                  disabled={!isEditingInstructor}
+                  rows="5"
+                  placeholder="Өөрийнхөө тухай бичнэ үү..."
+                />
+              </div>
+
+              <div className="input-group">
+                <label htmlFor="teaching_categories">
+                  <BookOpen size={16} />
+                  Заадаг хичээлийн төрөл
+                </label>
+                <input
+                  type="text"
+                  id="teaching_categories"
+                  name="teaching_categories"
+                  value={instructorData.teaching_categories}
+                  onChange={(e) => setInstructorData({...instructorData, teaching_categories: e.target.value})}
+                  disabled={!isEditingInstructor}
+                  placeholder="Жишээ: Програмчлал, Веб хөгжүүлэлт, React"
+                />
+              </div>
+
+              <div className="input-group">
+                <label htmlFor="profile_image">
+                  <Camera size={16} />
+                  Профайл зургийн URL
+                </label>
+                <input
+                  type="text"
+                  id="profile_image"
+                  name="profile_image"
+                  value={instructorData.profile_image}
+                  onChange={(e) => setInstructorData({...instructorData, profile_image: e.target.value})}
+                  disabled={!isEditingInstructor}
+                  placeholder="https://example.com/profile.jpg"
+                />
+              </div>
+
+              <div className="input-group">
+                <label htmlFor="profile_banner">
+                  <Image size={16} />
+                  Баннер зургийн URL
+                </label>
+                <input
+                  type="text"
+                  id="profile_banner"
+                  name="profile_banner"
+                  value={instructorData.profile_banner}
+                  onChange={(e) => setInstructorData({...instructorData, profile_banner: e.target.value})}
+                  disabled={!isEditingInstructor}
+                  placeholder="https://example.com/banner.jpg"
+                />
+              </div>
+
+              {isEditingInstructor && (
+                <div className="form-actions">
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      setIsEditingInstructor(false);
+                      fetchInstructorProfile();
+                    }}
+                  >
+                    Цуцлах
+                  </button>
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <div className="spinner"></div>
+                        Хадгалж байна...
+                      </>
+                    ) : (
+                      <>
+                        <Save size={18} />
+                        Хадгалах
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );

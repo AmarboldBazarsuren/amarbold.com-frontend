@@ -23,6 +23,14 @@ function Layout({ children, user, onLogout }) {
       label: 'Админ самбар',
       adminOnly: true 
     });
+    
+    // Test Admin эсвэл Admin - Миний суралцагчид
+    navItems.push({ 
+      path: '/my-students', 
+      icon: Users, 
+      label: 'Миний суралцагчид',
+      adminOnly: true 
+    });
   }
 
   // Зөвхөн admin эрхтэй бол Users удирдлага нэмэх

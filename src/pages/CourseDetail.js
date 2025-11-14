@@ -15,28 +15,50 @@ function CourseDetail() {
   const [expandedSections, setExpandedSections] = useState({});
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
+  const [instructorProfile, setInstructorProfile] = useState(null);
 
+  // --- Fetch course detail ---
   useEffect(() => {
+    const fetchCourseDetail = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`http://localhost:5000/api/courses/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.data.success) {
+          setCourse(response.data.course);
+          setIsEnrolled(response.data.isEnrolled);
+        }
+      } catch (error) {
+        console.error('Хичээлийн мэдээлэл татахад алдаа гарлаа:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchCourseDetail();
   }, [id]);
 
-  const fetchCourseDetail = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/api/courses/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      if (response.data.success) {
-        setCourse(response.data.course);
-        setIsEnrolled(response.data.isEnrolled);
-      }
-    } catch (error) {
-      console.error('Хичээлийн мэдээлэл татахад алдаа гарлаа:', error);
-    } finally {
-      setLoading(false);
+  // --- Fetch instructor profile ---
+  useEffect(() => {
+    if (course?.instructor?.id) {
+      const getInstructor = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.get(
+            `http://localhost:5000/api/users/instructor/${course.instructor.id}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          if (response.data.success) {
+            setInstructorProfile(response.data.instructor);
+          }
+        } catch (error) {
+          console.error('Багшийн мэдээлэл татахад алдаа:', error);
+        }
+      };
+      getInstructor();
     }
-  };
+  }, [course]);
 
   const handleEnroll = async () => {
     setPurchasing(true);
@@ -173,7 +195,7 @@ function CourseDetail() {
         </div>
       </div>
 
-      {course.sections && course.sections.length > 0 && (
+      {course.sections?.length > 0 && (
         <div className="course-content-section">
           <h2 className="section-title">Хичээлийн агуулга</h2>
           <div className="course-curriculum">
@@ -196,7 +218,7 @@ function CourseDetail() {
                   )}
                 </div>
                 
-                {expandedSections[section.id || index] && section.lessons && (
+                {expandedSections[section.id || index] && section.lessons?.length > 0 && (
                   <div className="section-lessons">
                     {section.lessons.map((lesson, lessonIndex) => (
                       <div 
@@ -212,7 +234,7 @@ function CourseDetail() {
                           <span className="lesson-title">{lesson.title}</span>
                         </div>
                         <span className="lesson-duration">
-                          {Math.floor(lesson.duration / 60)}:{String(lesson.duration % 60).padStart(2, '0')}
+                          {Math.floor((lesson.duration || 0) / 60)}:{String((lesson.duration || 0) % 60).padStart(2,'0')}
                         </span>
                       </div>
                     ))}
@@ -230,8 +252,56 @@ function CourseDetail() {
           <p>{course.fullDescription || course.full_description || course.description}</p>
         </div>
       </div>
+
+      {instructorProfile && instructorProfile.bio && (
+        <div className="instructor-profile-section">
+          <h2 className="section-title">Багшийн тухай</h2>
+          <div className="instructor-profile-card">
+            {instructorProfile.profile_banner && (
+              <div className="instructor-banner">
+                <img src={instructorProfile.profile_banner} alt="Banner" />
+              </div>
+            )}
+            <div className="instructor-profile-content">
+              <div className="instructor-profile-left">
+                {instructorProfile.profile_image ? (
+                  <img 
+                    src={instructorProfile.profile_image} 
+                    alt={instructorProfile.name}
+                    className="instructor-profile-image"
+                  />
+                ) : (
+                  <div className="instructor-profile-avatar">
+                    {instructorProfile.name?.charAt(0) || 'B'}
+                  </div>
+                )}
+                <div className="instructor-profile-info">
+                  <h3>{instructorProfile.name}</h3>
+                  {instructorProfile.teaching_categories && (
+                    <p className="teaching-cats">{instructorProfile.teaching_categories}</p>
+                  )}
+                  <div className="instructor-stats-small">
+                    <div className="stat-item-small">
+                      <BookOpen size={16} />
+                      <span>{instructorProfile.total_courses || 0} хичээл</span>
+                    </div>
+                    <div className="stat-item-small">
+                      <Users size={16} />
+                      <span>{instructorProfile.total_students || 0} суралцагч</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="instructor-bio">
+                <h4>Танилцуулга</h4>
+                <p>{instructorProfile.bio}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-export default CourseDetail; 
+export default CourseDetail;

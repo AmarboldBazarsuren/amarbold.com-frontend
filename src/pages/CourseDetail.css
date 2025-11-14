@@ -340,6 +340,112 @@
   color: #b0b0b0;
 }
 
+/* Багшийн танилцуулга */
+.instructor-profile-section {
+  margin-top: 60px;
+}
+
+.instructor-profile-card {
+  background: rgba(26, 26, 26, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.instructor-banner {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+}
+
+.instructor-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.instructor-profile-content {
+  padding: 32px;
+}
+
+.instructor-profile-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.instructor-profile-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid rgba(0, 212, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.instructor-profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: 800;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.instructor-profile-info h3 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.teaching-cats {
+  font-size: 14px;
+  color: #00d4ff;
+  margin-bottom: 16px;
+}
+
+.instructor-stats-small {
+  display: flex;
+  gap: 24px;
+}
+
+.stat-item-small {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #b0b0b0;
+}
+
+.stat-item-small svg {
+  color: #00d4ff;
+}
+
+.instructor-bio h4 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.instructor-bio p {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #b0b0b0;
+  white-space: pre-wrap;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .course-hero {

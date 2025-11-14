@@ -1,0 +1,207 @@
+.mystudents {
+  animation: fadeIn 0.5s ease;
+}
+
+.mystudents-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 20px;
+}
+
+.mystudents-loading p {
+  color: #808080;
+  font-size: 16px;
+}
+
+.mystudents-header {
+  margin-bottom: 40px;
+}
+
+.mystudents-header h1 {
+  font-size: 42px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.mystudents-header p {
+  font-size: 18px;
+  color: #808080;
+}
+
+.mystudents-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.stat-card {
+  background: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 28px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
+}
+
+.stat-icon {
+  width: 64px;
+  height: 64px;
+  background: rgba(0, 212, 255, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00d4ff;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #808080;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 20px;
+  text-align: center;
+  background: rgba(26, 26, 26, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+}
+
+.empty-state svg {
+  color: #333;
+  margin-bottom: 24px;
+}
+
+.empty-state h3 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.empty-state p {
+  font-size: 16px;
+  color: #808080;
+}
+
+.students-table {
+  background: rgba(26, 26, 26, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.students-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.students-table thead {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.students-table th {
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  color: #b0b0b0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.students-table td {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.students-table tbody tr {
+  transition: background 0.3s ease;
+}
+
+.students-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.email-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #b0b0b0;
+}
+
+.email-cell svg {
+  color: #00d4ff;
+}
+
+.course-badge {
+  padding: 4px 12px;
+  background: rgba(0, 212, 255, 0.15);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 6px;
+  color: #00d4ff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.date-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #808080;
+}
+
+.date-cell svg {
+  color: #00d4ff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mystudents-header h1 {
+    font-size: 32px;
+  }
+
+  .mystudents-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .students-table {
+    overflow-x: auto;
+  }
+
+  .students-table table {
+    min-width: 600px;
+  }
+}
