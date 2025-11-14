@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, Users, Award, TrendingUp, ArrowRight, Sparkles } from 'lucide-react';
-import './Home.css';
+import '../styles/Home.css';
 
 function Home({ user }) {
   return (

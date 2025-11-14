@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Lock, Shield, Save, Edit2, Award, BookOpen, Camera, Image } from 'lucide-react';
 import axios from 'axios';
-import './Profile.css';
+import '../styles/Profile.css';
 
 
 function Profile({ user }) {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, BookOpen, Calendar, Mail } from 'lucide-react';
 import axios from 'axios';
-import './MyStudents.css';
+import '../styles/MyStudents.css';
 
 function MyStudents() {
   const [students, setStudents] = useState([]);

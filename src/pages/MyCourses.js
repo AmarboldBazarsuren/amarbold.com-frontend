@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Clock, CheckCircle, PlayCircle, TrendingUp } from 'lucide-react';
 import axios from 'axios';
-import './MyCourses.css';
+import '../styles/MyCourses.css';
 
 function MyCourses() {
   const [enrolledCourses, setEnrolledCourses] = useState([]);

@@ -5,7 +5,7 @@ import {
   ChevronDown, ChevronUp, Users, Award, ArrowLeft 
 } from 'lucide-react';
 import axios from 'axios';
-import './CourseDetail.css';
+import '../styles/CourseDetail.css';
 
 function CourseDetail() {
   const { id } = useParams();

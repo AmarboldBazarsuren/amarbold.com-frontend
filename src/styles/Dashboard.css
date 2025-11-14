@@ -394,3 +394,180 @@
     grid-template-columns: 1fr;
   }
 }
+/* ==================== TAB BUTTONS ==================== */
+.dashboard-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  background: rgba(26, 26, 26, 0.6);
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: #808080;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.tab-btn.active {
+  background: rgba(0, 212, 255, 0.15);
+  border-color: rgba(0, 212, 255, 0.4);
+  color: #00d4ff;
+}
+
+/* ==================== INSTRUCTORS GRID ==================== */
+.instructors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 28px;
+}
+
+.instructor-card {
+  background: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  cursor: pointer;
+}
+
+.instructor-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 16px 48px rgba(0, 212, 255, 0.2);
+}
+
+.instructor-banner {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+}
+
+.instructor-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.instructor-card:hover .instructor-banner img {
+  transform: scale(1.1);
+}
+
+.banner-gradient {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+  opacity: 0.3;
+}
+
+.instructor-content {
+  padding: 0 24px 24px;
+  text-align: center;
+  position: relative;
+}
+
+.instructor-avatar-large {
+  width: 100px;
+  height: 100px;
+  margin: -50px auto 16px;
+  border-radius: 50%;
+  border: 4px solid rgba(26, 26, 26, 0.95);
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.instructor-avatar-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.instructor-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.instructor-category {
+  font-size: 14px;
+  color: #00d4ff;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.instructor-bio {
+  font-size: 14px;
+  color: #b0b0b0;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.instructor-stats {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.instructor-stats .stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #b0b0b0;
+}
+
+.instructor-stats .stat-item svg {
+  color: #00d4ff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-tabs {
+    flex-direction: column;
+  }
+
+  .instructors-grid {
+    grid-template-columns: 1fr;
+  }
+}

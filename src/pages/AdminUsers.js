@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Users, Search, Filter, UserPlus } from 'lucide-react';
 import axios from 'axios';
-import './AdminUsers.css';
+import '../styles/AdminUsers.css';
 
 function AdminUsers() {
   const [users, setUsers] = useState([]);

@@ -4,8 +4,7 @@ import {
   Plus, Edit, Trash2, Eye 
 } from 'lucide-react';
 import axios from 'axios';
-import './AdminDashboard.css';
-
+import '../styles/AdminDashboard.css';
 function AdminDashboard() {
   const [stats, setStats] = useState({
     totalUsers: 0,
