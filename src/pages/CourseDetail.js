@@ -16,7 +16,6 @@ function CourseDetail() {
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
   const [instructorProfile, setInstructorProfile] = useState(null);
-
   // ✅ САЙЖРУУЛСАН YouTube Video ID функц
   const getYouTubeVideoId = (url) => {
     if (!url) return null;

@@ -571,3 +571,38 @@
     grid-template-columns: 1fr;
   }
 }
+/* ==================== ХЯМДРАЛЫН STYLES ==================== */
+
+/* Хямдралын badge зургийн дээр */
+.discount-badge-card {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px 12px;
+  background: rgba(255, 193, 7, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}
+
+/* Үнийн хэсэг хямдралтай */
+.price-with-discount {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.original-price {
+  font-size: 16px;
+  color: #808080;
+  text-decoration: line-through;
+}
+
+.discount-price {
+  font-size: 24px;
+  font-weight: 800;
+  color: #34c759;
+}
