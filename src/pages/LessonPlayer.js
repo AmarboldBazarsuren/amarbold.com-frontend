@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, PlayCircle, CheckCircle, Lock, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, PlayCircle, CheckCircle, Lock, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import axios from 'axios';
 import '../styles/LessonPlayer.css';
 
@@ -12,32 +12,28 @@ function LessonPlayer() {
   const [expandedSections, setExpandedSections] = useState({});
   const [loading, setLoading] = useState(true);
   const [isEnrolled, setIsEnrolled] = useState(false);
+  const [completedLessons, setCompletedLessons] = useState(new Set());
+  const [courseProgress, setCourseProgress] = useState(0);
 
-  // ✅ САЙЖРУУЛСАН YouTube Video ID функц
   const getYouTubeVideoId = (url) => {
     if (!url) return null;
     
     try {
       const urlObj = new URL(url);
       
-      // youtu.be хэлбэр
       if (urlObj.hostname === 'youtu.be') {
         return urlObj.pathname.slice(1).split('?')[0];
       }
       
-      // youtube.com хэлбэр
       if (urlObj.hostname.includes('youtube.com')) {
-        // watch?v= хэлбэр
         if (urlObj.searchParams.has('v')) {
           return urlObj.searchParams.get('v');
         }
         
-        // embed/ хэлбэр
         if (urlObj.pathname.includes('/embed/')) {
           return urlObj.pathname.split('/embed/')[1].split('?')[0];
         }
         
-        // /v/ хэлбэр
         if (urlObj.pathname.includes('/v/')) {
           return urlObj.pathname.split('/v/')[1].split('?')[0];
         }
@@ -45,7 +41,6 @@ function LessonPlayer() {
       
       return null;
     } catch (e) {
-      // URL parse хийж чадахгүй бол regex ашиглана
       const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
       const match = url.match(regExp);
       return (match && match[7].length === 11) ? match[7] : null;
@@ -67,25 +62,90 @@ function LessonPlayer() {
         setCourse(response.data.course);
         setIsEnrolled(response.data.isEnrolled);
         
-        // Бүх section-г задлах
         const expanded = {};
         response.data.course.sections?.forEach(section => {
           expanded[section.id] = true;
         });
         setExpandedSections(expanded);
         
-        // Эхний хичээлийг сонгох
         if (response.data.course.sections?.[0]?.lessons?.[0]) {
           const firstLesson = response.data.course.sections[0].lessons[0];
           if (response.data.isEnrolled || firstLesson.is_free_preview) {
             setCurrentLesson(firstLesson);
           }
         }
+
+        // ✅ Прогресс татах
+        if (response.data.isEnrolled) {
+          await fetchProgress();
+        }
       }
     } catch (error) {
       console.error('Хичээл татахад алдаа:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ✅ Прогресс татах функц
+  const fetchProgress = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `http://localhost:5000/api/lessons/${courseId}/progress`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data.success) {
+        const completed = new Set(
+          response.data.data.lessons
+            .filter(l => l.is_completed)
+            .map(l => l.id)
+        );
+        setCompletedLessons(completed);
+        setCourseProgress(response.data.data.progress);
+      }
+    } catch (error) {
+      console.error('Прогресс татахад алдаа:', error);
+    }
+  };
+
+  // ✅ Хичээл complete/uncomplete хийх
+  const toggleLessonComplete = async (lessonId, e) => {
+    e.stopPropagation();
+    
+    try {
+      const token = localStorage.getItem('token');
+      const isCompleted = completedLessons.has(lessonId);
+
+      if (isCompleted) {
+        // Uncomplete
+        await axios.delete(
+          `http://localhost:5000/api/lessons/${lessonId}/complete`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        const newCompleted = new Set(completedLessons);
+        newCompleted.delete(lessonId);
+        setCompletedLessons(newCompleted);
+      } else {
+        // Complete
+        const response = await axios.post(
+          `http://localhost:5000/api/lessons/${lessonId}/complete`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (response.data.success) {
+          const newCompleted = new Set(completedLessons);
+          newCompleted.add(lessonId);
+          setCompletedLessons(newCompleted);
+          setCourseProgress(response.data.data.progress);
+        }
+      }
+    } catch (error) {
+      console.error('Хичээл тэмдэглэхэд алдаа:', error);
+      alert(error.response?.data?.message || 'Алдаа гарлаа');
     }
   };
 
@@ -135,7 +195,15 @@ function LessonPlayer() {
           </button>
           <div className="course-title-sidebar">
             <h2>{course.title}</h2>
-            <p>{course.sections?.reduce((acc, s) => acc + (s.lessons?.length || 0), 0)} хичээл</p>
+            <div className="course-progress-sidebar">
+              <span>{courseProgress}% дууссан</span>
+              <div className="progress-bar-mini">
+                <div 
+                  className="progress-fill-mini" 
+                  style={{ width: `${courseProgress}%` }}
+                ></div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -162,11 +230,12 @@ function LessonPlayer() {
                   {section.lessons?.map((lesson, lessonIdx) => {
                     const canPlay = isEnrolled || lesson.is_free_preview;
                     const isActive = currentLesson?.id === lesson.id;
+                    const isCompleted = completedLessons.has(lesson.id);
                     
                     return (
                       <div
                         key={lesson.id}
-                        className={`lesson-item-sidebar ${!canPlay ? 'locked' : ''} ${isActive ? 'active' : ''}`}
+                        className={`lesson-item-sidebar ${!canPlay ? 'locked' : ''} ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}
                         onClick={() => canPlay && handleLessonClick(lesson)}
                       >
                         <div className="lesson-icon-sidebar">
@@ -185,6 +254,17 @@ function LessonPlayer() {
                             <span>{Math.floor(lesson.duration / 60)}:{String(lesson.duration % 60).padStart(2, '0')}</span>
                           </div>
                         </div>
+                        
+                        {/* ✅ CHECK MARK BUTTON */}
+                        {isEnrolled && canPlay && (
+                          <button
+                            className={`check-btn ${isCompleted ? 'checked' : ''}`}
+                            onClick={(e) => toggleLessonComplete(lesson.id, e)}
+                            title={isCompleted ? 'Үзээгүй болгох' : 'Үзсэн гэж тэмдэглэх'}
+                          >
+                            <Check size={18} />
+                          </button>
+                        )}
                       </div>
                     );
                   })}
@@ -218,7 +298,21 @@ function LessonPlayer() {
             </div>
 
             <div className="lesson-details">
-              <h1 className="lesson-title-main">{currentLesson.title}</h1>
+              <div className="lesson-header-main">
+                <h1 className="lesson-title-main">{currentLesson.title}</h1>
+                
+                {/* ✅ COMPLETE BUTTON - Видео дээр */}
+                {isEnrolled && (
+                  <button
+                    className={`btn-complete-lesson ${completedLessons.has(currentLesson.id) ? 'completed' : ''}`}
+                    onClick={(e) => toggleLessonComplete(currentLesson.id, e)}
+                  >
+                    <CheckCircle size={20} />
+                    {completedLessons.has(currentLesson.id) ? 'Дууссан' : 'Дуусгах'}
+                  </button>
+                )}
+              </div>
+              
               {currentLesson.description && (
                 <div className="lesson-description-main">
                   <h3>Хичээлийн тухай</h3>

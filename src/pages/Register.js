@@ -74,7 +74,7 @@ function Register({ onLogin }) {
         <div className="auth-card">
           <div className="auth-header">
             <Link to="/" className="auth-logo">
-              <span className="logo-text">AmarBold</span>
+              <span className="logo-text">Eduvia</span>
               <span className="logo-badge">.mn</span>
             </Link>
             <h1>Бүртгэл үүсгэх</h1>

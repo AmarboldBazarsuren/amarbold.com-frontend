@@ -198,7 +198,7 @@ function Profile({ user }) {
               {user?.role === 'test_admin' && (
                 <div className="role-badge admin">
                   <Shield size={14} />
-                  Test Admin
+                  БАГШ
                 </div>
               )}
               {user?.role === 'user' && (

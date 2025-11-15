@@ -80,7 +80,7 @@ function Home({ user }) {
       <section className="features">
         <div className="container">
           <div className="section-header">
-            <h2 className="section-title">Яагаад AmarBold.mn вэ?</h2>
+            <h2 className="section-title">Яагаад Eduvia.mn вэ?</h2>
             <p className="section-subtitle">
               Бид Монголын хамгийн чанартай онлайн сургалтыг хүргэж байна
             </p>
@@ -137,7 +137,7 @@ function Home({ user }) {
             <div className="cta-content">
               <h2>Өнөөдөр эхлээрэй</h2>
               <p>
-                Мянга мянган хүн аль хэдийн AmarBold.mn дээр суралцаж байна.
+                Мянга мянган хүн аль хэдийн Eduvia.mn дээр суралцаж байна.
                 Та ч бидэнтэй нэгдээрэй!
               </p>
               {!user && (

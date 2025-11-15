@@ -49,7 +49,7 @@ function Layout({ children, user, onLogout }) {
       <nav className="navbar">
         <div className="navbar-container">
           <Link to="/dashboard" className="navbar-logo">
-            <span className="logo-text">AmarBold</span>
+            <span className="logo-text">Eduvia</span>
             <span className="logo-badge">.mn</span>
           </Link>
 
@@ -81,7 +81,7 @@ function Layout({ children, user, onLogout }) {
                   <span className="user-role super-admin-badge">Super Admin</span>
                 )}
                 {user?.role === 'test_admin' && (
-                  <span className="user-role admin-badge">Test Admin</span>
+                  <span className="user-role admin-badge">Багш</span>
                 )}
                 {user?.role === 'user' && (
                   <span className="user-role">Хэрэглэгч</span>
@@ -140,7 +140,7 @@ function Layout({ children, user, onLogout }) {
       {/* Footer */}
       <footer className="footer">
         <div className="footer-container">
-          <p>&copy; 2024 AmarBold.mn - Бүх эрх хуулиар хамгаалагдсан</p>
+          <p>&copy; 2024 Eduvia.mn - Бүх эрх хуулиар хамгаалагдсан</p>
           <div className="footer-links">
             <a href="/terms">Үйлчилгээний нөхцөл</a>
             <a href="/privacy">Нууцлалын бодлого</a>

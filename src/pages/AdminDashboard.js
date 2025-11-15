@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import '../styles/AdminDashboard.css';
+import { Tag, Calendar, Percent } from 'lucide-react';
 function AdminDashboard() {
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -53,6 +54,14 @@ function AdminDashboard() {
     level: 'beginner',
     thumbnail: ''
   });
+const [showDiscountModal, setShowDiscountModal] = useState(false);
+const [selectedCourseForDiscount, setSelectedCourseForDiscount] = useState(null);
+const [discountFormData, setDiscountFormData] = useState({
+  discount_percent: 10,
+  start_date: '',
+  end_date: ''
+});
+const [courseDiscounts, setCourseDiscounts] = useState([]);
 
   const [currentUser, setCurrentUser] = useState(null);
 
@@ -164,7 +173,6 @@ function AdminDashboard() {
       alert(error.response?.data?.message || 'Алдаа гарлаа');
     }
   };
-
   const resetForm = () => {
     setFormData({
       title: '',
@@ -255,6 +263,63 @@ function AdminDashboard() {
       alert(error.response?.data?.message || 'Алдаа гарлаа');
     }
   };
+const handleOpenDiscountModal = async (course) => {
+  setSelectedCourseForDiscount(course);
+  setShowDiscountModal(true);
+  
+  // Existing discounts татах
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(
+      `http://localhost:5000/api/discounts/courses/${course.id}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (response.data.success) {
+      setCourseDiscounts(response.data.data);
+    }
+  } catch (error) {
+    console.error('Хямдрал татахад алдаа:', error);
+  }
+};
+const handleCreateDiscount = async (e) => {
+  e.preventDefault();
+  
+  if (!discountFormData.discount_percent || !discountFormData.start_date || !discountFormData.end_date) {
+    alert('Бүх талбарыг бөглөнө үү');
+    return;
+  }
+  
+  try {
+    const token = localStorage.getItem('token');
+    await axios.post(
+      `http://localhost:5000/api/discounts/courses/${selectedCourseForDiscount.id}`,
+      discountFormData,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    
+    alert('Хямдрал амжилттай үүсгэлээ!');
+    setDiscountFormData({ discount_percent: 10, start_date: '', end_date: '' });
+    handleOpenDiscountModal(selectedCourseForDiscount); // Refresh
+  } catch (error) {
+    alert(error.response?.data?.message || 'Алдаа гарлаа');
+  }
+};
+const handleDeleteDiscount = async (discountId) => {
+  if (!window.confirm('Энэ хямдралыг устгах уу?')) return;
+  
+  try {
+    const token = localStorage.getItem('token');
+    await axios.delete(
+      `http://localhost:5000/api/discounts/${discountId}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    
+    alert('Хямдрал устгагдлаа');
+    handleOpenDiscountModal(selectedCourseForDiscount); // Refresh
+  } catch (error) {
+    alert(error.response?.data?.message || 'Алдаа гарлаа');
+  }
+};
 
   const handleAddLesson = async (e) => {
     e.preventDefault();
@@ -775,7 +840,124 @@ function AdminDashboard() {
           </div>
         </div>
       )}
-
+{showDiscountModal && selectedCourseForDiscount && (
+  <div className="modal-overlay" onClick={() => setShowDiscountModal(false)}>
+    <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
+      <h2>{selectedCourseForDiscount.title} - Хямдрал удирдах</h2>
+      
+      {/* Хямдрал үүсгэх форм */}
+      <div className="discount-form-section">
+        <h3>Шинэ хямдрал үүсгэх</h3>
+        <form onSubmit={handleCreateDiscount}>
+          <div className="form-row">
+            <div className="input-group">
+              <label>
+                <Percent size={16} />
+                Хямдралын хувь (%)
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="100"
+                value={discountFormData.discount_percent}
+                onChange={(e) => setDiscountFormData({...discountFormData, discount_percent: parseInt(e.target.value)})}
+                required
+              />
+            </div>
+            <div className="input-group">
+              <label>
+                <Calendar size={16} />
+                Эхлэх огноо
+              </label>
+              <input
+                type="datetime-local"
+                value={discountFormData.start_date}
+                onChange={(e) => setDiscountFormData({...discountFormData, start_date: e.target.value})}
+                required
+              />
+            </div>
+            <div className="input-group">
+              <label>
+                <Calendar size={16} />
+                Дуусах огноо
+              </label>
+              <input
+                type="datetime-local"
+                value={discountFormData.end_date}
+                onChange={(e) => setDiscountFormData({...discountFormData, end_date: e.target.value})}
+                required
+              />
+            </div>
+          </div>
+          
+          <div className="discount-preview">
+            <div className="preview-item">
+              <span>Анхны үнэ:</span>
+              <strong>₮{selectedCourseForDiscount.price?.toLocaleString()}</strong>
+            </div>
+            <div className="preview-item">
+              <span>Хямдрал:</span>
+              <strong className="discount-badge">{discountFormData.discount_percent}%</strong>
+            </div>
+            <div className="preview-item">
+              <span>Хямдралтай үнэ:</span>
+              <strong className="discount-price">
+                ₮{Math.round(selectedCourseForDiscount.price * (1 - discountFormData.discount_percent / 100)).toLocaleString()}
+              </strong>
+            </div>
+          </div>
+          
+          <button type="submit" className="btn btn-primary">
+            <Tag size={18} />
+            Хямдрал үүсгэх
+          </button>
+        </form>
+      </div>
+      
+      {/* Existing хямдралууд */}
+      <div className="existing-discounts-section">
+        <h3>Одоогийн хямдралууд ({courseDiscounts.length})</h3>
+        {courseDiscounts.length === 0 ? (
+          <p style={{ color: '#808080', textAlign: 'center', padding: '20px' }}>
+            Хямдрал байхгүй байна
+          </p>
+        ) : (
+          <div className="discounts-list">
+            {courseDiscounts.map(discount => (
+              <div key={discount.id} className={`discount-item ${discount.status}`}>
+                <div className="discount-info">
+                  <div className="discount-percent-big">{discount.discount_percent}%</div>
+                  <div className="discount-details">
+                    <div className="discount-dates">
+                      <Calendar size={14} />
+                      {new Date(discount.start_date).toLocaleDateString('mn-MN')} - {new Date(discount.end_date).toLocaleDateString('mn-MN')}
+                    </div>
+                    <div className="discount-status-badge">
+                      {discount.status === 'active' && <span className="badge-active">Идэвхтэй</span>}
+                      {discount.status === 'upcoming' && <span className="badge-upcoming">Удахгүй</span>}
+                      {discount.status === 'expired' && <span className="badge-expired">Дууссан</span>}
+                    </div>
+                  </div>
+                </div>
+                <div className="discount-actions">
+                  {discount.status === 'active' || discount.status === 'upcoming' ? (
+                    <button 
+                      className="btn-icon btn-danger"
+                      onClick={() => handleDeleteDiscount(discount.id)}
+                      title="Устгах"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
       {/* Courses Table */}
       <div className="courses-section">
         <h2>
@@ -842,6 +1024,12 @@ function AdminDashboard() {
                           onClick={() => handleEdit(course)}
                           title="Засах"
                         >
+                             <button 
+    className="btn-icon"
+    onClick={() => handleOpenDiscountModal(course)}
+    title="Хямдрал"
+    style={{ color: '#ffc107' }}
+  ></button>
                           <Edit size={16} />
                         </button>
                         {currentUser?.role === 'admin' && (
