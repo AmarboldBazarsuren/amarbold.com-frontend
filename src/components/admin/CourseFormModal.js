@@ -10,6 +10,12 @@ function CourseFormModal({
 }) {
   if (!show) return null;
 
+  // 🔥 Үг тоолох функц - зөв ажиллах
+  const countWords = (text) => {
+    if (!text || text.trim() === '') return 0;
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -23,35 +29,69 @@ function CourseFormModal({
               value={formData.title}
               onChange={onChange}
               required
+              minLength={3}
+              maxLength={255}
             />
           </div>
 
           <div className="input-group">
-            <label>Товч тайлбар *</label>
+            <label>
+              Товч тайлбар * 
+              <span style={{color: '#808080', fontSize: '12px', fontWeight: '400', marginLeft: '8px'}}>
+                (дор хаяж 5 үг)
+              </span>
+            </label>
             <textarea
               name="description"
               value={formData.description}
               onChange={onChange}
               rows="3"
               required
+              minLength={10}
             />
+            <small style={{
+              color: countWords(formData.description) >= 5 ? '#34c759' : '#808080', 
+              fontSize: '11px', 
+              marginTop: '4px', 
+              display: 'block',
+              fontWeight: '600'
+            }}>
+              {countWords(formData.description) >= 5 && '✓ '}
+              Одоогийн үг: {countWords(formData.description)} / 5
+            </small>
           </div>
 
           <div className="input-group">
-            <label>Дэлгэрэнгүй тайлбар</label>
+            <label>
+              Дэлгэрэнгүй тайлбар * 
+              <span style={{color: '#808080', fontSize: '12px', fontWeight: '400', marginLeft: '8px'}}>
+                (дор хаяж 15 үг)
+              </span>
+            </label>
             <textarea
               name="full_description"
               value={formData.full_description}
               onChange={onChange}
-              rows="5"
+              rows="6"
+              required
+              minLength={30}
             />
+            <small style={{
+              color: countWords(formData.full_description) >= 15 ? '#34c759' : '#808080', 
+              fontSize: '11px', 
+              marginTop: '4px', 
+              display: 'block',
+              fontWeight: '600'
+            }}>
+              {countWords(formData.full_description) >= 15 && '✓ '}
+              Одоогийн үг: {countWords(formData.full_description)} / 15
+            </small>
           </div>
 
-          {/* ✅ Зургийн URL - Заавал */}
           <div className="input-group">
             <label>Зургийн URL *</label>
             <input
-              type="text"
+              type="url"
               name="thumbnail"
               value={formData.thumbnail}
               onChange={onChange}
@@ -63,15 +103,15 @@ function CourseFormModal({
             </small>
           </div>
 
-          {/* ✅✅✅ ТАНИЛЦУУЛГА ВИДЕО URL - Зургийн дараа */}
           <div className="input-group">
-            <label>Танилцуулга видео URL</label>
+            <label>Танилцуулга видео URL *</label>
             <input
-              type="text"
+              type="url"
               name="preview_video_url"
               value={formData.preview_video_url}
               onChange={onChange}
               placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+              required
             />
             <small style={{color: '#808080', fontSize: '12px', marginTop: '4px', display: 'block'}}>
               YouTube видео линк оруулна уу. Энэ видео хичээлийн дэлгэрэнгүй хуудсанд харагдана.
@@ -79,7 +119,6 @@ function CourseFormModal({
           </div>
 
           <div className="form-row">
-            {/* ✅ Ангилал - Заавал биш */}
             <div className="input-group">
               <label>Ангилал</label>
               <select
@@ -97,14 +136,26 @@ function CourseFormModal({
             </div>
 
             <div className="input-group">
-              <label>Үнэ (₮)</label>
+              <label>
+                Үнэ (₮) * 
+                <span style={{color: '#808080', fontSize: '12px', fontWeight: '400', marginLeft: '8px'}}>
+                  (дор хаяж 5000₮)
+                </span>
+              </label>
               <input
                 type="number"
                 name="price"
                 value={formData.price}
                 onChange={onChange}
-                min="0"
+                min="5000"
+                step="1000"
+                required
               />
+              {formData.price && formData.price < 5000 && (
+                <small style={{color: '#ff3b30', fontSize: '11px', marginTop: '4px', display: 'block', fontWeight: '600'}}>
+                  ⚠ Үнэ 5000₮-с дээш байх ёстой
+                </small>
+              )}
             </div>
           </div>
 
@@ -116,6 +167,7 @@ function CourseFormModal({
               value={formData.duration}
               onChange={onChange}
               min="0"
+              step="0.5"
             />
           </div>
 
@@ -139,7 +191,15 @@ function CourseFormModal({
             >
               Болих
             </button>
-            <button type="submit" className="btn btn-primary">
+            <button 
+              type="submit" 
+              className="btn btn-primary"
+              disabled={
+                countWords(formData.description) < 5 || 
+                countWords(formData.full_description) < 15 ||
+                (formData.price && formData.price < 5000)
+              }
+            >
               {editingCourse ? 'Шинэчлэх' : 'Нэмэх'}
             </button>
           </div>
@@ -149,4 +209,4 @@ function CourseFormModal({
   );
 }
 
-export default CourseFormModal; 
+export default CourseFormModal;

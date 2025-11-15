@@ -14,6 +14,7 @@ import AdminUsers from './pages/AdminUsers';
 import MyStudents from './pages/MyStudents';
 import Layout from './components/Layout';
 import LessonPlayer from './pages/LessonPlayer';
+import CourseManage from './pages/CourseManage'; 
 import './App.css';
 
 function App() {
@@ -51,7 +52,6 @@ function App() {
     <ErrorBoundary>
       <Router>
         <Routes>
-
           {/* Home */}
           <Route path="/" element={<Home user={user} />} />
 
@@ -105,6 +105,18 @@ function App() {
               user ? (
                 <Layout user={user} onLogout={handleLogout}>
                   <CourseDetail />
+                </Layout>
+              ) : <Navigate to="/login" />
+            } 
+          />
+
+          {/* 🔥 ШИНЭ - Course Manage Route */}
+          <Route 
+            path="/course/:id/manage" 
+            element={
+              user && (user.role === 'admin' || user.role === 'test_admin') ? (
+                <Layout user={user} onLogout={handleLogout}>
+                  <CourseManage />
                 </Layout>
               ) : <Navigate to="/login" />
             } 

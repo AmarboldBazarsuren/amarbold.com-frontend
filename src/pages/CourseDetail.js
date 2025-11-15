@@ -354,6 +354,7 @@ function CourseDetail() {
 )}
 
 {/* Өөрийн хичээл бол агуулга удирдах товчнууд */}
+
 {isOwner && (
   <div style={{ marginTop: '24px' }}>
     <div style={{
@@ -408,8 +409,9 @@ function CourseDetail() {
       Хичээл үзэх
     </button>
     
+    {/* 🔥 ШИНЭ - Агуулга удирдах товч нэмэх */}
     <button 
-      onClick={() => navigate('/admin')}
+      onClick={() => navigate(`/course/${id}/manage`)}
       style={{
         width: '100%',
         padding: '14px 24px',
