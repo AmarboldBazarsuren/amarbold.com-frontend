@@ -10,7 +10,6 @@ import CourseContentModal from '../components/admin/CourseContentModal';
 import LessonFormModal from '../components/admin/LessonFormModal';
 import DiscountModal from '../components/admin/DiscountModal';
 import CoursesTable from '../components/admin/CoursesTable';
-
 function AdminDashboard() {
   const [stats, setStats] = useState({
     totalUsers: 0,

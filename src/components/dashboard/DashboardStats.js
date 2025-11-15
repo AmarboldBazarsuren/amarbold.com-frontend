@@ -1,7 +1,7 @@
 import React from 'react';
 import { BookOpen, TrendingUp, Star, Users } from 'lucide-react';
 
-function DashboardStats({ coursesCount, instructorsCount }) {
+function DashboardStats({ coursesCount, instructorsCount, activeInstructors, averageRating }) {
   return (
     <div className="dashboard-stats">
       <div className="stat-card">
@@ -29,7 +29,7 @@ function DashboardStats({ coursesCount, instructorsCount }) {
           <TrendingUp size={28} />
         </div>
         <div className="stat-info">
-          <div className="stat-value">50+</div>
+          <div className="stat-value">{activeInstructors}+</div>
           <div className="stat-label">Идэвхтэй багш</div>
         </div>
       </div>
@@ -39,7 +39,7 @@ function DashboardStats({ coursesCount, instructorsCount }) {
           <Star size={28} />
         </div>
         <div className="stat-info">
-          <div className="stat-value">4.8</div>
+          <div className="stat-value">{averageRating}</div>
           <div className="stat-label">Дундаж үнэлгээ</div>
         </div>
       </div>

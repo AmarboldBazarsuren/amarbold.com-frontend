@@ -12,12 +12,44 @@ function CourseDetail() {
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [isEnrolled, setIsEnrolled] = useState(false);
+  const [isOwner, setIsOwner] = useState(false)
   const [expandedSections, setExpandedSections] = useState({});
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
   const [instructorProfile, setInstructorProfile] = useState(null);
 
-  // ✅ fetchCourseDetail - useCallback ашиглан
+  const getYouTubeVideoId = (url) => {
+    if (!url) return null;
+    
+    try {
+      const urlObj = new URL(url);
+      
+      if (urlObj.hostname === 'youtu.be') {
+        return urlObj.pathname.slice(1).split('?')[0];
+      }
+      
+      if (urlObj.hostname.includes('youtube.com')) {
+        if (urlObj.searchParams.has('v')) {
+          return urlObj.searchParams.get('v');
+        }
+        
+        if (urlObj.pathname.includes('/embed/')) {
+          return urlObj.pathname.split('/embed/')[1].split('?')[0];
+        }
+        
+        if (urlObj.pathname.includes('/v/')) {
+          return urlObj.pathname.split('/v/')[1].split('?')[0];
+        }
+      }
+      
+      return null;
+    } catch (e) {
+      const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[7].length === 11) ? match[7] : null;
+    }
+  };
+
   const fetchCourseDetail = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
@@ -25,47 +57,21 @@ function CourseDetail() {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data.success) {
-        setCourse(response.data.course);
-        setIsEnrolled(response.data.isEnrolled);
-      }
+  setCourse(response.data.course);
+  setIsEnrolled(response.data.isEnrolled);
+  
+  // ✅ Багш эсэхийг шалгах
+  const currentUser = JSON.parse(localStorage.getItem('user'));
+  const courseInstructorId = response.data.course.instructor?.id;
+  setIsOwner(currentUser?.id === courseInstructorId);
+}
     } catch (error) {
       console.error('Хичээлийн мэдээлэл татахад алдаа гарлаа:', error);
     } finally {
       setLoading(false);
     }
   }, [id]);
-  const getYouTubeVideoId = (url) => {
-  if (!url) return null;
-  
-  try {
-    const urlObj = new URL(url);
-    
-    if (urlObj.hostname === 'youtu.be') {
-      return urlObj.pathname.slice(1).split('?')[0];
-    }
-    
-    if (urlObj.hostname.includes('youtube.com')) {
-      if (urlObj.searchParams.has('v')) {
-        return urlObj.searchParams.get('v');
-      }
-      
-      if (urlObj.pathname.includes('/embed/')) {
-        return urlObj.pathname.split('/embed/')[1].split('?')[0];
-      }
-      
-      if (urlObj.pathname.includes('/v/')) {
-        return urlObj.pathname.split('/v/')[1].split('?')[0];
-      }
-    }
-    
-    return null;
-  } catch (e) {
-    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[7].length === 11) ? match[7] : null;
-  }
-};
-  // ✅ fetchInstructorProfile - useCallback ашиглан
+
   const fetchInstructorProfile = useCallback(async () => {
     if (!course?.instructor?.id) return;
     
@@ -83,12 +89,10 @@ function CourseDetail() {
     }
   }, [course?.instructor?.id]);
 
-  // ✅ useEffect - fetchCourseDetail дуудах
   useEffect(() => {
     fetchCourseDetail();
   }, [fetchCourseDetail]);
 
-  // ✅ useEffect - fetchInstructorProfile дуудах
   useEffect(() => {
     if (course?.instructor?.id) {
       fetchInstructorProfile();
@@ -180,61 +184,65 @@ function CourseDetail() {
             </div>
           </div>
 
-          <div className="course-instructor-card">
-            <div className="instructor-label">Багш</div>
-            <div className="instructor-content">
-              {instructorProfile?.profile_image ? (
-                <img 
-                  src={instructorProfile.profile_image} 
-                  alt={course.instructor?.name}
-                  className="instructor-image"
-                />
-              ) : (
-                <div className="instructor-avatar-large">
-                  {course.instructor?.name?.charAt(0) || 'B'}
-                </div>
-              )}
-              <div className="instructor-info">
-                <div className="instructor-name">{course.instructor?.name || 'Багш нэр'}</div>
-                {instructorProfile?.teaching_categories && (
-                  <div className="instructor-category">{instructorProfile.teaching_categories}</div>
+          {/* ✅✅ ЗӨВХӨН ТАНИЛЦУУЛГА ВИДЕО - Багшийн хэсэг устгасан */}
+          {course.preview_video_url && (
+            <div className="preview-video-section">
+              <div className="preview-label">Танилцуулга видео</div>
+              <div className="preview-video-wrapper">
+                {getYouTubeVideoId(course.preview_video_url) ? (
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src={`https://www.youtube.com/embed/${getYouTubeVideoId(course.preview_video_url)}`}
+                    title="Preview Video"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                ) : (
+                  <div className="video-error">
+                    <p>Видео тоглуулах боломжгүй</p>
+                  </div>
                 )}
               </div>
             </div>
-            <button
-              onClick={() => navigate(`/instructor/${course.instructor.id}`)}
-              style={{
-                width: '100%',
-                padding: '12px 20px',
-                marginTop: '16px',
-                background: 'rgba(0, 212, 255, 0.1)',
-                border: '1px solid rgba(0, 212, 255, 0.3)',
-                borderRadius: '8px',
-                color: '#00d4ff',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.background = 'rgba(0, 212, 255, 0.15)';
-                e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.5)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.background = 'rgba(0, 212, 255, 0.1)';
-                e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.3)';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              <Users size={16} />
-              Профайл үзэх
-            </button>
-          </div>
+          )}
+
+          {/* ✅ ПРОФАЙЛ ҮЗЭХ ТОВЧ - Үргэлж харагдана */}
+          <button
+            onClick={() => navigate(`/instructor/${course.instructor.id}`)}
+            style={{
+              width: '100%',
+              maxWidth: '400px',
+              padding: '14px 24px',
+              marginTop: course.preview_video_url ? '16px' : '0',
+              background: 'rgba(0, 212, 255, 0.1)',
+              border: '1px solid rgba(0, 212, 255, 0.3)',
+              borderRadius: '10px',
+              color: '#00d4ff',
+              fontSize: '15px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = 'rgba(0, 212, 255, 0.15)';
+              e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.5)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'rgba(0, 212, 255, 0.1)';
+              e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.3)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <Users size={18} />
+            Багшийн профайл үзэх
+          </button>
         </div>
 
         <div className="course-hero-card">
@@ -296,108 +304,200 @@ function CourseDetail() {
             </ul>
           </div>
 
-          {!isEnrolled && (
-            <button 
-              onClick={handleEnroll}
-              disabled={purchasing}
-              style={{
-                width: '100%',
-                padding: '16px 24px',
-                marginTop: '24px',
-                background: 'linear-gradient(135deg, #00d4ff 0%, #0099cc 100%)',
-                border: 'none',
-                borderRadius: '12px',
-                color: '#ffffff',
-                fontSize: '16px',
-                fontWeight: '700',
-                cursor: purchasing ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 4px 16px rgba(0, 212, 255, 0.3)',
-                opacity: purchasing ? 0.6 : 1
-              }}
-              onMouseOver={(e) => {
-                if (!purchasing) {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 6px 24px rgba(0, 212, 255, 0.5)';
-                }
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 212, 255, 0.3)';
-              }}
-            >
-              {purchasing ? (
-                <>
-                  <div className="spinner" style={{ width: '20px', height: '20px' }}></div>
-                  Бүртгэж байна...
-                </>
-              ) : (
-                <>
-                  <PlayCircle size={20} />
-                  {course.is_free ? 'Үнэгүй бүртгүүлэх' : 'Худалдаж авах'}
-                </>
-              )}
-            </button>
-          )}
+          {/* Өөрийн хичээл биш бөгөөд бүртгүүлээгүй бол худалдаж авах товч */}
+{!isOwner && !isEnrolled && (
+  <button 
+    onClick={handleEnroll}
+    disabled={purchasing}
+    style={{
+      width: '100%',
+      padding: '16px 24px',
+      marginTop: '24px',
+      background: 'linear-gradient(135deg, #00d4ff 0%, #0099cc 100%)',
+      border: 'none',
+      borderRadius: '12px',
+      color: '#ffffff',
+      fontSize: '16px',
+      fontWeight: '700',
+      cursor: purchasing ? 'not-allowed' : 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px',
+      transition: 'all 0.3s ease',
+      boxShadow: '0 4px 16px rgba(0, 212, 255, 0.3)',
+      opacity: purchasing ? 0.6 : 1
+    }}
+    onMouseOver={(e) => {
+      if (!purchasing) {
+        e.currentTarget.style.transform = 'translateY(-2px)';
+        e.currentTarget.style.boxShadow = '0 6px 24px rgba(0, 212, 255, 0.5)';
+      }
+    }}
+    onMouseOut={(e) => {
+      e.currentTarget.style.transform = 'translateY(0)';
+      e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 212, 255, 0.3)';
+    }}
+  >
+    {purchasing ? (
+      <>
+        <div className="spinner" style={{ width: '20px', height: '20px' }}></div>
+        Бүртгэж байна...
+      </>
+    ) : (
+      <>
+        <PlayCircle size={20} />
+        {course.is_free ? 'Үнэгүй бүртгүүлэх' : 'Худалдаж авах'}
+      </>
+    )}
+  </button>
+)}
 
-          {isEnrolled && (
-            <>
-              <div style={{
-                width: '100%',
-                padding: '12px',
-                marginTop: '24px',
-                background: 'rgba(52, 199, 89, 0.15)',
-                border: '1px solid rgba(52, 199, 89, 0.3)',
-                borderRadius: '8px',
-                color: '#34c759',
-                fontSize: '14px',
-                fontWeight: '600',
-                textAlign: 'center',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}>
-                <CheckCircle size={18} />
-                Та энэ хичээлд бүртгүүлсэн байна
-              </div>
-              <button 
-                onClick={() => navigate(`/course/${id}/learn`)}
-                style={{
-                  width: '100%',
-                  padding: '14px 24px',
-                  marginTop: '12px',
-                  background: 'rgba(0, 212, 255, 0.1)',
-                  border: '1px solid rgba(0, 212, 255, 0.3)',
-                  borderRadius: '10px',
-                  color: '#00d4ff',
-                  fontSize: '15px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.background = 'rgba(0, 212, 255, 0.15)';
-                  e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.5)';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.background = 'rgba(0, 212, 255, 0.1)';
-                  e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.3)';
-                }}
-              >
-                <PlayCircle size={20} />
-                Хичээл үзэх
-              </button>
-            </>
-          )}
+{/* Өөрийн хичээл бол агуулга удирдах товчнууд */}
+{isOwner && (
+  <div style={{ marginTop: '24px' }}>
+    <div style={{
+      width: '100%',
+      padding: '12px',
+      background: 'rgba(255, 193, 7, 0.15)',
+      border: '1px solid rgba(255, 193, 7, 0.3)',
+      borderRadius: '8px',
+      color: '#ffc107',
+      fontSize: '14px',
+      fontWeight: '600',
+      textAlign: 'center',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px',
+      marginBottom: '12px'
+    }}>
+      <CheckCircle size={18} />
+      Таны хичээл
+    </div>
+    
+    <button 
+      onClick={() => navigate(`/course/${id}/learn`)}
+      style={{
+        width: '100%',
+        padding: '14px 24px',
+        marginBottom: '12px',
+        background: 'rgba(0, 212, 255, 0.1)',
+        border: '1px solid rgba(0, 212, 255, 0.3)',
+        borderRadius: '10px',
+        color: '#00d4ff',
+        fontSize: '15px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px',
+        transition: 'all 0.3s ease'
+      }}
+      onMouseOver={(e) => {
+        e.currentTarget.style.background = 'rgba(0, 212, 255, 0.15)';
+        e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.5)';
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.background = 'rgba(0, 212, 255, 0.1)';
+        e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.3)';
+      }}
+    >
+      <PlayCircle size={20} />
+      Хичээл үзэх
+    </button>
+    
+    <button 
+      onClick={() => navigate('/admin')}
+      style={{
+        width: '100%',
+        padding: '14px 24px',
+        background: 'rgba(255, 193, 7, 0.1)',
+        border: '1px solid rgba(255, 193, 7, 0.3)',
+        borderRadius: '10px',
+        color: '#ffc107',
+        fontSize: '15px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px',
+        transition: 'all 0.3s ease'
+      }}
+      onMouseOver={(e) => {
+        e.currentTarget.style.background = 'rgba(255, 193, 7, 0.15)';
+        e.currentTarget.style.borderColor = 'rgba(255, 193, 7, 0.5)';
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.background = 'rgba(255, 193, 7, 0.1)';
+        e.currentTarget.style.borderColor = 'rgba(255, 193, 7, 0.3)';
+      }}
+    >
+      <BookOpen size={20} />
+      Агуулга удирдах
+    </button>
+  </div>
+)}
+
+{/* Бүртгүүлсэн хэрэглэгч (өөрийнх биш) */}
+{!isOwner && isEnrolled && (
+  <>
+    <div style={{
+      width: '100%',
+      padding: '12px',
+      marginTop: '24px',
+      background: 'rgba(52, 199, 89, 0.15)',
+      border: '1px solid rgba(52, 199, 89, 0.3)',
+      borderRadius: '8px',
+      color: '#34c759',
+      fontSize: '14px',
+      fontWeight: '600',
+      textAlign: 'center',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
+    }}>
+      <CheckCircle size={18} />
+      Та энэ хичээлд бүртгүүлсэн байна
+    </div>
+    <button 
+      onClick={() => navigate(`/course/${id}/learn`)}
+      style={{
+        width: '100%',
+        padding: '14px 24px',
+        marginTop: '12px',
+        background: 'rgba(0, 212, 255, 0.1)',
+        border: '1px solid rgba(0, 212, 255, 0.3)',
+        borderRadius: '10px',
+        color: '#00d4ff',
+        fontSize: '15px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px',
+        transition: 'all 0.3s ease'
+      }}
+      onMouseOver={(e) => {
+        e.currentTarget.style.background = 'rgba(0, 212, 255, 0.15)';
+        e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.5)';
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.background = 'rgba(0, 212, 255, 0.1)';
+        e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.3)';
+      }}
+    >
+      <PlayCircle size={20} />
+      Хичээл үзэх
+    </button>
+  </>
+)}
+
+          
         </div>
       </div>
 
@@ -426,11 +526,11 @@ function CourseDetail() {
                 
                 {expandedSections[section.id || index] && section.lessons?.length > 0 && (
                   <div className="section-lessons">
-                    {section.lessons.map((lesson, lessonIndex) => {
+                    {section.lessons.map((lesson, lessonIdx) => {
                       const canPlay = isEnrolled || lesson.is_free_preview;
                       return (
                         <div 
-                          key={lesson.id || lessonIndex} 
+                          key={lesson.id || lessonIdx} 
                           className={`lesson-item ${!canPlay ? 'locked' : 'playable'}`}
                           onClick={() => canPlay && handleLessonClick(lesson)}
                           style={{ cursor: canPlay ? 'pointer' : 'not-allowed' }}

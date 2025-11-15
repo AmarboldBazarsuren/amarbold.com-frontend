@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, PlayCircle, CheckCircle, Lock, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { ArrowLeft, PlayCircle, CheckCircle, Lock, ChevronDown, ChevronUp, Check, Star } from 'lucide-react';
 import axios from 'axios';
+import RatingModal from '../components/RatingModal';
+import '../styles/LessonPlayer.css';
 import '../styles/LessonPlayer.css';
 
 function LessonPlayer() {
@@ -14,7 +16,8 @@ function LessonPlayer() {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [completedLessons, setCompletedLessons] = useState(new Set());
   const [courseProgress, setCourseProgress] = useState(0);
-
+const [showRatingModal, setShowRatingModal] = useState(false);
+const [userRating, setUserRating] = useState(null);
   const getYouTubeVideoId = (url) => {
     if (!url) return null;
     
@@ -48,9 +51,10 @@ function LessonPlayer() {
   };
 
   useEffect(() => {
-    fetchCourse();
-  }, [courseId]);
-
+  fetchCourse();
+  checkUserRating();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [courseId]);
   const fetchCourse = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -86,7 +90,38 @@ function LessonPlayer() {
       setLoading(false);
     }
   };
+// ✅ Үнэлгээ шалгах функц
+const checkUserRating = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(
+      `http://localhost:5000/api/ratings/courses/${courseId}/my-rating`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (response.data.success) {
+      setUserRating(response.data.data);
+    }
+  } catch (error) {
+    console.error('Үнэлгээ шалгахад алдаа:', error);
+  }
+};
 
+// ✅ Үнэлгээ өгөх функц
+const handleRateSubmit = async (data) => {
+  try {
+    const token = localStorage.getItem('token');
+    await axios.post(
+      `http://localhost:5000/api/ratings/courses/${courseId}`,
+      data,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    alert('Үнэлгээ амжилттай өгөгдлөө!');
+    setShowRatingModal(false);
+    checkUserRating();
+  } catch (error) {
+    alert(error.response?.data?.message || 'Үнэлгээ өгөхөд алдаа гарлаа');
+  }
+};
   // ✅ Прогресс татах функц
   const fetchProgress = async () => {
     try {
@@ -206,7 +241,33 @@ function LessonPlayer() {
             </div>
           </div>
         </div>
-
+{isEnrolled && courseProgress >= 80 && (
+  <div style={{ padding: '12px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+    <button
+      onClick={() => setShowRatingModal(true)}
+      style={{
+        width: '100%',
+        padding: '12px',
+        background: userRating 
+          ? 'rgba(52, 199, 89, 0.1)' 
+          : 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)',
+        border: userRating ? '1px solid rgba(52, 199, 89, 0.3)' : 'none',
+        borderRadius: '8px',
+        color: userRating ? '#34c759' : '#ffffff',
+        fontSize: '14px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '8px'
+      }}
+    >
+      <Star size={18} fill={userRating ? '#34c759' : '#ffffff'} />
+      {userRating ? `Үнэлгээ: ${userRating.rating} од` : 'Үнэлгээ өгөх'}
+    </button>
+  </div>
+)}
         <div className="lessons-list-sidebar">
           {course.sections?.map((section, sectionIdx) => (
             <div key={section.id} className="section-sidebar">
@@ -329,6 +390,14 @@ function LessonPlayer() {
           </div>
         )}
       </main>
+      <RatingModal
+        show={showRatingModal}
+        onClose={() => setShowRatingModal(false)}
+        courseTitle={course?.title}
+        onSubmit={handleRateSubmit}
+        existingRating={userRating}
+      />
+
     </div>
   );
 }

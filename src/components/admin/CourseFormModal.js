@@ -47,15 +47,47 @@ function CourseFormModal({
             />
           </div>
 
+          {/* ✅ Зургийн URL - Заавал */}
+          <div className="input-group">
+            <label>Зургийн URL *</label>
+            <input
+              type="text"
+              name="thumbnail"
+              value={formData.thumbnail}
+              onChange={onChange}
+              placeholder="https://example.com/image.jpg"
+              required
+            />
+            <small style={{color: '#808080', fontSize: '12px', marginTop: '4px', display: 'block'}}>
+              Жишээ: https://i.imgur.com/example.jpg
+            </small>
+          </div>
+
+          {/* ✅✅✅ ТАНИЛЦУУЛГА ВИДЕО URL - Зургийн дараа */}
+          <div className="input-group">
+            <label>Танилцуулга видео URL</label>
+            <input
+              type="text"
+              name="preview_video_url"
+              value={formData.preview_video_url}
+              onChange={onChange}
+              placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            />
+            <small style={{color: '#808080', fontSize: '12px', marginTop: '4px', display: 'block'}}>
+              YouTube видео линк оруулна уу. Энэ видео хичээлийн дэлгэрэнгүй хуудсанд харагдана.
+            </small>
+          </div>
+
           <div className="form-row">
+            {/* ✅ Ангилал - Заавал биш */}
             <div className="input-group">
-              <label>Ангилал *</label>
+              <label>Ангилал</label>
               <select
                 name="category_id"
-                value={formData.category_id}
+                value={formData.category_id || ''}
                 onChange={onChange}
-                required
               >
+                <option value="">Ангилал сонгох</option>
                 <option value="1">Програмчлал</option>
                 <option value="2">Дизайн</option>
                 <option value="3">Бизнес</option>
@@ -64,22 +96,6 @@ function CourseFormModal({
               </select>
             </div>
 
-            <div className="input-group">
-              <label>Түвшин *</label>
-              <select
-                name="level"
-                value={formData.level}
-                onChange={onChange}
-                required
-              >
-                <option value="beginner">Анхан</option>
-                <option value="intermediate">Дунд</option>
-                <option value="advanced">Ахисан</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="form-row">
             <div className="input-group">
               <label>Үнэ (₮)</label>
               <input
@@ -90,27 +106,16 @@ function CourseFormModal({
                 min="0"
               />
             </div>
-
-            <div className="input-group">
-              <label>Үргэлжлэх хугацаа (цаг)</label>
-              <input
-                type="number"
-                name="duration"
-                value={formData.duration}
-                onChange={onChange}
-                min="0"
-              />
-            </div>
           </div>
 
           <div className="input-group">
-            <label>Зургийн URL</label>
+            <label>Үргэлжлэх хугацаа (цаг)</label>
             <input
-              type="text"
-              name="thumbnail"
-              value={formData.thumbnail}
+              type="number"
+              name="duration"
+              value={formData.duration}
               onChange={onChange}
-              placeholder="https://example.com/image.jpg"
+              min="0"
             />
           </div>
 
@@ -144,4 +149,4 @@ function CourseFormModal({
   );
 }
 
-export default CourseFormModal;
+export default CourseFormModal; 

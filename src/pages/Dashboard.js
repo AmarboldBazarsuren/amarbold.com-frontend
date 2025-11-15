@@ -14,6 +14,12 @@ function Dashboard() {
   const [courses, setCourses] = useState([]);
   const [instructors, setInstructors] = useState([]);
   const [loading, setLoading] = useState(true);
+const [stats, setStats] = useState({
+  totalCourses: 0,
+  totalInstructors: 0,
+  activeInstructors: 0,
+  averageRating: '4.8'
+});
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('courses');
@@ -22,6 +28,7 @@ function Dashboard() {
   useEffect(() => {
     fetchCourses();
     fetchInstructors();
+    fetchStats();
   }, []);
 
   const fetchCourses = async () => {
@@ -66,6 +73,20 @@ function Dashboard() {
       setInstructors([]);
     }
   };
+  const fetchStats = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get('http://localhost:5000/api/courses/stats', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    if (response.data.success) {
+      setStats(response.data.data);
+    }
+  } catch (error) {
+    console.error('Статистик татахад алдаа:', error);
+  }
+};
 
   const filteredCourses = courses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -114,10 +135,12 @@ function Dashboard() {
           </p>
         </div>
         
-        <DashboardStats 
-          coursesCount={courses.length}
-          instructorsCount={instructors.length}
-        />
+      <DashboardStats 
+  coursesCount={stats.totalCourses}
+  instructorsCount={stats.totalInstructors}
+  activeInstructors={stats.activeInstructors}
+  averageRating={stats.averageRating}
+/>
       </div>
 
       {/* Tabs */}
