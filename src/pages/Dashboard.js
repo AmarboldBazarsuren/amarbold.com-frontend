@@ -10,7 +10,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
-  const [activeTab, setActiveTab] = useState('courses'); // 'courses' or 'instructors'
+  const [activeTab, setActiveTab] = useState('courses');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,22 +40,41 @@ function Dashboard() {
   };
 
   const fetchInstructors = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/instructors', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      if (response.data.success && Array.isArray(response.data.data)) {
-        setInstructors(response.data.data);
-      } else {
-        setInstructors([]);
+  try {
+    const token = localStorage.getItem('token');
+    console.log('🔐 Token:', token ? 'Байна' : '❌ БАЙХГҮЙ!');
+    
+    if (!token) {
+      console.error('❌ Token байхгүй - нэвтрэх хэрэгтэй');
+      return;
+    }
+    
+    console.log('📡 API дуудаж байна: http://localhost:5000/api/instructors');
+    
+    const response = await axios.get('http://localhost:5000/api/instructors', {
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
-    } catch (error) {
-      console.error('Багш нар татахад алдаа:', error);
+    });
+    
+    console.log('✅ Response:', response.data);
+    
+    if (response.data.success && Array.isArray(response.data.data)) {
+      console.log('✅ Багш нар:', response.data.data);
+      setInstructors(response.data.data);
+    } else {
+      console.error('❌ Буруу format:', response.data);
       setInstructors([]);
     }
-  };
+  } catch (error) {
+    console.error('❌ Багш нар татахад АЛДАА:');
+    console.error('Status:', error.response?.status);
+    console.error('Data:', error.response?.data);
+    console.error('Message:', error.message);
+    setInstructors([]);
+  }
+};
 
   const filteredCourses = courses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -253,7 +272,7 @@ function Dashboard() {
             <div className="no-results">
               <Users size={64} />
               <h3>Багш олдсонгүй</h3>
-              <p>Өөр түлхүүр үгээр хайж үзээрэй</p>
+              <p>Багш нар одоогоор байхгүй байна</p>
             </div>
           ) : (
             <div className="instructors-grid">
@@ -284,7 +303,7 @@ function Dashboard() {
                     {instructor.teaching_categories && (
                       <p className="instructor-category">{instructor.teaching_categories}</p>
                     )}
-                    {instructor.bio && (
+                    {instructor.bio && instructor.bio !== 'Танилцуулга нэмэгдээгүй байна' && (
                       <p className="instructor-bio">{instructor.bio.substring(0, 100)}...</p>
                     )}
                     <div className="instructor-stats">

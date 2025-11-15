@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BookOpen, Users, ArrowLeft, Clock, Star } from 'lucide-react';
 import axios from 'axios';
-import './InstructorDetail.css';
+import '../styles/InstructorDetail.css';  // ✅ CSS import нэмсэн
 
 function InstructorDetail() {
   const { id } = useParams();
@@ -111,7 +111,7 @@ function InstructorDetail() {
       </div>
 
       {/* Bio */}
-      {instructor.bio && (
+      {instructor.bio && instructor.bio !== 'Танилцуулга нэмэгдээгүй байна' && (
         <div className="instructor-bio-section">
           <h2 className="section-title">Багшийн тухай</h2>
           <div className="bio-content">

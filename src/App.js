@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import MyCourses from './pages/MyCourses';
 import CourseDetail from './pages/CourseDetail';
+import InstructorDetail from './pages/InstructorDetail';  // ✅ Нэмсэн
 import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
 import MyStudents from './pages/MyStudents';
@@ -107,6 +108,18 @@ function App() {
           } 
         />
 
+        {/* ✅ Багшийн дэлгэрэнгүй хуудас */}
+        <Route 
+          path="/instructor/:id" 
+          element={
+            user ? (
+              <Layout user={user} onLogout={handleLogout}>
+                <InstructorDetail />
+              </Layout>
+            ) : <Navigate to="/login" />
+          } 
+        />
+
         {/* My Students route */}
         <Route 
           path="/my-students"
@@ -119,7 +132,7 @@ function App() {
           }
         />
 
-        {/* ✅ Admin Dashboard route - Admin болон Test Admin хоёулаа нэвтэрнэ */}
+        {/* Admin Dashboard route */}
         <Route 
           path="/admin" 
           element={
@@ -131,7 +144,7 @@ function App() {
           }
         />
 
-        {/* ✅ Admin Users route - Зөвхөн Super Admin */}
+        {/* Admin Users route */}
         <Route 
           path="/admin/users" 
           element={
@@ -142,14 +155,16 @@ function App() {
             ) : <Navigate to="/login" />
           }
         />
-<Route 
-  path="/course/:courseId/learn" 
-  element={
-    user ? (
-      <LessonPlayer />
-    ) : <Navigate to="/login" />
-  } 
-/>
+
+        {/* Lesson Player */}
+        <Route 
+          path="/course/:courseId/learn" 
+          element={
+            user ? (
+              <LessonPlayer />
+            ) : <Navigate to="/login" />
+          } 
+        />
       </Routes>
     </Router>
   );
