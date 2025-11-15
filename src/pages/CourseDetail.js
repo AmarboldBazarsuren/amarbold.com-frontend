@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   PlayCircle, Clock, BookOpen, Star, CheckCircle, Lock, 
@@ -17,17 +17,8 @@ function CourseDetail() {
   const [purchasing, setPurchasing] = useState(false);
   const [instructorProfile, setInstructorProfile] = useState(null);
 
-  useEffect(() => {
-    fetchCourseDetail();
-  }, [id]);
-
-  useEffect(() => {
-    if (course?.instructor?.id) {
-      fetchInstructorProfile();
-    }
-  }, [course]);
-
-  const fetchCourseDetail = async () => {
+  // ✅ fetchCourseDetail - useCallback ашиглан
+  const fetchCourseDetail = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`http://localhost:5000/api/courses/${id}`, {
@@ -42,9 +33,42 @@ function CourseDetail() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fetchInstructorProfile = async () => {
+  }, [id]);
+  const getYouTubeVideoId = (url) => {
+  if (!url) return null;
+  
+  try {
+    const urlObj = new URL(url);
+    
+    if (urlObj.hostname === 'youtu.be') {
+      return urlObj.pathname.slice(1).split('?')[0];
+    }
+    
+    if (urlObj.hostname.includes('youtube.com')) {
+      if (urlObj.searchParams.has('v')) {
+        return urlObj.searchParams.get('v');
+      }
+      
+      if (urlObj.pathname.includes('/embed/')) {
+        return urlObj.pathname.split('/embed/')[1].split('?')[0];
+      }
+      
+      if (urlObj.pathname.includes('/v/')) {
+        return urlObj.pathname.split('/v/')[1].split('?')[0];
+      }
+    }
+    
+    return null;
+  } catch (e) {
+    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[7].length === 11) ? match[7] : null;
+  }
+};
+  // ✅ fetchInstructorProfile - useCallback ашиглан
+  const fetchInstructorProfile = useCallback(async () => {
+    if (!course?.instructor?.id) return;
+    
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(
@@ -57,7 +81,19 @@ function CourseDetail() {
     } catch (error) {
       console.error('Багшийн мэдээлэл татахад алдаа:', error);
     }
-  };
+  }, [course?.instructor?.id]);
+
+  // ✅ useEffect - fetchCourseDetail дуудах
+  useEffect(() => {
+    fetchCourseDetail();
+  }, [fetchCourseDetail]);
+
+  // ✅ useEffect - fetchInstructorProfile дуудах
+  useEffect(() => {
+    if (course?.instructor?.id) {
+      fetchInstructorProfile();
+    }
+  }, [course?.instructor?.id, fetchInstructorProfile]);
 
   const handleEnroll = async () => {
     setPurchasing(true);
@@ -260,7 +296,6 @@ function CourseDetail() {
             </ul>
           </div>
 
-          {/* ✅ ХУДАЛДАЖ АВАХ ТОВЧ - Inline style-тай */}
           {!isEnrolled && (
             <button 
               onClick={handleEnroll}

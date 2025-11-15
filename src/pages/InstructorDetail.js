@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BookOpen, Users, ArrowLeft, Clock, Star } from 'lucide-react';
 import axios from 'axios';
-import '../styles/InstructorDetail.css';  // ✅ CSS import нэмсэн
+import '../styles/InstructorDetail.css';
 
 function InstructorDetail() {
   const { id } = useParams();
@@ -10,12 +10,7 @@ function InstructorDetail() {
   const [instructor, setInstructor] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchInstructorDetail();
-    // eslint-disable-next-line
-  }, [id]);
-
-  const fetchInstructorDetail = async () => {
+  const fetchInstructorDetail = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`http://localhost:5000/api/instructors/${id}`, {
@@ -30,7 +25,11 @@ function InstructorDetail() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchInstructorDetail();
+  }, [fetchInstructorDetail]);
 
   const handleCourseClick = (courseId) => {
     navigate(`/course/${courseId}`);
@@ -155,13 +154,12 @@ function InstructorDetail() {
                       </div>
                     </div>
                   </div>
-                 <div className="course-footer">
+                  <div className="course-footer">
                     <div className="course-price">
                       {course.is_free || course.price === 0 ? (
                         <span className="free-badge">Үнэгүй</span>
                       ) : (
                         <>
-                          {/* ✅ Хямдралтай үнэ */}
                           {course.discount_price ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                               <span style={{ 

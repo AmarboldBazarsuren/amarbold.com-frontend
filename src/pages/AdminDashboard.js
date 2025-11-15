@@ -28,17 +28,17 @@ function AdminDashboard() {
   const [currentUser, setCurrentUser] = useState(null);
   
   // Course Form Data
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    full_description: '',
-    category_id: 1,
-    price: 0,
-    is_free: false,
-    duration: 0,
-    level: 'beginner',
-    thumbnail: ''
-  });
+ const [formData, setFormData] = useState({
+  title: '',
+  description: '',
+  full_description: '',
+  category_id: '',  // ✅ Хоосон байж болно
+  price: 0,
+  is_free: false,
+  duration: 0,
+  thumbnail: '',
+  preview_video_url: ''  // ✅ Шинэ талбар
+});
   
   // Section Management
   const [showSectionForm, setShowSectionForm] = useState(false);
@@ -149,20 +149,20 @@ function AdminDashboard() {
   };
 
   const handleEdit = (course) => {
-    setEditingCourse(course);
-    setFormData({
-      title: course.title,
-      description: course.description,
-      full_description: course.full_description || course.description,
-      category_id: course.category_id || 1,
-      price: course.price,
-      is_free: course.is_free,
-      duration: course.duration,
-      level: course.level,
-      thumbnail: course.thumbnail || ''
-    });
-    setShowCourseForm(true);
-  };
+  setEditingCourse(course);
+  setFormData({
+    title: course.title,
+    description: course.description,
+    full_description: course.full_description || course.description,
+    category_id: course.category_id || '',
+    price: course.price,
+    is_free: course.is_free,
+    duration: course.duration,
+    thumbnail: course.thumbnail || '',
+    preview_video_url: course.preview_video_url || ''
+  });
+  setShowCourseForm(true);
+};
 
   const handleDelete = async (courseId) => {
     if (!window.confirm('Энэ хичээлийг устгах уу?')) return;
@@ -181,19 +181,19 @@ function AdminDashboard() {
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      title: '',
-      description: '',
-      full_description: '',
-      category_id: 1,
-      price: 0,
-      is_free: false,
-      duration: 0,
-      level: 'beginner',
-      thumbnail: ''
-    });
-  };
+ const resetForm = () => {
+  setFormData({
+    title: '',
+    description: '',
+    full_description: '',
+    category_id: '',
+    price: 0,
+    is_free: false,
+    duration: 0,
+    thumbnail: '',
+    preview_video_url: ''
+  });
+};
 
   const handleManageCourse = async (course) => {
     setSelectedCourse(course);
