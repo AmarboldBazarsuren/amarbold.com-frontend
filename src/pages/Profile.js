@@ -3,7 +3,6 @@ import { User, Mail, Lock, Shield, Save, Edit2, Award, BookOpen, Camera, Image }
 import axios from 'axios';
 import '../styles/Profile.css';
 
-
 function Profile({ user }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingInstructor, setIsEditingInstructor] = useState(false);
@@ -37,6 +36,8 @@ function Profile({ user }) {
         headers: { Authorization: `Bearer ${token}` }
       });
       
+      console.log('✅ Багшийн профайл:', response.data.user); // ✅ Debug
+      
       if (response.data.success && response.data.user) {
         const userData = response.data.user;
         setInstructorData({
@@ -68,7 +69,7 @@ function Profile({ user }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.put(
+      await axios.put(
         'http://localhost:5000/api/users/profile',
         {
           name: formData.name,
@@ -82,7 +83,6 @@ function Profile({ user }) {
       setSuccess('Профайл амжилттай шинэчлэгдлээ');
       setIsEditing(false);
       
-      // Update localStorage
       const updatedUser = { ...user, name: formData.name, email: formData.email };
       localStorage.setItem('user', JSON.stringify(updatedUser));
     } catch (err) {
@@ -152,6 +152,7 @@ function Profile({ user }) {
 
       setSuccess('Багшийн профайл амжилттай шинэчлэгдлээ');
       setIsEditingInstructor(false);
+      fetchInstructorProfile(); // ✅ Дахин татах
     } catch (err) {
       setError(err.response?.data?.message || 'Профайл шинэчлэхэд алдаа гарлаа');
     } finally {
@@ -385,20 +386,79 @@ function Profile({ user }) {
           </form>
         </div>
 
-        {/* Багшийн танилцуулга - Test Admin болон Admin */}
-        {(user?.role === 'test_admin' || user?.role === 'admin') && (
+        {/* ✅ Багшийн танилцуулга - Үзэх горим */}
+        {(user?.role === 'test_admin' || user?.role === 'admin') && !isEditingInstructor && (
           <div className="profile-card">
             <div className="card-header">
               <h3>Багшийн танилцуулга</h3>
-              {!isEditingInstructor && (
-                <button 
-                  className="btn-edit"
-                  onClick={() => setIsEditingInstructor(true)}
-                >
-                  <Edit2 size={16} />
-                  Засах
-                </button>
+              <button 
+                className="btn-edit"
+                onClick={() => setIsEditingInstructor(true)}
+              >
+                <Edit2 size={16} />
+                Засах
+              </button>
+            </div>
+
+            <div className="instructor-display">
+              {instructorData.bio ? (
+                <div className="display-section">
+                  <label>
+                    <User size={16} />
+                    Миний тухай
+                  </label>
+                  <div className="display-value">{instructorData.bio}</div>
+                </div>
+              ) : (
+                <p style={{color: '#808080', fontSize: '14px'}}>Танилцуулга нэмэгдээгүй байна</p>
               )}
+
+              {instructorData.teaching_categories && (
+                <div className="display-section">
+                  <label>
+                    <BookOpen size={16} />
+                    Заадаг хичээлийн төрөл
+                  </label>
+                  <div className="display-value">{instructorData.teaching_categories}</div>
+                </div>
+              )}
+
+              {instructorData.profile_image && (
+                <div className="display-section">
+                  <label>
+                    <Camera size={16} />
+                    Профайл зураг
+                  </label>
+                  <img 
+                    src={instructorData.profile_image} 
+                    alt="Profile" 
+                    className="profile-preview-image"
+                  />
+                </div>
+              )}
+
+              {instructorData.profile_banner && (
+                <div className="display-section">
+                  <label>
+                    <Image size={16} />
+                    Баннер зураг
+                  </label>
+                  <img 
+                    src={instructorData.profile_banner} 
+                    alt="Banner" 
+                    className="profile-preview-banner"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ✅ Багшийн танилцуулга - Засах горим */}
+        {(user?.role === 'test_admin' || user?.role === 'admin') && isEditingInstructor && (
+          <div className="profile-card">
+            <div className="card-header">
+              <h3>Багшийн танилцуулга засах</h3>
             </div>
 
             <form onSubmit={handleUpdateInstructorProfile}>
@@ -412,7 +472,6 @@ function Profile({ user }) {
                   name="bio"
                   value={instructorData.bio}
                   onChange={(e) => setInstructorData({...instructorData, bio: e.target.value})}
-                  disabled={!isEditingInstructor}
                   rows="5"
                   placeholder="Өөрийнхөө тухай бичнэ үү..."
                 />
@@ -429,7 +488,6 @@ function Profile({ user }) {
                   name="teaching_categories"
                   value={instructorData.teaching_categories}
                   onChange={(e) => setInstructorData({...instructorData, teaching_categories: e.target.value})}
-                  disabled={!isEditingInstructor}
                   placeholder="Жишээ: Програмчлал, Веб хөгжүүлэлт, React"
                 />
               </div>
@@ -445,7 +503,6 @@ function Profile({ user }) {
                   name="profile_image"
                   value={instructorData.profile_image}
                   onChange={(e) => setInstructorData({...instructorData, profile_image: e.target.value})}
-                  disabled={!isEditingInstructor}
                   placeholder="https://example.com/profile.jpg"
                 />
               </div>
@@ -461,42 +518,39 @@ function Profile({ user }) {
                   name="profile_banner"
                   value={instructorData.profile_banner}
                   onChange={(e) => setInstructorData({...instructorData, profile_banner: e.target.value})}
-                  disabled={!isEditingInstructor}
                   placeholder="https://example.com/banner.jpg"
                 />
               </div>
 
-              {isEditingInstructor && (
-                <div className="form-actions">
-                  <button 
-                    type="button" 
-                    className="btn btn-secondary"
-                    onClick={() => {
-                      setIsEditingInstructor(false);
-                      fetchInstructorProfile();
-                    }}
-                  >
-                    Цуцлах
-                  </button>
-                  <button 
-                    type="submit" 
-                    className="btn btn-primary"
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <>
-                        <div className="spinner"></div>
-                        Хадгалж байна...
-                      </>
-                    ) : (
-                      <>
-                        <Save size={18} />
-                        Хадгалах
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
+              <div className="form-actions">
+                <button 
+                  type="button" 
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setIsEditingInstructor(false);
+                    fetchInstructorProfile();
+                  }}
+                >
+                  Цуцлах
+                </button>
+                <button 
+                  type="submit" 
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <div className="spinner"></div>
+                      Хадгалж байна...
+                    </>
+                  ) : (
+                    <>
+                      <Save size={18} />
+                      Хадгалах
+                    </>
+                  )}
+                </button>
+              </div>
             </form>
           </div>
         )}

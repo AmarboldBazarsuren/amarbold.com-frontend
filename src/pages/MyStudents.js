@@ -22,15 +22,20 @@ function MyStudents() {
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      // ✅ Console-д өгөгдөл шалгах
+      console.log('✅ Backend-с ирсэн өгөгдөл:', response.data);
+      console.log('📊 Суралцагчдын жагсаалт:', response.data.data);
+
       if (response.data.success) {
         setStudents(response.data.data || []);
         setStats({
-          totalCourses: response.data.totalCourses,
-          totalStudents: response.data.totalStudents
+          totalCourses: response.data.totalCourses || 0,
+          totalStudents: response.data.totalStudents || 0
         });
       }
     } catch (error) {
-      console.error('Суралцагчид татахад алдаа:', error);
+      console.error('❌ Суралцагчид татахад алдаа:', error);
+      console.error('❌ Error response:', error.response?.data);
     } finally {
       setLoading(false);
     }
@@ -52,6 +57,7 @@ function MyStudents() {
         <p>Таны хичээлд бүртгүүлсэн суралцагчдын жагсаалт</p>
       </div>
 
+      {/* Статистик */}
       <div className="mystudents-stats">
         <div className="stat-card">
           <div className="stat-icon">
@@ -73,6 +79,7 @@ function MyStudents() {
         </div>
       </div>
 
+      {/* Суралцагчдын жагсаалт */}
       {students.length === 0 ? (
         <div className="empty-state">
           <Users size={80} />
@@ -92,27 +99,42 @@ function MyStudents() {
               </tr>
             </thead>
             <tbody>
-              {students.map((student, index) => (
-                <tr key={`${student.id}-${student.course_id}-${index}`}>
-                  <td>{student.id}</td>
-                  <td>{student.name}</td>
-                  <td>
-                    <div className="email-cell">
-                      <Mail size={14} />
-                      {student.email}
-                    </div>
-                  </td>
-                  <td>
-                    <span className="course-badge">{student.course_title}</span>
-                  </td>
-                  <td>
-                    <div className="date-cell">
-                      <Calendar size={14} />
-                      {new Date(student.enrolled_at).toLocaleDateString('mn-MN')}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {students.map((student, index) => {
+                console.log('🔍 Rendering student:', student); // ✅ Debug log
+                return (
+                  <tr key={`student-${student.id}-${student.course_id}-${index}`}>
+                    <td>{student.id}</td>
+                    <td>{student.name}</td>
+                    <td>
+                      <div className="email-cell">
+                        <Mail size={14} />
+                        {student.email}
+                      </div>
+                    </td>
+                    <td>
+                      {/* ✅ Хичээлийн нэр - inline style-тай */}
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '6px 14px',
+                        background: 'rgba(0, 212, 255, 0.15)',
+                        border: '1px solid rgba(0, 212, 255, 0.3)',
+                        borderRadius: '6px',
+                        color: '#00d4ff',
+                        fontSize: '13px',
+                        fontWeight: '600'
+                      }}>
+                        {student.course_title || 'Хичээл олдсонгүй'}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="date-cell">
+                        <Calendar size={14} />
+                        {new Date(student.enrolled_at).toLocaleDateString('mn-MN')}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

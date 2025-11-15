@@ -205,3 +205,20 @@
     min-width: 600px;
   }
 }
+/* Хичээлийн badge */
+.course-badge {
+  display: inline-block !important;  /* ✅ Заавал харуулах */
+  padding: 6px 14px;
+  background: rgba(0, 212, 255, 0.15);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 6px;
+  color: #00d4ff;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Table cell alignment */
+.students-table td {
+  vertical-align: middle;
+}

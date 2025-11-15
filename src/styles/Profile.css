@@ -221,3 +221,109 @@
     grid-template-columns: 1fr;
   }
 }
+/* Багшийн танилцуулга үзэгдэл */
+.instructor-display {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.display-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.display-section label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #b0b0b0;
+  margin-bottom: 4px;
+}
+
+.display-section label svg {
+  color: #00d4ff;
+}
+
+.display-value {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 15px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.profile-preview-image {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid rgba(0, 212, 255, 0.3);
+}
+
+.profile-preview-banner {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid rgba(0, 212, 255, 0.3);
+}
+/* Багшийн танилцуулга үзэгдэл */
+.instructor-display {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.display-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.display-section label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #b0b0b0;
+  margin-bottom: 4px;
+}
+
+.display-section label svg {
+  color: #00d4ff;
+}
+
+.display-value {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 15px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.profile-preview-image {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid rgba(0, 212, 255, 0.3);
+}
+
+.profile-preview-banner {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid rgba(0, 212, 255, 0.3);
+}
