@@ -211,46 +211,51 @@ function CourseDetail() {
             <img src={course.thumbnail || '/placeholder-course.jpg'} alt={course.title} />
           </div>
           <div className="course-price-section">
-            {course.is_free || course.price === 0 ? (
-              <div className="price-free">Үнэгүй</div>
-            ) : (
-              <div className="price">₮{course.price?.toLocaleString()}</div>
-            )}
-            {!isEnrolled ? (
-              <button 
-                className="btn btn-primary btn-full"
-                onClick={handleEnroll}
-                disabled={purchasing}
-              >
-                {purchasing ? (
-                  <>
-                    <div className="spinner"></div>
-                    Бүртгүүлж байна...
-                  </>
-                ) : (
-                  <>
-                    <PlayCircle size={20} />
-                    Хичээл авах
-                  </>
-                )}
-              </button>
-            ) : (
-              <>
-                <button className="btn btn-success btn-full" disabled>
-                  <CheckCircle size={20} />
-                  Бүртгүүлсэн
-                </button>
-                <button 
-                  className="btn btn-primary btn-full"
-                  onClick={() => navigate(`/course/${id}/learn`)}
-                  style={{ marginTop: '12px' }}
-                >
-                  <PlayCircle size={20} />
-                  Хичээл үзэх
-                </button>
-              </>
-            )}
+  {course.is_free || course.price === 0 ? (
+    <div className="price-free">Үнэгүй</div>
+  ) : (
+    <>
+      {/* Хямдралтай үнэ байвал */}
+      {course.discount_price ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div className="original-price" style={{ 
+            fontSize: '20px',
+            color: '#808080', 
+            textDecoration: 'line-through' 
+          }}>
+            ₮{course.price?.toLocaleString()}
           </div>
+          <div className="discount-price" style={{ 
+            fontSize: '36px',
+            fontWeight: '800',
+            color: '#34c759'
+          }}>
+            ₮{course.discount_price?.toLocaleString()}
+          </div>
+          {course.discount_percent && (
+            <div style={{
+              display: 'inline-block',
+              padding: '4px 12px',
+              background: 'rgba(255, 193, 7, 0.2)',
+              border: '1px solid rgba(255, 193, 7, 0.4)',
+              borderRadius: '6px',
+              color: '#ffc107',
+              fontSize: '14px',
+              fontWeight: '700',
+              width: 'fit-content'
+            }}>
+              -{course.discount_percent}% хямдрал
+            </div>
+          )}
+        </div>
+      ) : (
+        // Хямдралгүй бол энгийн үнэ
+        <div className="price">₮{course.price?.toLocaleString()}</div>
+      )}
+    </>
+  )}
+</div>
+
           <div className="course-includes">
             <h4>Энэ хичээлд орно:</h4>
             <ul>
