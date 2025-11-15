@@ -155,12 +155,49 @@ function InstructorDetail() {
                       </div>
                     </div>
                   </div>
-                  <div className="course-footer">
+                 <div className="course-footer">
                     <div className="course-price">
                       {course.is_free || course.price === 0 ? (
                         <span className="free-badge">Үнэгүй</span>
                       ) : (
-                        <span className="price">₮{course.price?.toLocaleString()}</span>
+                        <>
+                          {/* ✅ Хямдралтай үнэ */}
+                          {course.discount_price ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                              <span style={{ 
+                                fontSize: '14px',
+                                color: '#808080', 
+                                textDecoration: 'line-through' 
+                              }}>
+                                ₮{course.price?.toLocaleString()}
+                              </span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ 
+                                  fontSize: '20px',
+                                  fontWeight: '800',
+                                  color: '#34c759'
+                                }}>
+                                  ₮{course.discount_price?.toLocaleString()}
+                                </span>
+                                {course.discount_percent && (
+                                  <span style={{
+                                    padding: '2px 6px',
+                                    background: 'rgba(255, 193, 7, 0.2)',
+                                    border: '1px solid rgba(255, 193, 7, 0.4)',
+                                    borderRadius: '4px',
+                                    color: '#ffc107',
+                                    fontSize: '10px',
+                                    fontWeight: '700'
+                                  }}>
+                                    -{course.discount_percent}%
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="price">₮{course.price?.toLocaleString()}</span>
+                          )}
+                        </>
                       )}
                     </div>
                     <button className="btn-enroll">

@@ -157,7 +157,7 @@ function MyCourses() {
                     </div>
                   </div>
 
-                  <div className="mycourse-meta">
+                 <div className="mycourse-meta">
                     <div className="meta-item">
                       <Clock size={16} />
                       <span>{course.duration || '10'} цаг</span>
@@ -166,6 +166,21 @@ function MyCourses() {
                       <PlayCircle size={16} />
                       <span>{course.completedLessons || 0}/{course.totalLessons || 20} хичээл</span>
                     </div>
+                    {/* ✅ Хямдралтай худалдаж авсан бол харуулах */}
+                    {course.discount_percent && (
+                      <div className="meta-item" style={{ color: '#ffc107' }}>
+                        <span style={{
+                          padding: '2px 6px',
+                          background: 'rgba(255, 193, 7, 0.2)',
+                          border: '1px solid rgba(255, 193, 7, 0.4)',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          fontWeight: '700'
+                        }}>
+                          -{course.discount_percent}% хямдралтай авсан
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <button className="btn-continue">

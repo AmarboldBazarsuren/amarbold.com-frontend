@@ -16,85 +16,48 @@ function CourseDetail() {
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
   const [instructorProfile, setInstructorProfile] = useState(null);
-  // ✅ САЙЖРУУЛСАН YouTube Video ID функц
-  const getYouTubeVideoId = (url) => {
-    if (!url) return null;
-    
-    try {
-      const urlObj = new URL(url);
-      
-      // youtu.be хэлбэр
-      if (urlObj.hostname === 'youtu.be') {
-        return urlObj.pathname.slice(1).split('?')[0];
-      }
-      
-      // youtube.com хэлбэр
-      if (urlObj.hostname.includes('youtube.com')) {
-        // watch?v= хэлбэр
-        if (urlObj.searchParams.has('v')) {
-          return urlObj.searchParams.get('v');
-        }
-        
-        // embed/ хэлбэр
-        if (urlObj.pathname.includes('/embed/')) {
-          return urlObj.pathname.split('/embed/')[1].split('?')[0];
-        }
-        
-        // /v/ хэлбэр
-        if (urlObj.pathname.includes('/v/')) {
-          return urlObj.pathname.split('/v/')[1].split('?')[0];
-        }
-      }
-      
-      return null;
-    } catch (e) {
-      // URL parse хийж чадахгүй бол regex ашиглана
-      const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-      const match = url.match(regExp);
-      return (match && match[7].length === 11) ? match[7] : null;
-    }
-  };
 
   useEffect(() => {
-    const fetchCourseDetail = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:5000/api/courses/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (response.data.success) {
-          setCourse(response.data.course);
-          setIsEnrolled(response.data.isEnrolled);
-        }
-      } catch (error) {
-        console.error('Хичээлийн мэдээлэл татахад алдаа гарлаа:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchCourseDetail();
   }, [id]);
 
   useEffect(() => {
     if (course?.instructor?.id) {
-      const getInstructor = async () => {
-        try {
-          const token = localStorage.getItem('token');
-          const response = await axios.get(
-            `http://localhost:5000/api/users/instructor/${course.instructor.id}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-          if (response.data.success) {
-            setInstructorProfile(response.data.instructor);
-          }
-        } catch (error) {
-          console.error('Багшийн мэдээлэл татахад алдаа:', error);
-        }
-      };
-      getInstructor();
+      fetchInstructorProfile();
     }
   }, [course]);
+
+  const fetchCourseDetail = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`http://localhost:5000/api/courses/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setCourse(response.data.course);
+        setIsEnrolled(response.data.isEnrolled);
+      }
+    } catch (error) {
+      console.error('Хичээлийн мэдээлэл татахад алдаа гарлаа:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchInstructorProfile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `http://localhost:5000/api/users/instructor/${course.instructor.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.data.success) {
+        setInstructorProfile(response.data.instructor);
+      }
+    } catch (error) {
+      console.error('Багшийн мэдээлэл татахад алдаа:', error);
+    }
+  };
 
   const handleEnroll = async () => {
     setPurchasing(true);
@@ -126,7 +89,6 @@ function CourseDetail() {
       alert('Энэ хичээлийг үзэхийн тулд эхлээд бүртгүүлнэ үү');
       return;
     }
-
     navigate(`/course/${id}/learn`);
   };
 
@@ -203,6 +165,39 @@ function CourseDetail() {
                 )}
               </div>
             </div>
+            <button
+              onClick={() => navigate(`/instructor/${course.instructor.id}`)}
+              style={{
+                width: '100%',
+                padding: '12px 20px',
+                marginTop: '16px',
+                background: 'rgba(0, 212, 255, 0.1)',
+                border: '1px solid rgba(0, 212, 255, 0.3)',
+                borderRadius: '8px',
+                color: '#00d4ff',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(0, 212, 255, 0.15)';
+                e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.5)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(0, 212, 255, 0.1)';
+                e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.3)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <Users size={16} />
+              Профайл үзэх
+            </button>
           </div>
         </div>
 
@@ -210,51 +205,50 @@ function CourseDetail() {
           <div className="course-thumbnail">
             <img src={course.thumbnail || '/placeholder-course.jpg'} alt={course.title} />
           </div>
+          
           <div className="course-price-section">
-  {course.is_free || course.price === 0 ? (
-    <div className="price-free">Үнэгүй</div>
-  ) : (
-    <>
-      {/* Хямдралтай үнэ байвал */}
-      {course.discount_price ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div className="original-price" style={{ 
-            fontSize: '20px',
-            color: '#808080', 
-            textDecoration: 'line-through' 
-          }}>
-            ₮{course.price?.toLocaleString()}
+            {course.is_free || course.price === 0 ? (
+              <div className="price-free">Үнэгүй</div>
+            ) : (
+              <>
+                {course.discount_price ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div className="original-price" style={{ 
+                      fontSize: '20px',
+                      color: '#808080', 
+                      textDecoration: 'line-through' 
+                    }}>
+                      ₮{course.price?.toLocaleString()}
+                    </div>
+                    <div className="discount-price" style={{ 
+                      fontSize: '36px',
+                      fontWeight: '800',
+                      color: '#34c759'
+                    }}>
+                      ₮{course.discount_price?.toLocaleString()}
+                    </div>
+                    {course.discount_percent && (
+                      <div style={{
+                        display: 'inline-block',
+                        padding: '4px 12px',
+                        background: 'rgba(255, 193, 7, 0.2)',
+                        border: '1px solid rgba(255, 193, 7, 0.4)',
+                        borderRadius: '6px',
+                        color: '#ffc107',
+                        fontSize: '14px',
+                        fontWeight: '700',
+                        width: 'fit-content'
+                      }}>
+                        -{course.discount_percent}% хямдрал
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="price">₮{course.price?.toLocaleString()}</div>
+                )}
+              </>
+            )}
           </div>
-          <div className="discount-price" style={{ 
-            fontSize: '36px',
-            fontWeight: '800',
-            color: '#34c759'
-          }}>
-            ₮{course.discount_price?.toLocaleString()}
-          </div>
-          {course.discount_percent && (
-            <div style={{
-              display: 'inline-block',
-              padding: '4px 12px',
-              background: 'rgba(255, 193, 7, 0.2)',
-              border: '1px solid rgba(255, 193, 7, 0.4)',
-              borderRadius: '6px',
-              color: '#ffc107',
-              fontSize: '14px',
-              fontWeight: '700',
-              width: 'fit-content'
-            }}>
-              -{course.discount_percent}% хямдрал
-            </div>
-          )}
-        </div>
-      ) : (
-        // Хямдралгүй бол энгийн үнэ
-        <div className="price">₮{course.price?.toLocaleString()}</div>
-      )}
-    </>
-  )}
-</div>
 
           <div className="course-includes">
             <h4>Энэ хичээлд орно:</h4>
@@ -265,6 +259,110 @@ function CourseDetail() {
               <li><Award size={16} /> Гэрчилгээ олгоно</li>
             </ul>
           </div>
+
+          {/* ✅ ХУДАЛДАЖ АВАХ ТОВЧ - Inline style-тай */}
+          {!isEnrolled && (
+            <button 
+              onClick={handleEnroll}
+              disabled={purchasing}
+              style={{
+                width: '100%',
+                padding: '16px 24px',
+                marginTop: '24px',
+                background: 'linear-gradient(135deg, #00d4ff 0%, #0099cc 100%)',
+                border: 'none',
+                borderRadius: '12px',
+                color: '#ffffff',
+                fontSize: '16px',
+                fontWeight: '700',
+                cursor: purchasing ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 16px rgba(0, 212, 255, 0.3)',
+                opacity: purchasing ? 0.6 : 1
+              }}
+              onMouseOver={(e) => {
+                if (!purchasing) {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 24px rgba(0, 212, 255, 0.5)';
+                }
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 212, 255, 0.3)';
+              }}
+            >
+              {purchasing ? (
+                <>
+                  <div className="spinner" style={{ width: '20px', height: '20px' }}></div>
+                  Бүртгэж байна...
+                </>
+              ) : (
+                <>
+                  <PlayCircle size={20} />
+                  {course.is_free ? 'Үнэгүй бүртгүүлэх' : 'Худалдаж авах'}
+                </>
+              )}
+            </button>
+          )}
+
+          {isEnrolled && (
+            <>
+              <div style={{
+                width: '100%',
+                padding: '12px',
+                marginTop: '24px',
+                background: 'rgba(52, 199, 89, 0.15)',
+                border: '1px solid rgba(52, 199, 89, 0.3)',
+                borderRadius: '8px',
+                color: '#34c759',
+                fontSize: '14px',
+                fontWeight: '600',
+                textAlign: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}>
+                <CheckCircle size={18} />
+                Та энэ хичээлд бүртгүүлсэн байна
+              </div>
+              <button 
+                onClick={() => navigate(`/course/${id}/learn`)}
+                style={{
+                  width: '100%',
+                  padding: '14px 24px',
+                  marginTop: '12px',
+                  background: 'rgba(0, 212, 255, 0.1)',
+                  border: '1px solid rgba(0, 212, 255, 0.3)',
+                  borderRadius: '10px',
+                  color: '#00d4ff',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = 'rgba(0, 212, 255, 0.15)';
+                  e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.5)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = 'rgba(0, 212, 255, 0.1)';
+                  e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.3)';
+                }}
+              >
+                <PlayCircle size={20} />
+                Хичээл үзэх
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -336,7 +434,42 @@ function CourseDetail() {
 
       {instructorProfile && instructorProfile.bio && (
         <div className="instructor-profile-section">
-          <h2 className="section-title">Багшийн тухай</h2>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '32px'
+          }}>
+            <h2 className="section-title" style={{ marginBottom: 0 }}>Багшийн тухай</h2>
+            <button
+              onClick={() => navigate(`/instructor/${course.instructor.id}`)}
+              style={{
+                padding: '10px 20px',
+                background: 'rgba(0, 212, 255, 0.1)',
+                border: '1px solid rgba(0, 212, 255, 0.3)',
+                borderRadius: '8px',
+                color: '#00d4ff',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(0, 212, 255, 0.15)';
+                e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.5)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(0, 212, 255, 0.1)';
+                e.currentTarget.style.borderColor = 'rgba(0, 212, 255, 0.3)';
+              }}
+            >
+              <BookOpen size={16} />
+              Бүх хичээл үзэх
+            </button>
+          </div>
           <div className="instructor-profile-card">
             {instructorProfile.profile_banner && (
               <div className="instructor-banner">
