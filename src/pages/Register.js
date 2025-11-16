@@ -43,7 +43,7 @@ function Register({ onLogin }) {
     setLoading(true);
 
     try {
-      const response = await axios.post('https://amarbold-com-frontend.vercel.app/register', {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
         name: formData.name,
         email: formData.email,
         password: formData.password
