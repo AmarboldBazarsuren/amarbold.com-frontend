@@ -52,7 +52,7 @@ function ImageUpload({
 
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        `http://localhost:5000/api/upload/${uploadType}`,
+        `${API_BASE_URL}/api/upload/${uploadType}`,
         formData,
         {
           headers: {

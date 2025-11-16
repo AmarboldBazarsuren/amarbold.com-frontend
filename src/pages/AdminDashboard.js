@@ -204,7 +204,7 @@ function AdminDashboard() {
   const fetchCourseSections = async (courseId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/api/courses/${courseId}`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/courses/${courseId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data.success && response.data.course.sections) {
