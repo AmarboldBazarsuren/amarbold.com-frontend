@@ -58,14 +58,7 @@ function LessonFormModal({
               />
             </div>
 
-            <div className="input-group">
-              <label>Дараалал</label>
-              <input
-                type="number"
-                value={formData.order_number}
-                onChange={(e) => onChange({...formData, order_number: parseInt(e.target.value)})}
-              />
-            </div>
+      
           </div>
 
           <div className="checkbox-group">

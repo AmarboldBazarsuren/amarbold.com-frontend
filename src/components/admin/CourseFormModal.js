@@ -1,5 +1,7 @@
+// src/components/admin/CourseFormModal.js - UPDATED
 import React from 'react';
 import axios from 'axios';
+import ImageUpload from '../ImageUpload'; // ✅ Шинэ component
 
 function CourseFormModal({ 
   show, 
@@ -33,10 +35,14 @@ function CourseFormModal({
 
   if (!show) return null;
 
-  // 🔥 Үг тоолох функц - зөв ажиллах
   const countWords = (text) => {
     if (!text || text.trim() === '') return 0;
     return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
+
+  // ✅ Image upload callback
+  const handleImageUpload = (imageUrl) => {
+    onChange({ target: { name: 'thumbnail', value: imageUrl } });
   };
 
   return (
@@ -111,20 +117,13 @@ function CourseFormModal({
             </small>
           </div>
 
-          <div className="input-group">
-            <label>Зургийн URL *</label>
-            <input
-              type="url"
-              name="thumbnail"
-              value={formData.thumbnail}
-              onChange={onChange}
-              placeholder="https://example.com/image.jpg"
-              required
-            />
-            <small style={{color: '#808080', fontSize: '12px', marginTop: '4px', display: 'block'}}>
-              Жишээ: https://i.imgur.com/example.jpg
-            </small>
-          </div>
+          {/* ✅ ЗУРАГ UPLOAD ХЭСЭГ */}
+          <ImageUpload
+            label="Хичээлийн зураг *"
+            onUploadSuccess={handleImageUpload}
+            currentImage={formData.thumbnail}
+            uploadType="course-thumbnail"
+          />
 
           <div className="input-group">
             <label>Танилцуулга видео URL *</label>
@@ -227,7 +226,8 @@ function CourseFormModal({
                 countWords(formData.description) < 5 || 
                 countWords(formData.full_description) < 15 ||
                 (formData.price && formData.price < 5000) ||
-                !formData.category_id
+                !formData.category_id ||
+                !formData.thumbnail // ✅ Зураг заавал шаардлагатай
               }
             >
               {editingCourse ? 'Шинэчлэх' : 'Нэмэх'}

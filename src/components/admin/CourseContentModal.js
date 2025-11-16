@@ -67,14 +67,7 @@ function CourseContentModal({
                   rows="2"
                 />
               </div>
-              <div className="input-group">
-                <label>Дараалал</label>
-                <input
-                  type="number"
-                  value={sectionFormData.order_number}
-                  onChange={(e) => setSectionFormData({...sectionFormData, order_number: parseInt(e.target.value)})}
-                />
-              </div>
+              
               <div className="form-actions">
                 <button
                   type="button"

@@ -766,3 +766,128 @@
 .carousel-item.dragging {
   pointer-events: none;
 }
+/* ==================== ЗУРГИЙН ZOOM АСУУДАЛ ШИЙДСЭН ==================== */
+
+/* Course Card Image - object-fit: cover → contain болгох */
+.course-image {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.course-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* ✅ cover → contain засах */
+  object-position: center;
+  transition: transform 0.4s ease;
+}
+
+/* Hover үед зөөлөн томруулах */
+.course-card:hover .course-image img {
+  transform: scale(1.05); /* ✅ 1.1 → 1.05 болгох */
+}
+
+/* Instructor Banner - zoom асуудал шийдэх */
+.instructor-banner {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.instructor-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* ✅ Banner нь cover байх нь зөв */
+  object-position: center;
+  transition: transform 0.4s ease;
+}
+
+.instructor-card:hover .instructor-banner img {
+  transform: scale(1.05); /* ✅ 1.1 → 1.05 */
+}
+
+/* Carousel зургууд */
+.carousel-item .course-image img {
+  object-fit: contain; /* ✅ cover → contain */
+}
+
+/* Course Detail Banner - object-fit: cover хэвээр үлдээх */
+.instructor-banner-large {
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+  border-radius: 20px;
+  margin-bottom: -80px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.instructor-banner-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* ✅ Banner нь cover байх */
+  object-position: center;
+}
+
+/* CourseDetail thumbnail */
+.course-thumbnail {
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.course-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* ✅ cover → contain */
+  object-position: center;
+}
+
+/* MyCourses зургууд */
+.mycourse-image {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mycourse-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* ✅ cover → contain */
+  object-position: center;
+  transition: transform 0.4s ease;
+}
+
+.mycourse-card:hover .mycourse-image img {
+  transform: scale(1.05); /* ✅ 1.1 → 1.05 */
+}
+
+/* ==================== ЕРӨНХИЙ ДҮРЭМ ==================== */
+
+/* Хичээлийн зураг = contain (бүтэн харагдах) */
+/* Banner зураг = cover (дүүрэн дэлгэцээр) */
+/* Hover = 1.05x zoom (1.1x хэт их байсан) */

@@ -243,18 +243,7 @@ function CourseManage() {
               placeholder="Энэ бүлгийн тухай товч мэдээлэл (заавал биш)"
             />
           </div>
-          <div className="input-group">
-            <label>Дараалал</label>
-            <input
-              type="number"
-              value={sectionFormData.order_number}
-              onChange={(e) => setSectionFormData({...sectionFormData, order_number: parseInt(e.target.value) || 0})}
-              placeholder="0"
-            />
-            <small style={{color: '#808080', fontSize: '12px', marginTop: '4px', display: 'block'}}>
-              Бага тоо өмнө, их тоо дараа харагдана
-            </small>
-          </div>
+        
           <div className="form-actions">
             {editingSection && (
               <button
@@ -376,15 +365,7 @@ function CourseManage() {
                           Жишээ: 5 минут = 300 секунд
                         </small>
                       </div>
-                      <div className="input-group">
-                        <label>Дараалал</label>
-                        <input
-                          type="number"
-                          value={lessonFormData.order_number}
-                          onChange={(e) => setLessonFormData({...lessonFormData, order_number: parseInt(e.target.value) || 0})}
-                          placeholder="0"
-                        />
-                      </div>
+                  
                     </div>
                     <div className="checkbox-group">
                       <label>
