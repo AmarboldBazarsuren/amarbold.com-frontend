@@ -120,18 +120,18 @@ function CourseFormModal({
 
           <div className="form-row">
             <div className="input-group">
-              <label>Ангилал</label>
+              <label >Ангилал</label>
               <select
                 name="category_id"
                 value={formData.category_id || ''}
                 onChange={onChange}
               >
                 <option value="">Ангилал сонгох</option>
-                <option value="1">Програмчлал</option>
-                <option value="2">Дизайн</option>
+                <option value="1">Компьютер</option>
+                <option value="2">Хувь хүний хөгжил</option>
                 <option value="3">Бизнес</option>
-                <option value="4">Маркетинг</option>
-                <option value="5">Хувийн хөгжил</option>
+                <option value="4">Санхүү</option>
+                <option value="5">Гадаад хэл</option>
               </select>
             </div>
 
