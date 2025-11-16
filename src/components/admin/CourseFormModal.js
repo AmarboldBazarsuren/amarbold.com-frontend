@@ -42,8 +42,14 @@ function CourseFormModal({
 
   // ✅ Image upload callback
   const handleImageUpload = (imageUrl) => {
-    onChange({ target: { name: 'thumbnail', value: imageUrl } });
-  };
+  // ✅ onChange function-руу object хэлбэрээр дамжуулах
+  onChange({ 
+    target: { 
+      name: 'thumbnail', 
+      value: imageUrl 
+    } 
+  });
+};
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -118,12 +124,12 @@ function CourseFormModal({
           </div>
 
           {/* ✅ ЗУРАГ UPLOAD ХЭСЭГ */}
-          <ImageUpload
-            label="Хичээлийн зураг *"
-            onUploadSuccess={handleImageUpload}
-            currentImage={formData.thumbnail}
-            uploadType="course-thumbnail"
-          />
+       <ImageUpload
+  label="Хичээлийн зураг *"
+  onUploadSuccess={handleImageUpload} 
+  currentImage={formData.thumbnail}
+  uploadType="course-thumbnail"
+/>
 
           <div className="input-group">
             <label>Танилцуулга видео URL *</label>

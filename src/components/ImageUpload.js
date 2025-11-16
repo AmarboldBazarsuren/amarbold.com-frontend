@@ -1,6 +1,6 @@
 // src/components/ImageUpload.js
 import React, { useState, useRef } from 'react';
-import { Upload, X, Image as ImageIcon, Loader } from 'lucide-react';
+import { Upload, X, Loader } from 'lucide-react';
 import axios from 'axios';
 
 function ImageUpload({ 
@@ -43,7 +43,7 @@ function ImageUpload({
     try {
       const formData = new FormData();
       
-      // Field name-ийг uploadType дээр үндэслэн тодорхойлох
+      // ✅ Field name-ийг uploadType дээр үндэслэн тодорхойлох
       const fieldName = uploadType === 'course-thumbnail' ? 'thumbnail' :
                        uploadType === 'profile-image' ? 'profile_image' :
                        uploadType === 'profile-banner' ? 'profile_banner' : 'file';
@@ -63,10 +63,12 @@ function ImageUpload({
       );
 
       if (response.data.success) {
-        onUploadSuccess(response.data.data.url);
+        console.log('✅ Upload амжилттай:', response.data.data.url);
+        onUploadSuccess(response.data.data.url); // ✅ URL буцаах
+        setPreview(response.data.data.url); // ✅ Preview шинэчлэх
       }
     } catch (err) {
-      console.error('Upload алдаа:', err);
+      console.error('❌ Upload алдаа:', err);
       setError(err.response?.data?.message || 'Upload хийхэд алдаа гарлаа');
       setPreview(currentImage); // Preview буцаах
     } finally {
@@ -112,7 +114,7 @@ function ImageUpload({
             style={{
               width: '100%',
               height: '100%',
-              objectFit: 'contain', // ✅ Бүтэн харагдах
+              objectFit: 'contain',
               objectPosition: 'center'
             }}
           />
