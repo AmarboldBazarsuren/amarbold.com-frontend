@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Lock, Shield, Save, Edit2, Award, BookOpen, Camera, Image } from 'lucide-react';
+import { User, Mail, Lock, Shield, Save, Edit2, Award } from 'lucide-react';
 import axios from 'axios';
+import ImageUpload from '../components/ImageUpload'; // ✅ НЭМСЭН
 import '../styles/Profile.css';
 
 function Profile({ user }) {
@@ -35,8 +36,6 @@ function Profile({ user }) {
       const response = await axios.get('http://localhost:5000/api/auth/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
-      console.log('✅ Багшийн профайл:', response.data.user); // ✅ Debug
       
       if (response.data.success && response.data.user) {
         const userData = response.data.user;
@@ -152,7 +151,7 @@ function Profile({ user }) {
 
       setSuccess('Багшийн профайл амжилттай шинэчлэгдлээ');
       setIsEditingInstructor(false);
-      fetchInstructorProfile(); // ✅ Дахин татах
+      fetchInstructorProfile();
     } catch (err) {
       setError(err.response?.data?.message || 'Профайл шинэчлэхэд алдаа гарлаа');
     } finally {
@@ -220,7 +219,10 @@ function Profile({ user }) {
             </div>
             <div className="stat-box">
               <Award size={24} />
-              
+              <div>
+                <div className="stat-value">8</div>
+                <div className="stat-label">Гэрчилгээ</div>
+              </div>
             </div>
           </div>
         </div>
@@ -383,7 +385,7 @@ function Profile({ user }) {
           </form>
         </div>
 
-        {/* ✅ Багшийн танилцуулга - Үзэх горим */}
+        {/* ✅✅✅ БАГШИЙН ТАНИЛЦУУЛГА - ImageUpload-тай */}
         {(user?.role === 'test_admin' || user?.role === 'admin') && !isEditingInstructor && (
           <div className="profile-card">
             <div className="card-header">
@@ -412,20 +414,14 @@ function Profile({ user }) {
 
               {instructorData.teaching_categories && (
                 <div className="display-section">
-                  <label>
-                    <BookOpen size={16} />
-                    Заадаг хичээлийн төрөл
-                  </label>
+                  <label>Заадаг хичээлийн төрөл</label>
                   <div className="display-value">{instructorData.teaching_categories}</div>
                 </div>
               )}
 
               {instructorData.profile_image && (
                 <div className="display-section">
-                  <label>
-                    <Camera size={16} />
-                    Профайл зураг
-                  </label>
+                  <label>Профайл зураг</label>
                   <img 
                     src={instructorData.profile_image} 
                     alt="Profile" 
@@ -436,10 +432,7 @@ function Profile({ user }) {
 
               {instructorData.profile_banner && (
                 <div className="display-section">
-                  <label>
-                    <Image size={16} />
-                    Баннер зураг
-                  </label>
+                  <label>Баннер зураг</label>
                   <img 
                     src={instructorData.profile_banner} 
                     alt="Banner" 
@@ -451,7 +444,7 @@ function Profile({ user }) {
           </div>
         )}
 
-        {/* ✅ Багшийн танилцуулга - Засах горим */}
+        {/* ✅✅✅ БАГШИЙН ТАНИЛЦУУЛГА - ЗАСАХ ГОРИМ (ImageUpload) */}
         {(user?.role === 'test_admin' || user?.role === 'admin') && isEditingInstructor && (
           <div className="profile-card">
             <div className="card-header">
@@ -460,10 +453,7 @@ function Profile({ user }) {
 
             <form onSubmit={handleUpdateInstructorProfile}>
               <div className="input-group">
-                <label htmlFor="bio">
-                  <User size={16} />
-                  Миний тухай
-                </label>
+                <label htmlFor="bio">Миний тухай</label>
                 <textarea
                   id="bio"
                   name="bio"
@@ -475,10 +465,7 @@ function Profile({ user }) {
               </div>
 
               <div className="input-group">
-                <label htmlFor="teaching_categories">
-                  <BookOpen size={16} />
-                  Заадаг хичээлийн төрөл
-                </label>
+                <label htmlFor="teaching_categories">Заадаг хичээлийн төрөл</label>
                 <input
                   type="text"
                   id="teaching_categories"
@@ -489,35 +476,21 @@ function Profile({ user }) {
                 />
               </div>
 
-              <div className="input-group">
-                <label htmlFor="profile_image">
-                  <Camera size={16} />
-                  Профайл зургийн URL
-                </label>
-                <input
-                  type="text"
-                  id="profile_image"
-                  name="profile_image"
-                  value={instructorData.profile_image}
-                  onChange={(e) => setInstructorData({...instructorData, profile_image: e.target.value})}
-                  placeholder="https://example.com/profile.jpg"
-                />
-              </div>
+              {/* ✅✅✅ ПРОФАЙЛ ЗУРАГ UPLOAD */}
+              <ImageUpload
+                label="Профайл зураг"
+                onUploadSuccess={(url) => setInstructorData({...instructorData, profile_image: url})}
+                currentImage={instructorData.profile_image}
+                uploadType="profile-image"
+              />
 
-              <div className="input-group">
-                <label htmlFor="profile_banner">
-                  <Image size={16} />
-                  Баннер зургийн URL
-                </label>
-                <input
-                  type="text"
-                  id="profile_banner"
-                  name="profile_banner"
-                  value={instructorData.profile_banner}
-                  onChange={(e) => setInstructorData({...instructorData, profile_banner: e.target.value})}
-                  placeholder="https://example.com/banner.jpg"
-                />
-              </div>
+              {/* ✅✅✅ БАННЕР ЗУРАГ UPLOAD */}
+              <ImageUpload
+                label="Баннер зураг"
+                onUploadSuccess={(url) => setInstructorData({...instructorData, profile_banner: url})}
+                currentImage={instructorData.profile_banner}
+                uploadType="profile-banner"
+              />
 
               <div className="form-actions">
                 <button 

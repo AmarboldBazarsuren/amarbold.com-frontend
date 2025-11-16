@@ -1,7 +1,8 @@
-// src/components/admin/CourseFormModal.js - UPDATED
+// src/components/admin/CourseFormModal.js - ЗАСВАРЛАСАН
+
 import React from 'react';
 import axios from 'axios';
-import ImageUpload from '../ImageUpload'; // ✅ Шинэ component
+import ImageUpload from '../ImageUpload';
 
 function CourseFormModal({ 
   show, 
@@ -39,17 +40,6 @@ function CourseFormModal({
     if (!text || text.trim() === '') return 0;
     return text.trim().split(/\s+/).filter(word => word.length > 0).length;
   };
-
-  // ✅ Image upload callback
-  const handleImageUpload = (imageUrl) => {
-  // ✅ onChange function-руу object хэлбэрээр дамжуулах
-  onChange({ 
-    target: { 
-      name: 'thumbnail', 
-      value: imageUrl 
-    } 
-  });
-};
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -123,13 +113,22 @@ function CourseFormModal({
             </small>
           </div>
 
-          {/* ✅ ЗУРАГ UPLOAD ХЭСЭГ */}
-       <ImageUpload
-  label="Хичээлийн зураг *"
-  onUploadSuccess={handleImageUpload} 
-  currentImage={formData.thumbnail}
-  uploadType="course-thumbnail"
-/>
+          {/* ✅ ЗУРАГ UPLOAD ХЭСЭГ - ЗАСВАРЛАСАН */}
+          <ImageUpload
+            label="Хичээлийн зураг *"
+            onUploadSuccess={(imageUrl) => {
+              console.log('✅ Upload амжилттай:', imageUrl);
+              // ✅ onChange-руу зөв event дамжуулах
+              onChange({
+                target: {
+                  name: 'thumbnail',
+                  value: imageUrl
+                }
+              });
+            }}
+            currentImage={formData.thumbnail}
+            uploadType="course-thumbnail"
+          />
 
           <div className="input-group">
             <label>Танилцуулга видео URL *</label>
@@ -233,7 +232,7 @@ function CourseFormModal({
                 countWords(formData.full_description) < 15 ||
                 (formData.price && formData.price < 5000) ||
                 !formData.category_id ||
-                !formData.thumbnail // ✅ Зураг заавал шаардлагатай
+                !formData.thumbnail
               }
             >
               {editingCourse ? 'Шинэчлэх' : 'Нэмэх'}

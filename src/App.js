@@ -16,6 +16,7 @@ import MyStudents from './pages/MyStudents';
 import Layout from './components/Layout';
 import LessonPlayer from './pages/LessonPlayer';
 import CourseManage from './pages/CourseManage'; 
+import ForgotPassword from './pages/ForgotPassword';
 import './App.css';
 
 function App() {
@@ -192,6 +193,7 @@ function App() {
               ) : <Navigate to="/login" />
             } 
           />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
       </Router>
     </ErrorBoundary>
