@@ -1,5 +1,6 @@
 import React from 'react';
 import { Search, Filter } from 'lucide-react';
+import axios from 'axios';
 
 function DashboardFilters({ 
   searchQuery, 
@@ -8,17 +9,23 @@ function DashboardFilters({
   onCategoryChange,
   showCategoryFilter = true 
 }) {
-  const categories = ['all', 'programming', 'design', 'business', 'marketing'];
+  const [categories, setCategories] = React.useState([]);
 
-  const getCategoryLabel = (cat) => {
-    const labels = {
-      'all': 'Бүгд',
-      'programming': 'Програмчлал',
-      'design': 'Дизайн',
-      'business': 'Бизнес',
-      'marketing': 'Маркетинг'
-    };
-    return labels[cat] || cat;
+  React.useEffect(() => {
+    if (showCategoryFilter) {
+      fetchCategories();
+    }
+  }, [showCategoryFilter]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/categories');
+      if (response.data.success) {
+        setCategories(response.data.data || []);
+      }
+    } catch (error) {
+      console.error('Ангилал татахад алдаа:', error);
+    }
   };
 
   return (
@@ -36,13 +43,19 @@ function DashboardFilters({
       {showCategoryFilter && (
         <div className="filter-buttons">
           <Filter size={20} />
+          <button
+            className={`filter-btn ${filterCategory === 'all' ? 'active' : ''}`}
+            onClick={() => onCategoryChange('all')}
+          >
+            Бүгд
+          </button>
           {categories.map(cat => (
             <button
-              key={cat}
-              className={`filter-btn ${filterCategory === cat ? 'active' : ''}`}
-              onClick={() => onCategoryChange(cat)}
+              key={cat.slug}
+              className={`filter-btn ${filterCategory === cat.slug ? 'active' : ''}`}
+              onClick={() => onCategoryChange(cat.slug)}
             >
-              {getCategoryLabel(cat)}
+              {cat.icon && `${cat.icon} `}{cat.name}
             </button>
           ))}
         </div>

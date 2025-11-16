@@ -41,6 +41,14 @@ function Layout({ children, user, onLogout }) {
       label: 'Хэрэглэгчид',
       superAdminOnly: true 
     });
+    
+    // ✅ ШИНЭ - Ангилал удирдах
+    navItems.push({ 
+      path: '/admin/categories', 
+      icon: BookOpen, 
+      label: 'Ангилал',
+      superAdminOnly: true 
+    });
   }
 
   return (

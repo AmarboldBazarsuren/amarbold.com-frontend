@@ -11,6 +11,7 @@ import CourseDetail from './pages/CourseDetail';
 import InstructorDetail from './pages/InstructorDetail';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
+import AdminCategories from './pages/AdminCategories';
 import MyStudents from './pages/MyStudents';
 import Layout from './components/Layout';
 import LessonPlayer from './pages/LessonPlayer';
@@ -110,7 +111,7 @@ function App() {
             } 
           />
 
-          {/* 🔥 ШИНЭ - Course Manage Route */}
+          {/* Course Manage Route */}
           <Route 
             path="/course/:id/manage" 
             element={
@@ -165,6 +166,18 @@ function App() {
               user && user.role === 'admin' ? (
                 <Layout user={user} onLogout={handleLogout}>
                   <AdminUsers />
+                </Layout>
+              ) : <Navigate to="/login" />
+            }
+          />
+
+          {/* Admin Categories route */}
+          <Route 
+            path="/admin/categories" 
+            element={
+              user && user.role === 'admin' ? (
+                <Layout user={user} onLogout={handleLogout}>
+                  <AdminCategories />
                 </Layout>
               ) : <Navigate to="/login" />
             }

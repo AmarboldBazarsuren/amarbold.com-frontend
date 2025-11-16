@@ -220,10 +220,7 @@ function Profile({ user }) {
             </div>
             <div className="stat-box">
               <Award size={24} />
-              <div>
-                <div className="stat-value">5</div>
-                <div className="stat-label">Гэрчилгээ</div>
-              </div>
+              
             </div>
           </div>
         </div>

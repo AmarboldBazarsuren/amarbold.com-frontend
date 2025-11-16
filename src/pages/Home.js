@@ -5,10 +5,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Users, Award, TrendingUp, ArrowRight, Sparkles } from 'lucide-react';
 import axios from 'axios';
 import CourseCarousel from '../components/dashboard/CourseCarousel';
+import InstructorCarousel from '../components/dashboard/InstructorCarousel';
 import '../styles/Home.css';
 
 function Home({ user }) {
   const [courses, setCourses] = useState([]);
+  const [instructors, setInstructors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalCourses: 0,
@@ -25,9 +27,14 @@ function Home({ user }) {
   const fetchPublicData = async () => {
     try {
       // ✅ Public endpoint - token шаардахгүй
-      const [coursesRes, statsRes] = await Promise.all([
+      const [coursesRes, statsRes, instructorsRes] = await Promise.all([
         axios.get('http://localhost:5000/api/public/courses'),
-        axios.get('http://localhost:5000/api/public/stats')
+        axios.get('http://localhost:5000/api/public/stats'),
+        user 
+          ? axios.get('http://localhost:5000/api/instructors', {
+              headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            })
+          : Promise.resolve({ data: { success: true, data: [] } })
       ]);
 
       if (coursesRes.data.success) {
@@ -38,6 +45,12 @@ function Home({ user }) {
 
       if (statsRes.data.success) {
         setStats(statsRes.data.data);
+      }
+
+      if (instructorsRes.data.success) {
+        // Сүүлд нэмэгдсэн 8 багш
+        const recentInstructors = instructorsRes.data.data.slice(0, 8);
+        setInstructors(recentInstructors);
       }
     } catch (error) {
       console.error('Өгөгдөл татахад алдаа:', error);
@@ -52,6 +65,15 @@ function Home({ user }) {
     } else {
       // Нэвтрэх шаардлагатай
       alert('Хичээл үзэхийн тулд эхлээд бүртгүүлнэ үү');
+      navigate('/login');
+    }
+  };
+
+  const handleInstructorClick = (instructorId) => {
+    if (user) {
+      navigate(`/instructor/${instructorId}`);
+    } else {
+      alert('Багш үзэхийн тулд эхлээд бүртгүүлнэ үү');
       navigate('/login');
     }
   };
@@ -116,10 +138,7 @@ function Home({ user }) {
               <BookOpen size={32} />
               <span>1000+ Видео хичээл</span>
             </div>
-            <div className="floating-card card-2">
-              <Award size={32} />
-              <span>Гэрчилгээ олгоно</span>
-            </div>
+         
             <div className="floating-card card-3">
               <TrendingUp size={32} />
               <span>Шат дараалалтай</span>
@@ -157,6 +176,19 @@ function Home({ user }) {
           )}
         </div>
       </section>
+
+      {/* ✅ INSTRUCTORS SECTION - CAROUSEL */}
+      {user && instructors.length > 0 && (
+        <section className="public-instructors-section">
+          <div className="container">
+            <InstructorCarousel
+              title="Багш нар"
+              instructors={instructors}
+              onInstructorClick={handleInstructorClick}
+            />
+          </div>
+        </section>
+      )}
 
       {/* Features Section */}
       <section className="features">
@@ -198,16 +230,7 @@ function Home({ user }) {
                 суралцаарай
               </p>
             </div>
-            <div className="feature-card">
-              <div className="feature-icon">
-                <Award size={32} />
-              </div>
-              <h3>Гэрчилгээ олгоно</h3>
-              <p>
-                Хичээлээ амжилттай дуусгасан тохиолдолд төгсөлтийн гэрчилгээ
-                авах боломжтой
-              </p>
-            </div>
+          
           </div>
         </div>
       </section>

@@ -423,3 +423,193 @@
     font-size: 32px;
   }
 }
+/* src/styles/Home.css - Public courses section засах */
+
+/* ==================== PUBLIC COURSES SECTION ==================== */
+.public-courses-section {
+  padding: 100px 0;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Carousel container-ийг Home дээр зохицуулах */
+.public-courses-section .courses-carousel-section {
+  margin-bottom: 0;
+}
+
+.public-courses-section .carousel-title {
+  font-size: 42px;
+  background: linear-gradient(135deg, #ffffff 0%, #b0b0b0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ==================== PUBLIC INSTRUCTORS SECTION ==================== */
+.public-instructors-section {
+  padding: 100px 0 0 0;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.instructors-carousel-section {
+  margin-bottom: 0;
+}
+
+.instructors-carousel {
+  position: relative;
+  overflow: hidden;
+  padding: 4px;
+  cursor: grab;
+  user-select: none;
+}
+
+.instructors-carousel:active {
+  cursor: grabbing;
+}
+
+/* Instructor Card Styles */
+.instructor-card {
+  background: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.instructor-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 16px 48px rgba(0, 212, 255, 0.2);
+}
+
+.instructor-banner {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+}
+
+.instructor-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.instructor-card:hover .instructor-banner img {
+  transform: scale(1.1);
+}
+
+.banner-gradient {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+  opacity: 0.3;
+}
+
+.instructor-content {
+  padding: 0 24px 24px;
+  text-align: center;
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.instructor-avatar-large {
+  width: 100px;
+  height: 100px;
+  margin: -50px auto 16px;
+  border-radius: 50%;
+  border: 4px solid rgba(26, 26, 26, 0.95);
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.instructor-avatar-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.instructor-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.instructor-category {
+  font-size: 14px;
+  color: #00d4ff;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.instructor-bio {
+  font-size: 14px;
+  color: #b0b0b0;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+.instructor-stats {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: auto;
+}
+
+.instructor-stats .stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #b0b0b0;
+}
+
+.instructor-stats .stat-item svg {
+  color: #00d4ff;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .public-courses-section {
+    padding: 60px 0;
+  }
+  
+  .public-courses-section .carousel-title {
+    font-size: 32px;
+  }
+
+  .public-instructors-section {
+    padding: 60px 0 0 0;
+  }
+
+  .instructor-carousel-section {
+    margin-bottom: 0;
+  }
+}

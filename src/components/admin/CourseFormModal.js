@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 
 function CourseFormModal({ 
   show, 
@@ -8,6 +9,28 @@ function CourseFormModal({
   onSubmit, 
   editingCourse 
 }) {
+  const [categories, setCategories] = React.useState([]);
+
+  React.useEffect(() => {
+    if (show) {
+      fetchCategories();
+    }
+  }, [show]);
+
+  const fetchCategories = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5000/api/categories', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.data.success) {
+        setCategories(response.data.data || []);
+      }
+    } catch (error) {
+      console.error('Ангилал татахад алдаа:', error);
+    }
+  };
+
   if (!show) return null;
 
   // 🔥 Үг тоолох функц - зөв ажиллах
@@ -120,19 +143,25 @@ function CourseFormModal({
 
           <div className="form-row">
             <div className="input-group">
-              <label >Ангилал</label>
+              <label>Ангилал *</label>
               <select
                 name="category_id"
                 value={formData.category_id || ''}
                 onChange={onChange}
+                required
               >
                 <option value="">Ангилал сонгох</option>
-                <option value="1">Компьютер</option>
-                <option value="2">Хувь хүний хөгжил</option>
-                <option value="3">Бизнес</option>
-                <option value="4">Санхүү</option>
-                <option value="5">Гадаад хэл</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.icon && `${cat.icon} `}{cat.name}
+                  </option>
+                ))}
               </select>
+              {categories.length === 0 && (
+                <small style={{color: '#ff3b30', fontSize: '11px', marginTop: '4px', display: 'block'}}>
+                  ⚠ Ангилал байхгүй байна. Admin хэсгээс ангилал нэмнэ үү
+                </small>
+              )}
             </div>
 
             <div className="input-group">
@@ -197,7 +226,8 @@ function CourseFormModal({
               disabled={
                 countWords(formData.description) < 5 || 
                 countWords(formData.full_description) < 15 ||
-                (formData.price && formData.price < 5000)
+                (formData.price && formData.price < 5000) ||
+                !formData.category_id
               }
             >
               {editingCourse ? 'Шинэчлэх' : 'Нэмэх'}

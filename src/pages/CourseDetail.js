@@ -300,7 +300,6 @@ function CourseDetail() {
               <li><PlayCircle size={16} /> Видео хичээлүүд</li>
               <li><Clock size={16} /> {course.duration || '10'} цагийн контент</li>
               <li><BookOpen size={16} /> Дэлгэрэнгүй материал</li>
-              <li><Award size={16} /> Гэрчилгээ олгоно</li>
             </ul>
           </div>
 
