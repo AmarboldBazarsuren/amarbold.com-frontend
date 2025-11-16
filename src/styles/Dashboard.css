@@ -606,3 +606,163 @@
   font-weight: 800;
   color: #34c759;
 }
+/* src/styles/Dashboard.css - Carousel section нэмэх */
+
+/* ==================== CAROUSEL SECTION ==================== */
+.courses-carousel-section {
+  margin-bottom: 48px;
+}
+
+.carousel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.carousel-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.carousel-controls {
+  display: flex;
+  gap: 12px;
+}
+
+.carousel-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.carousel-btn:hover:not(:disabled) {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.3);
+  color: #00d4ff;
+}
+
+.carousel-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.courses-carousel {
+  position: relative;
+  overflow: hidden;
+  padding: 4px; /* Shadow-д зориулж */
+}
+
+.carousel-track {
+  display: flex;
+  gap: 28px;
+  transition: transform 0.5s ease;
+  will-change: transform;
+}
+
+.carousel-item {
+  flex: 0 0 320px; /* Тогтмол өргөн */
+  max-width: 320px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .carousel-item {
+    flex: 0 0 280px;
+    max-width: 280px;
+  }
+  
+  .carousel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+
+/* ==================== CATEGORY TABS ==================== */
+.courses-category-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.courses-category-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.courses-category-tabs::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.courses-category-tabs::-webkit-scrollbar-thumb {
+  background: rgba(0, 212, 255, 0.3);
+  border-radius: 2px;
+}
+
+.category-tab-btn {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #b0b0b0;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.category-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.category-tab-btn.active {
+  background: rgba(0, 212, 255, 0.15);
+  border-color: rgba(0, 212, 255, 0.4);
+  color: #00d4ff;
+}
+/* src/styles/Dashboard.css - Carousel section дотор нэмэх */
+
+.courses-carousel {
+  position: relative;
+  overflow: hidden;
+  padding: 4px;
+  cursor: grab; /* ✅ Default cursor */
+  user-select: none; /* ✅ Text selection-г идэвхгүй болгох */
+}
+
+.courses-carousel:active {
+  cursor: grabbing; /* ✅ Drag хийж байхад */
+}
+
+.carousel-track {
+  display: flex;
+  gap: 28px;
+  transition: transform 0.5s ease;
+  will-change: transform;
+  touch-action: pan-y; /* ✅ Vertical scroll-г хадгална */
+}
+
+.carousel-item {
+  flex: 0 0 320px;
+  max-width: 320px;
+  cursor: pointer;
+}
+
+/* ✅ Drag хийж байхад card дээр click хийхгүй */
+.carousel-item.dragging {
+  pointer-events: none;
+}

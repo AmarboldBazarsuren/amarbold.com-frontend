@@ -1,5 +1,7 @@
+// src/pages/AdminUsers.js
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { Users, Search, Filter, UserPlus } from 'lucide-react';
+import { Users, Search, Filter, UserPlus, Trash2, Eye, X } from 'lucide-react';
 import axios from 'axios';
 import '../styles/AdminUsers.css';
 
@@ -16,10 +18,13 @@ function AdminUsers() {
     password: ''
   });
 
-  // ✅ Одоогийн хэрэглэгчийн эрхийг авах
+  // ✅ User detail modal
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userCourses, setUserCourses] = useState([]);
+  const [loadingCourses, setLoadingCourses] = useState(false);
+
   const [currentUser, setCurrentUser] = useState(null);
 
-  // ✅ useCallback ашиглаж fetchUsers-г тогтмол болгох
   const fetchUsers = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
@@ -47,7 +52,7 @@ function AdminUsers() {
     const user = JSON.parse(localStorage.getItem('user'));
     setCurrentUser(user);
     fetchUsers();
-  }, [fetchUsers]); // ✅ fetchUsers-г dependency-д нэмэх
+  }, [fetchUsers]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -69,7 +74,6 @@ function AdminUsers() {
     }
   };
 
-  // ✅ Веб дээрээс эрх өөрчлөх функц
   const handleRoleChange = async (userId, newRole) => {
     if (!window.confirm(`Энэ хэрэглэгчийг ${newRole === 'admin' ? 'Super Admin' : newRole === 'test_admin' ? 'Test Admin' : 'Хэрэглэгч'} болгох уу?`)) {
       return;
@@ -86,6 +90,48 @@ function AdminUsers() {
       fetchUsers();
     } catch (error) {
       alert(error.response?.data?.message || 'Алдаа гарлаа');
+    }
+  };
+
+  // ✅ Хэрэглэгч устгах
+  const handleDeleteUser = async (userId, userName) => {
+    if (!window.confirm(`"${userName}" хэрэглэгчийг бүрмөсөн устгах уу?\n\nӨгөгдөл:\n- Бүртгэл\n- Прогресс\n- Үнэлгээ\n\nБҮХ устах болно!`)) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(
+        `http://localhost:5000/api/admin/users/${userId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert('Хэрэглэгч амжилттай устгагдлаа');
+      fetchUsers();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Алдаа гарлаа');
+    }
+  };
+
+  // ✅ Хэрэглэгчийн хичээлүүд харах
+  const handleViewUserCourses = async (user) => {
+    setSelectedUser(user);
+    setLoadingCourses(true);
+    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `http://localhost:5000/api/admin/users/${user.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      if (response.data.success) {
+        setUserCourses(response.data.data.enrollments || []);
+      }
+    } catch (error) {
+      console.error('Хичээл татахад алдаа:', error);
+      setUserCourses([]);
+    } finally {
+      setLoadingCourses(false);
     }
   };
 
@@ -126,7 +172,6 @@ function AdminUsers() {
           <h1>Хэрэглэгчид</h1>
           <p>{users.length} хэрэглэгч</p>
         </div>
-        {/* ✅ Зөвхөн Super Admin л Test Admin үүсгэнэ */}
         {currentUser?.role === 'admin' && (
           <button 
             className="btn btn-primary"
@@ -222,6 +267,75 @@ function AdminUsers() {
         </div>
       )}
 
+      {/* ✅ User Courses Modal */}
+      {selectedUser && (
+        <div className="modal-overlay" onClick={() => setSelectedUser(null)}>
+          <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <div>
+                <h2>{selectedUser.name} - Хичээлүүд</h2>
+                <p style={{ color: '#808080', fontSize: '14px', marginTop: '4px' }}>
+                  {selectedUser.email}
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedUser(null)}
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  background: 'rgba(255, 59, 48, 0.1)',
+                  border: '1px solid rgba(255, 59, 48, 0.3)',
+                  color: '#ff3b30',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {loadingCourses ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: '#808080' }}>
+                Уншиж байна...
+              </div>
+            ) : userCourses.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: '#808080' }}>
+                Энэ хэрэглэгч хичээлд бүртгүүлээгүй байна
+              </div>
+            ) : (
+              <div className="user-courses-list">
+                {userCourses.map((enrollment) => (
+                  <div key={enrollment.id} className="user-course-item">
+                    <img 
+                      src={enrollment.thumbnail || '/placeholder-course.jpg'} 
+                      alt={enrollment.title}
+                      style={{
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '8px',
+                        objectFit: 'cover'
+                      }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{ fontSize: '16px', color: '#ffffff', marginBottom: '4px' }}>
+                        {enrollment.title}
+                      </h3>
+                      <div style={{ display: 'flex', gap: '16px', fontSize: '13px', color: '#808080' }}>
+                        <span>Бүртгүүлсэн: {new Date(enrollment.enrolled_at).toLocaleDateString('mn-MN')}</span>
+                        <span>Төлбөр: {enrollment.payment_status === 'paid' ? `₮${enrollment.payment_amount?.toLocaleString()}` : 'Үнэгүй'}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Users Table */}
       {loading ? (
         <div className="loading">Уншиж байна...</div>
@@ -253,14 +367,31 @@ function AdminUsers() {
                   <td>{user.email}</td>
                   <td>{getRoleBadge(user.role)}</td>
                   <td>{getStatusBadge(user.status)}</td>
-                  <td>{user.enrolled_courses || 0}</td>
+                  <td>
+                    <button
+                      onClick={() => handleViewUserCourses(user)}
+                      style={{
+                        padding: '4px 12px',
+                        background: 'rgba(0, 212, 255, 0.1)',
+                        border: '1px solid rgba(0, 212, 255, 0.3)',
+                        borderRadius: '6px',
+                        color: '#00d4ff',
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <Eye size={14} />
+                      {user.enrolled_courses || 0}
+                    </button>
+                  </td>
                   <td>{new Date(user.created_at).toLocaleDateString('mn-MN')}</td>
                   <td>
                     <div className="action-dropdown">
-                      {/* ✅ Өөрийгөө болон Super Admin-г өөрчилж болохгүй */}
                       {user.id !== currentUser?.id && user.role !== 'admin' && currentUser?.role === 'admin' && (
                         <>
-                          {/* Статус солих */}
                           <select 
                             onChange={(e) => handleStatusChange(user.id, e.target.value)}
                             value={user.status}
@@ -271,7 +402,6 @@ function AdminUsers() {
                             <option value="banned">Хаах</option>
                           </select>
 
-                          {/* ✅ Эрх солих - Зөвхөн Super Admin */}
                           <select 
                             onChange={(e) => handleRoleChange(user.id, e.target.value)}
                             value={user.role}
@@ -281,6 +411,26 @@ function AdminUsers() {
                             <option value="test_admin">Test Admin</option>
                             <option value="admin">Super Admin</option>
                           </select>
+
+                          {/* ✅ Устгах товч */}
+                          <button
+                            onClick={() => handleDeleteUser(user.id, user.name)}
+                            style={{
+                              padding: '6px 12px',
+                              background: 'rgba(255, 59, 48, 0.1)',
+                              border: '1px solid rgba(255, 59, 48, 0.3)',
+                              borderRadius: '6px',
+                              color: '#ff3b30',
+                              fontSize: '13px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <Trash2 size={14} />
+                            Устгах
+                          </button>
                         </>
                       )}
                       {user.id === currentUser?.id && <span className="self-indicator">Та</span>}

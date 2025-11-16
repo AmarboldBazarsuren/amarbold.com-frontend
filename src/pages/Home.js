@@ -1,9 +1,61 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+// src/pages/Home.js
+
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Users, Award, TrendingUp, ArrowRight, Sparkles } from 'lucide-react';
+import axios from 'axios';
+import CourseCarousel from '../components/dashboard/CourseCarousel';
 import '../styles/Home.css';
 
 function Home({ user }) {
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalCourses: 0,
+    totalInstructors: 0,
+    activeInstructors: 0,
+    averageRating: '4.8'
+  });
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchPublicData();
+  }, []);
+
+  const fetchPublicData = async () => {
+    try {
+      // ✅ Public endpoint - token шаардахгүй
+      const [coursesRes, statsRes] = await Promise.all([
+        axios.get('http://localhost:5000/api/public/courses'),
+        axios.get('http://localhost:5000/api/public/stats')
+      ]);
+
+      if (coursesRes.data.success) {
+        // Сүүлд нэмэгдсэн 8 хичээл
+        const recentCourses = coursesRes.data.data.slice(0, 8);
+        setCourses(recentCourses);
+      }
+
+      if (statsRes.data.success) {
+        setStats(statsRes.data.data);
+      }
+    } catch (error) {
+      console.error('Өгөгдөл татахад алдаа:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCourseClick = (courseId) => {
+    if (user) {
+      navigate(`/course/${courseId}`);
+    } else {
+      // Нэвтрэх шаардлагатай
+      alert('Хичээл үзэхийн тулд эхлээд бүртгүүлнэ үү');
+      navigate('/login');
+    }
+  };
+
   return (
     <div className="home">
       {/* Hero Section */}
@@ -44,7 +96,7 @@ function Home({ user }) {
             </div>
             <div className="hero-stats">
               <div className="stat-item">
-                <div className="stat-number">500+</div>
+                <div className="stat-number">{stats.totalCourses}+</div>
                 <div className="stat-label">Хичээлүүд</div>
               </div>
               <div className="stat-divider"></div>
@@ -54,7 +106,7 @@ function Home({ user }) {
               </div>
               <div className="stat-divider"></div>
               <div className="stat-item">
-                <div className="stat-number">50+</div>
+                <div className="stat-number">{stats.totalInstructors}+</div>
                 <div className="stat-label">Багш нар</div>
               </div>
             </div>
@@ -73,6 +125,36 @@ function Home({ user }) {
               <span>Шат дараалалтай</span>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ✅ PUBLIC COURSES SECTION - CAROUSEL */}
+      <section className="public-courses-section">
+        <div className="container">
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '60px', color: '#808080' }}>
+              Уншиж байна...
+            </div>
+          ) : courses.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px', color: '#808080' }}>
+              Одоогоор хичээл байхгүй байна
+            </div>
+          ) : (
+            <CourseCarousel
+              title="Сүүлд нэмэгдсэн хичээлүүд"
+              courses={courses}
+              onCourseClick={handleCourseClick}
+            />
+          )}
+
+          {!user && courses.length > 0 && (
+            <div style={{ textAlign: 'center', marginTop: '40px' }}>
+              <Link to="/register" className="btn btn-primary btn-lg">
+                Бүх хичээлүүдийг үзэх
+                <ArrowRight size={20} />
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
