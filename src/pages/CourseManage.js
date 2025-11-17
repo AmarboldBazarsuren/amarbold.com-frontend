@@ -63,14 +63,12 @@ function CourseManage() {
         await api.put(
           `/api/admin/sections/${editingSection.id}`,
           sectionFormData,
-          { headers: { Authorization: `Bearer ${token}` } }
         );
         alert('Section амжилттай шинэчлэгдлээ');
       } else {
         await api.post(
           `/api/admin/courses/${id}/sections`,
           sectionFormData,
-          { headers: { Authorization: `Bearer ${token}` } }
         );
         alert('Section амжилттай нэмэгдлээ');
       }
@@ -100,7 +98,6 @@ function CourseManage() {
       const token = localStorage.getItem('token');
       await api.delete(
         `/api/admin/sections/${sectionId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert('Section амжилттай устгагдлаа');
       fetchCourse();
@@ -118,14 +115,12 @@ function CourseManage() {
         await api.put(
           `/api/admin/lessons/${editingLesson.id}`,
           lessonFormData,
-          { headers: { Authorization: `Bearer ${token}` } }
         );
         alert('Хичээл амжилттай шинэчлэгдлээ');
       } else {
         await api.post(
           `/api/admin/sections/${selectedSection.id}/lessons`,
           lessonFormData,
-          { headers: { Authorization: `Bearer ${token}` } }
         );
         alert('Хичээл амжилттай нэмэгдлээ');
       }
@@ -173,7 +168,6 @@ function CourseManage() {
       const token = localStorage.getItem('token');
       await api.delete(
         `/api/admin/lessons/${lessonId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert('Хичээл амжилттай устгагдлаа');
       fetchCourse();

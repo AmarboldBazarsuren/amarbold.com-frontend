@@ -103,7 +103,6 @@ const response = await api.get(`/api/courses/${id}`);
       await api.post(
         `/api/courses/${id}/enroll`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       setIsEnrolled(true);
       alert('Амжилттай бүртгүүллээ!');
