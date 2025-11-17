@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { User, Mail, Lock, Shield, Save, Edit2, Award } from 'lucide-react';
 import ImageUpload from '../components/ImageUpload'; // ✅ НЭМСЭН
 import '../styles/Profile.css';
+import api from '../config/api'; // ✅ НЭМЭХ
 
 function Profile({ user }) {
   const [isEditing, setIsEditing] = useState(false);
