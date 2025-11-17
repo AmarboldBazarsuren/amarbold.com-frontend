@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Lock, Shield, Save, Edit2, Award } from 'lucide-react';
-import axios from 'axios';
 import ImageUpload from '../components/ImageUpload'; // ✅ НЭМСЭН
 import '../styles/Profile.css';
 
@@ -66,7 +65,7 @@ function Profile({ user }) {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put(
+      await api.put(
         '/api/users/profile',
         {
           name: formData.name,
@@ -108,7 +107,7 @@ function Profile({ user }) {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put(
+      await api.put(
         '/api/users/change-password',
         {
           currentPassword: formData.currentPassword,
@@ -141,10 +140,9 @@ function Profile({ user }) {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put(
+      await api.put(
         '/api/users/instructor-profile',
         instructorData,
-        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setSuccess('Багшийн профайл амжилттай шинэчлэгдлээ');

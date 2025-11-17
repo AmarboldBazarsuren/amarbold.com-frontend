@@ -121,16 +121,16 @@ function AdminDashboard() {
       const token = localStorage.getItem('token');
       
       if (editingCourse) {
-        await axios.put(
+        await api.put(
           `api/admin/courses/${editingCourse.id}`,
           { ...formData, status: 'published' },
-          { headers: { Authorization: `Bearer ${token}` } }
+         
         );
         alert('Хичээл амжилттай шинэчлэгдлээ');
-      } else { await axios.post(
+      } else { await api.post(
           'api/admin/courses',
           formData,
-          { headers: { Authorization: `Bearer ${token}` } }
+         
         );
         alert('Хичээл амжилттай үүсгэлээ');
       }
@@ -166,9 +166,8 @@ function AdminDashboard() {
     
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(
+      await api.delete(
         `/api/admin/courses/${courseId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert('Хичээл амжилттай устгагдлаа');
       fetchAllCourses();
@@ -217,17 +216,15 @@ function AdminDashboard() {
       const token = localStorage.getItem('token');
       
       if (editingSection) {
-        await axios.put(
+        await api.put(
           `/api/admin/sections/${editingSection.id}`,
           sectionFormData,
-          { headers: { Authorization: `Bearer ${token}` } }
         );
         alert('Section амжилттай шинэчлэгдлээ');
       } else {
-        await axios.post(
+        await api.post(
           `/api/admin/courses/${selectedCourse.id}/sections`,
           sectionFormData,
-          { headers: { Authorization: `Bearer ${token}` } }
         );
         alert('Section амжилттай нэмэгдлээ');
       }
@@ -256,9 +253,8 @@ function AdminDashboard() {
     
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(
+      await api.delete(
         `/api/admin/sections/${sectionId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert('Section амжилттай устгагдлаа');
       fetchCourseSections(selectedCourse.id);
@@ -273,17 +269,15 @@ function AdminDashboard() {
       const token = localStorage.getItem('token');
       
       if (editingLesson) {
-        await axios.put(
+        await api.put(
           `/api/admin/lessons/${editingLesson.id}`,
           lessonFormData,
-          { headers: { Authorization: `Bearer ${token}` } }
         );
         alert('Хичээл амжилттай шинэчлэгдлээ');
       } else {
-        await axios.post(
+        await api.post(
           `/api/admin/sections/${selectedSection.id}/lessons`,
           lessonFormData,
-          { headers: { Authorization: `Bearer ${token}` } }
         );
         alert('Хичээл амжилттай нэмэгдлээ');
       }
@@ -323,9 +317,8 @@ function AdminDashboard() {
     
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(
+      await api.delete(
         `/api/admin/lessons/${lessonId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert('Хичээл амжилттай устгагдлаа');
       fetchCourseSections(selectedCourse.id);
@@ -361,10 +354,9 @@ function AdminDashboard() {
   
   try {
     const token = localStorage.getItem('token');
-    await axios.post(
+    await api.post(
       `/api/discounts/courses/${selectedCourseForDiscount.id}`,
       discountFormData,
-      { headers: { Authorization: `Bearer ${token}` } }
     );
     
     alert('Хямдрал амжилттай үүсгэлээ!');
@@ -379,9 +371,8 @@ function AdminDashboard() {
     
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(
+      await api.delete(
         `/api/discounts/${discountId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       
       alert('Хямдрал устгагдлаа');

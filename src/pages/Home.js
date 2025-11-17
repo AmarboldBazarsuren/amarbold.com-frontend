@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Users, Award, TrendingUp, ArrowRight, Sparkles } from 'lucide-react';
-import axios from 'axios';
 import CourseCarousel from '../components/dashboard/CourseCarousel';
 import InstructorCarousel from '../components/dashboard/InstructorCarousel';
 import '../styles/Home.css';
@@ -29,10 +28,10 @@ function Home({ user }) {
     try {
       // ✅ Public endpoint - token шаардахгүй
       const [coursesRes, statsRes, instructorsRes] = await Promise.all([
-        axios.get('/api/public/courses'),
-        axios.get('/api/public/stats'),
+        api.get('/api/public/courses'),
+        api.get('/api/public/stats'),
         user 
-          ? axios.get('/api/instructors', {
+          ? api.get('/api/instructors', {
               headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             })
           : Promise.resolve({ data: { success: true, data: [] } })

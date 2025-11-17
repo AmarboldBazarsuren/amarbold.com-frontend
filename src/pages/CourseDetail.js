@@ -4,7 +4,6 @@ import {
   PlayCircle, Clock, BookOpen, Star, CheckCircle, Lock, 
   ChevronDown, ChevronUp, Users, Award, ArrowLeft 
 } from 'lucide-react';
-import axios from 'axios';
 import '../styles/CourseDetail.css';
 import api from '../config/api';  // ✅ Энийг нэмэх
 
@@ -101,7 +100,7 @@ const response = await api.get(`/api/courses/${id}`);
     setPurchasing(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.post(
+      await api.post(
         `/api/courses/${id}/enroll`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }

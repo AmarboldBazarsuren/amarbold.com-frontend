@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Users, Search, Filter, UserPlus, Trash2, Eye, X } from 'lucide-react';
-import axios from 'axios';
 import '../styles/AdminUsers.css';
 import api from '../config/api';
 function AdminUsers() {
@@ -60,10 +59,9 @@ function AdminUsers() {
   const handleStatusChange = async (userId, newStatus) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(
+      await api.put(
         `/api/admin/users/${userId}/status`,
         { status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert('Статус амжилттай өөрчлөгдлөө');
       fetchUsers();
@@ -79,10 +77,9 @@ function AdminUsers() {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put(
+      await api.put(
         `/api/admin/users/${userId}/role`,
         { role: newRole },
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert('Эрх амжилттай өөрчлөгдлөө');
       fetchUsers();
@@ -99,9 +96,8 @@ function AdminUsers() {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(
+      await api.delete(
         `/api/admin/users/${userId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert('Хэрэглэгч амжилттай устгагдлаа');
       fetchUsers();
@@ -119,7 +115,6 @@ function AdminUsers() {
       const token = localStorage.getItem('token');
       const response = await api.get(
         `/api/admin/users/${user.id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       
       if (response.data.success) {
@@ -137,10 +132,9 @@ function AdminUsers() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post(
+      await api.post(
         '/api/admin/users/create-test-admin',
         testAdminData,
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert('Test Admin амжилттай үүсгэлээ');
       setShowTestAdminForm(false);

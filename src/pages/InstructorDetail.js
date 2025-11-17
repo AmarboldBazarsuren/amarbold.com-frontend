@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BookOpen, Users, ArrowLeft, Clock, Star } from 'lucide-react';
-import axios from 'axios';
 import '../styles/InstructorDetail.css';
 import api from '../config/api';  // ✅ Энийг нэмэх
 

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Users, BookOpen, Calendar, Mail } from 'lucide-react';
-import axios from 'axios';
 import '../styles/MyStudents.css';
 import api from '../config/api';  // ✅ Нэмэх
 

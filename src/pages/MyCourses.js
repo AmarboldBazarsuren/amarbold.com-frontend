@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Clock, CheckCircle, PlayCircle, TrendingUp } from 'lucide-react';
-import axios from 'axios';
 import '../styles/MyCourses.css';
 import api from '../config/api';  // ✅ Энийг нэмэх
 

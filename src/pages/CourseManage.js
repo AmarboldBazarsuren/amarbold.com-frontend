@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Edit, Trash2 } from 'lucide-react';
-import axios from 'axios';
 import '../styles/CourseManage.css';
 import api from '../config/api';
 
@@ -61,14 +60,14 @@ function CourseManage() {
       const token = localStorage.getItem('token');
       
       if (editingSection) {
-        await axios.put(
+        await api.put(
           `/api/admin/sections/${editingSection.id}`,
           sectionFormData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         alert('Section амжилттай шинэчлэгдлээ');
       } else {
-        await axios.post(
+        await api.post(
           `/api/admin/courses/${id}/sections`,
           sectionFormData,
           { headers: { Authorization: `Bearer ${token}` } }
@@ -99,7 +98,7 @@ function CourseManage() {
     
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(
+      await api.delete(
         `/api/admin/sections/${sectionId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -116,14 +115,14 @@ function CourseManage() {
       const token = localStorage.getItem('token');
       
       if (editingLesson) {
-        await axios.put(
+        await api.put(
           `/api/admin/lessons/${editingLesson.id}`,
           lessonFormData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         alert('Хичээл амжилттай шинэчлэгдлээ');
       } else {
-        await axios.post(
+        await api.post(
           `/api/admin/sections/${selectedSection.id}/lessons`,
           lessonFormData,
           { headers: { Authorization: `Bearer ${token}` } }
@@ -172,7 +171,7 @@ function CourseManage() {
     
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(
+      await api.delete(
         `/api/admin/lessons/${lessonId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );

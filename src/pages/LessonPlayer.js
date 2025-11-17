@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, PlayCircle, CheckCircle, Lock, ChevronDown, ChevronUp, Check, Star } from 'lucide-react';
-import axios from 'axios';
 import RatingModal from '../components/RatingModal';
 import '../styles/LessonPlayer.css';
 import api from '../config/api';  // ✅ Энийг нэмэх
@@ -115,10 +114,9 @@ function LessonPlayer() {
   const handleRateSubmit = async (data) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(
+      await api.post(
         `/api/ratings/courses/${courseId}`,
         data,
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert('Үнэлгээ амжилттай өгөгдлөө!');
       setShowRatingModal(false);
@@ -157,9 +155,8 @@ function LessonPlayer() {
       const isCompleted = completedLessons.has(lessonId);
 
       if (isCompleted) {
-        await axios.delete(
+        await api.delete(
           `/api/lessons/${lessonId}/complete`,
-          { headers: { Authorization: `Bearer ${token}` } }
         );
         
         const newCompleted = new Set(completedLessons);

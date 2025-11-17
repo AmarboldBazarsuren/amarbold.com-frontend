@@ -37,17 +37,17 @@ function AdminCategories() {
       const token = localStorage.getItem('token');
       
       if (editingCategory) {
-        await axios.put(
+        await api.put(
           `/api/categories/${editingCategory.id}`,
           formData,
-          { headers: { Authorization: `Bearer ${token}` } }
+          
         );
         alert('Ангилал амжилттай шинэчлэгдлээ');
       } else {
-        await axios.post(
+        await api.post(
           '/api/categories',
           formData,
-          { headers: { Authorization: `Bearer ${token}` } }
+          
         );
         alert('Ангилал амжилттай нэмэгдлээ');
       }
@@ -76,9 +76,9 @@ function AdminCategories() {
     
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(
+      await api.delete(
         `/api/categories/${categoryId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        
       );
       alert('Ангилал устгагдлаа');
       fetchCategories();
