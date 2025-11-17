@@ -1,8 +1,8 @@
 // src/components/admin/CourseFormModal.js - ЗАСВАРЛАСАН
 
 import React from 'react';
-import axios from 'axios';
 import ImageUpload from '../ImageUpload';
+import api from '../../config/api';  // ✅ Нэмэх (хоёр давхар ../../../)
 
 function CourseFormModal({ 
   show, 
@@ -23,9 +23,7 @@ function CourseFormModal({
   const fetchCategories = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/categories', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get('/api/categories',);
       if (response.data.success) {
         setCategories(response.data.data || []);
       }

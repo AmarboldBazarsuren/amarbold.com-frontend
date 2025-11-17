@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Users, Search, Filter, UserPlus, Trash2, Eye, X } from 'lucide-react';
 import axios from 'axios';
 import '../styles/AdminUsers.css';
-
+import api from '../config/api';
 function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,15 +28,13 @@ function AdminUsers() {
   const fetchUsers = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
-      let url = 'http://localhost:5000/api/admin/users?';
+      let url = '/api/admin/users?';
       
       if (filterRole !== 'all') url += `role=${filterRole}&`;
       if (filterStatus !== 'all') url += `status=${filterStatus}&`;
       if (searchQuery) url += `search=${searchQuery}&`;
 
-      const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get(url);
 
       if (response.data.success) {
         setUsers(response.data.data || []);
@@ -63,7 +61,7 @@ function AdminUsers() {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `http://localhost:5000/api/admin/users/${userId}/status`,
+        `/api/admin/users/${userId}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -82,7 +80,7 @@ function AdminUsers() {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `http://localhost:5000/api/admin/users/${userId}/role`,
+        `/api/admin/users/${userId}/role`,
         { role: newRole },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -102,7 +100,7 @@ function AdminUsers() {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(
-        `http://localhost:5000/api/admin/users/${userId}`,
+        `/api/admin/users/${userId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert('Хэрэглэгч амжилттай устгагдлаа');
@@ -119,8 +117,8 @@ function AdminUsers() {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(
-        `http://localhost:5000/api/admin/users/${user.id}`,
+      const response = await api.get(
+        `/api/admin/users/${user.id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
@@ -140,7 +138,7 @@ function AdminUsers() {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        'http://localhost:5000/api/admin/users/create-test-admin',
+        '/api/admin/users/create-test-admin',
         testAdminData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

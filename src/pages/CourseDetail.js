@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import '../styles/CourseDetail.css';
+import api from '../config/api';  // ✅ Энийг нэмэх
 
 function CourseDetail() {
   const { id } = useParams();
@@ -53,9 +54,7 @@ function CourseDetail() {
   const fetchCourseDetail = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/courses/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+const response = await api.get(`/api/courses/${id}`);
       if (response.data.success) {
   setCourse(response.data.course);
   setIsEnrolled(response.data.isEnrolled);
@@ -77,9 +76,8 @@ function CourseDetail() {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(
-        `http://localhost:5000/api/users/instructor/${course.instructor.id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await api.get(
+        `/api/users/instructor/${course.instructor.id}`,
       );
       if (response.data.success) {
         setInstructorProfile(response.data.instructor);
@@ -104,7 +102,7 @@ function CourseDetail() {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        `http://localhost:5000/api/courses/${id}/enroll`,
+        `/api/courses/${id}/enroll`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );

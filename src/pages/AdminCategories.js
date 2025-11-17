@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Tag } from 'lucide-react';
-import axios from 'axios';
 import '../styles/AdminCategories.css';
-
+import api from '../config/api';
 function AdminCategories() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,9 +20,7 @@ function AdminCategories() {
   const fetchCategories = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/categories', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get('/api/categories',);
       if (response.data.success) {
         setCategories(response.data.data || []);
       }
@@ -41,14 +38,14 @@ function AdminCategories() {
       
       if (editingCategory) {
         await axios.put(
-          `http://localhost:5000/api/categories/${editingCategory.id}`,
+          `/api/categories/${editingCategory.id}`,
           formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         alert('Ангилал амжилттай шинэчлэгдлээ');
       } else {
         await axios.post(
-          'http://localhost:5000/api/categories',
+          '/api/categories',
           formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -80,7 +77,7 @@ function AdminCategories() {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(
-        `http://localhost:5000/api/categories/${categoryId}`,
+        `/api/categories/${categoryId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert('Ангилал устгагдлаа');

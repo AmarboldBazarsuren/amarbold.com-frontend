@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, LogIn } from 'lucide-react';
 import axios from 'axios';
 import './Auth.css';
+import api from '../config/api';
 
 function Login({ onLogin }) {
   const [formData, setFormData] = useState({
@@ -28,7 +29,8 @@ function Login({ onLogin }) {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, formData);
+      const response = await api.post('/api/auth/login', formData);
+
       
       if (response.data.success) {
         const userData = {

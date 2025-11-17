@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { BookOpen, Clock, CheckCircle, PlayCircle, TrendingUp } from 'lucide-react';
 import axios from 'axios';
 import '../styles/MyCourses.css';
+import api from '../config/api';  // ✅ Энийг нэмэх
 
 function MyCourses() {
   const [enrolledCourses, setEnrolledCourses] = useState([]);
@@ -16,9 +17,7 @@ function MyCourses() {
   const fetchMyCourses = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/courses/my-courses', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get('/api/courses/my-courses',);
       
       // Backend-с ирсэн өгөгдлийг шалгах
       if (response.data.success && Array.isArray(response.data.data)) {

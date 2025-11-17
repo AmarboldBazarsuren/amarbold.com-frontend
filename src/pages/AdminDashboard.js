@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
-import axios from 'axios';
 import '../styles/AdminDashboard.css';
+import api from '../config/api';  // ✅ Энийг нэмэх
 
 // Components
 import AdminStats from '../components/admin/AdminStats';
@@ -82,9 +82,7 @@ function AdminDashboard() {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/admin/stats', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get('api/admin/stats');
       if (response.data.success) {
         setStats(response.data.data);
       }
@@ -96,7 +94,7 @@ function AdminDashboard() {
   const fetchAllCourses = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/admin/courses', {
+      const response = await api.get('/api/admin/courses', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data.success) {
@@ -124,13 +122,13 @@ function AdminDashboard() {
       
       if (editingCourse) {
         await axios.put(
-          `http://localhost:5000/api/admin/courses/${editingCourse.id}`,
+          `api/admin/courses/${editingCourse.id}`,
           { ...formData, status: 'published' },
           { headers: { Authorization: `Bearer ${token}` } }
         );
         alert('Хичээл амжилттай шинэчлэгдлээ');
       } else { await axios.post(
-          'http://localhost:5000/api/admin/courses',
+          'api/admin/courses',
           formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -169,7 +167,7 @@ function AdminDashboard() {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(
-        `http://localhost:5000/api/admin/courses/${courseId}`,
+        `/api/admin/courses/${courseId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert('Хичээл амжилттай устгагдлаа');
@@ -204,9 +202,7 @@ function AdminDashboard() {
   const fetchCourseSections = async (courseId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/courses/${courseId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get(`${process.env.REACT_APP_API_URL}/api/courses/${courseId}`);
       if (response.data.success && response.data.course.sections) {
         setSections(response.data.course.sections);
       }
@@ -222,14 +218,14 @@ function AdminDashboard() {
       
       if (editingSection) {
         await axios.put(
-          `http://localhost:5000/api/admin/sections/${editingSection.id}`,
+          `/api/admin/sections/${editingSection.id}`,
           sectionFormData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         alert('Section амжилттай шинэчлэгдлээ');
       } else {
         await axios.post(
-          `http://localhost:5000/api/admin/courses/${selectedCourse.id}/sections`,
+          `/api/admin/courses/${selectedCourse.id}/sections`,
           sectionFormData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -261,7 +257,7 @@ function AdminDashboard() {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(
-        `http://localhost:5000/api/admin/sections/${sectionId}`,
+        `/api/admin/sections/${sectionId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert('Section амжилттай устгагдлаа');
@@ -278,14 +274,14 @@ function AdminDashboard() {
       
       if (editingLesson) {
         await axios.put(
-          `http://localhost:5000/api/admin/lessons/${editingLesson.id}`,
+          `/api/admin/lessons/${editingLesson.id}`,
           lessonFormData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         alert('Хичээл амжилттай шинэчлэгдлээ');
       } else {
         await axios.post(
-          `http://localhost:5000/api/admin/sections/${selectedSection.id}/lessons`,
+          `/api/admin/sections/${selectedSection.id}/lessons`,
           lessonFormData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -328,7 +324,7 @@ function AdminDashboard() {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(
-        `http://localhost:5000/api/admin/lessons/${lessonId}`,
+        `/api/admin/lessons/${lessonId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert('Хичээл амжилттай устгагдлаа');
@@ -344,9 +340,8 @@ function AdminDashboard() {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(
-        `http://localhost:5000/api/discounts/courses/${course.id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await api.get(
+        `/api/discounts/courses/${course.id}`
       );
       if (response.data.success) {
         setCourseDiscounts(response.data.data);
@@ -367,7 +362,7 @@ function AdminDashboard() {
   try {
     const token = localStorage.getItem('token');
     await axios.post(
-      `http://localhost:5000/api/discounts/courses/${selectedCourseForDiscount.id}`,
+      `/api/discounts/courses/${selectedCourseForDiscount.id}`,
       discountFormData,
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -385,7 +380,7 @@ function AdminDashboard() {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(
-        `http://localhost:5000/api/discounts/${discountId}`,
+        `/api/discounts/${discountId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       

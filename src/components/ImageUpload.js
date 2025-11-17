@@ -1,8 +1,7 @@
 // src/components/ImageUpload.js
 import React, { useState, useRef } from 'react';
 import { Upload, X, Loader } from 'lucide-react';
-import axios from 'axios';
-
+import api from '../config/api';
 function ImageUpload({ 
   label = 'Зураг upload', 
   onUploadSuccess, 
@@ -51,8 +50,8 @@ function ImageUpload({
       formData.append(fieldName, file);
 
       const token = localStorage.getItem('token');
-      const response = await axios.post(
-        `http://localhost:5000/api/upload/${uploadType}`,
+      const response = await api.post(
+        `/api/upload/${uploadType}`,
         formData,
         {
           headers: {

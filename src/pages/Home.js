@@ -7,6 +7,7 @@ import axios from 'axios';
 import CourseCarousel from '../components/dashboard/CourseCarousel';
 import InstructorCarousel from '../components/dashboard/InstructorCarousel';
 import '../styles/Home.css';
+import api from '../config/api';  // ✅ Нэмэх
 
 function Home({ user }) {
   const [courses, setCourses] = useState([]);
@@ -28,10 +29,10 @@ function Home({ user }) {
     try {
       // ✅ Public endpoint - token шаардахгүй
       const [coursesRes, statsRes, instructorsRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/public/courses'),
-        axios.get('http://localhost:5000/api/public/stats'),
+        axios.get('/api/public/courses'),
+        axios.get('/api/public/stats'),
         user 
-          ? axios.get('http://localhost:5000/api/instructors', {
+          ? axios.get('/api/instructors', {
               headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             })
           : Promise.resolve({ data: { success: true, data: [] } })

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Eye, EyeOff, UserPlus } from 'lucide-react';
 import axios from 'axios';
 import './Auth.css';
+import api from '../config/api';
 
 function Register({ onLogin }) {
   const [formData, setFormData] = useState({
@@ -43,11 +44,11 @@ function Register({ onLogin }) {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password
-      });
+    const response = await api.post('/api/auth/register', {
+  name: formData.name,
+  email: formData.email,
+  password: formData.password
+});
 
       if (response.data.success) {
         const userData = {

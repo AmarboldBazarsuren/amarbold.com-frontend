@@ -4,6 +4,7 @@ import { ArrowLeft, PlayCircle, CheckCircle, Lock, ChevronDown, ChevronUp, Check
 import axios from 'axios';
 import RatingModal from '../components/RatingModal';
 import '../styles/LessonPlayer.css';
+import api from '../config/api';  // ✅ Энийг нэмэх
 
 function LessonPlayer() {
   const { courseId } = useParams();
@@ -59,9 +60,7 @@ function LessonPlayer() {
   const fetchCourse = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/courses/${courseId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get(`/api/courses/${courseId}`);
       
       if (response.data.success) {
         setCourse(response.data.course);
@@ -102,9 +101,8 @@ function LessonPlayer() {
   const checkUserRating = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(
-        `http://localhost:5000/api/ratings/courses/${courseId}/my-rating`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await api.get(
+        `/api/ratings/courses/${courseId}/my-rating`
       );
       if (response.data.success) {
         setUserRating(response.data.data);
@@ -118,7 +116,7 @@ function LessonPlayer() {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        `http://localhost:5000/api/ratings/courses/${courseId}`,
+        `/api/ratings/courses/${courseId}`,
         data,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -133,9 +131,8 @@ function LessonPlayer() {
   const fetchProgress = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(
-        `http://localhost:5000/api/lessons/${courseId}/progress`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const response = await api.get(
+        `/api/lessons/${courseId}/progress`
       );
 
       if (response.data.success) {
@@ -161,7 +158,7 @@ function LessonPlayer() {
 
       if (isCompleted) {
         await axios.delete(
-          `http://localhost:5000/api/lessons/${lessonId}/complete`,
+          `/api/lessons/${lessonId}/complete`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         
@@ -169,10 +166,9 @@ function LessonPlayer() {
         newCompleted.delete(lessonId);
         setCompletedLessons(newCompleted);
       } else {
-        const response = await axios.post(
-          `http://localhost:5000/api/lessons/${lessonId}/complete`,
-          {},
-          { headers: { Authorization: `Bearer ${token}` } }
+        const response = await api.post(
+          `/api/lessons/${lessonId}/complete`,
+          {}
         );
 
         if (response.data.success) {

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/Dashboard.css';
+import api from '../config/api';
 
 // Components
 import DashboardStats from '../components/dashboard/DashboardStats';
@@ -36,62 +37,41 @@ function Dashboard() {
   }, []);
 
   const fetchCourses = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/courses', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      if (response.data.success && Array.isArray(response.data.data)) {
-        setCourses(response.data.data);
-      } else {
-        console.error('Буруу өгөгдлийн format:', response.data);
-        setCourses([]);
-      }
-    } catch (error) {
-      console.error('Хичээл татахад алдаа гарлаа:', error);
-      setCourses([]);
-    } finally {
-      setLoading(false);
+  try {
+    const response = await api.get('/api/courses');
+    if (response.data.success && Array.isArray(response.data.data)) {
+      setCourses(response.data.data);
     }
-  };
+  } catch (error) {
+    console.error('Хичээл татахад алдаа:', error);
+    setCourses([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
-  const fetchInstructors = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/instructors', {
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (response.data.success && Array.isArray(response.data.data)) {
-        setInstructors(response.data.data);
-      } else {
-        console.error('Буруу format:', response.data);
-        setInstructors([]);
-      }
-    } catch (error) {
-      console.error('Багш нар татахад алдаа:', error);
-      setInstructors([]);
+ const fetchInstructors = async () => {
+  try {
+    const response = await api.get('/api/instructors');
+    if (response.data.success && Array.isArray(response.data.data)) {
+      setInstructors(response.data.data);
     }
-  };
+  } catch (error) {
+    console.error('Багш нар татахад алдаа:', error);
+    setInstructors([]);
+  }
+};
 
-  const fetchStats = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/courses/stats', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      if (response.data.success) {
-        setStats(response.data.data);
-      }
-    } catch (error) {
-      console.error('Статистик татахад алдаа:', error);
+const fetchStats = async () => {
+  try {
+    const response = await api.get('/api/courses/stats');
+    if (response.data.success) {
+      setStats(response.data.data);
     }
-  };
+  } catch (error) {
+    console.error('Статистик татахад алдаа:', error);
+  }
+};
 
   const filteredCourses = courses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Search, Filter } from 'lucide-react';
-import axios from 'axios';
+import api from '../../config/api';  
+
 
 function DashboardFilters({ 
   searchQuery, 
@@ -19,7 +20,7 @@ function DashboardFilters({
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/categories');
+      const response = await api.get('/api/categories');
       if (response.data.success) {
         setCategories(response.data.data || []);
       }

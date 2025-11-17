@@ -33,9 +33,7 @@ function Profile({ user }) {
   const fetchInstructorProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/auth/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get('/api/auth/me');
       
       if (response.data.success && response.data.user) {
         const userData = response.data.user;
@@ -69,7 +67,7 @@ function Profile({ user }) {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        'http://localhost:5000/api/users/profile',
+        '/api/users/profile',
         {
           name: formData.name,
           email: formData.email
@@ -111,7 +109,7 @@ function Profile({ user }) {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        'http://localhost:5000/api/users/change-password',
+        '/api/users/change-password',
         {
           currentPassword: formData.currentPassword,
           newPassword: formData.newPassword
@@ -144,7 +142,7 @@ function Profile({ user }) {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        'http://localhost:5000/api/users/instructor-profile',
+        '/api/users/instructor-profile',
         instructorData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

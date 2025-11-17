@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, BookOpen, Calendar, Mail } from 'lucide-react';
 import axios from 'axios';
 import '../styles/MyStudents.css';
+import api from '../config/api';  // ✅ Нэмэх
 
 function MyStudents() {
   const [students, setStudents] = useState([]);
@@ -18,9 +19,7 @@ function MyStudents() {
   const fetchMyStudents = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/admin/my-students', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get('/api/admin/my-students');
 
       // ✅ Console-д өгөгдөл шалгах
       console.log('✅ Backend-с ирсэн өгөгдөл:', response.data);

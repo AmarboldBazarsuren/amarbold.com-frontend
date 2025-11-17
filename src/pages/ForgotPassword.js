@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, ArrowLeft, Key } from 'lucide-react';
 import axios from 'axios';
 import '../pages/Auth.css';
+import api from '../config/api';  // ✅ Нэмэх
 
 function ForgotPassword() {
   const [step, setStep] = useState(1); // 1: Email, 2: Code + New Password
@@ -14,13 +15,14 @@ function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+
   const handleSendCode = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/forgot-password', {
+      const response = await api.post('/api/auth/forgot-password', {
         email
       });
 
@@ -55,7 +57,7 @@ function ForgotPassword() {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/reset-password', {
+      const response = await api.post('/api/auth/reset-password', {
         email,
         resetCode,
         newPassword

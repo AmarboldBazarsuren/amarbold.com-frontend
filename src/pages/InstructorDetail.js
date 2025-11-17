@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { BookOpen, Users, ArrowLeft, Clock, Star } from 'lucide-react';
 import axios from 'axios';
 import '../styles/InstructorDetail.css';
+import api from '../config/api';  // ✅ Энийг нэмэх
 
 function InstructorDetail() {
   const { id } = useParams();
@@ -13,9 +14,7 @@ function InstructorDetail() {
   const fetchInstructorDetail = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/instructors/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get(`${process.env.REACT_APP_API_URL}/api/instructors/${id}`,);
 
       if (response.data.success) {
         setInstructor(response.data.instructor);
