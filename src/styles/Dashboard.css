@@ -131,7 +131,7 @@
 
 .carousel-item {
   flex: 0 0 220px;
-  max-width: 220px;
+  max-width: 100%;
   cursor: pointer;
 }
 

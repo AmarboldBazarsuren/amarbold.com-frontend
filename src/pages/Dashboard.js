@@ -1,4 +1,4 @@
-// src/pages/Dashboard.js - ШИНЭЧИЛСЭН
+// src/pages/Dashboard.js - ЗАСВАРЛАСАН
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,8 +7,8 @@ import api from '../config/api';
 
 // Components
 import DashboardStats from '../components/dashboard/DashboardStats';
-import CourseCarousel from '../components/dashboard/CourseCarousel'; // 🔥 Carousel
-import InstructorCarousel from '../components/dashboard/InstructorCarousel'; // 🔥 Carousel
+import CourseCarousel from '../components/dashboard/CourseCarousel'; // ✅ Carousel ашиглана
+import InstructorCarousel from '../components/dashboard/InstructorCarousel';
 
 function Dashboard() {
   const [courses, setCourses] = useState([]);
@@ -98,10 +98,11 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* 🔥 ХИЧЭЭЛҮҮД - GRID VIEW */}
+      {/* 🔥 ХИЧЭЭЛҮҮД - CAROUSEL */}
       {courses.length > 0 && (
         <div className="section-wrapper">
-          <CourseGrid
+          <CourseCarousel
+            title="Бүх хичээлүүд"
             courses={courses}
             onCourseClick={handleCourseClick}
           />
