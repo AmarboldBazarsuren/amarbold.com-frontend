@@ -55,7 +55,7 @@ function InstructorsPage() {
         <div className="header-content">
           <h1 className="dashboard-title">Багш нар</h1>
           <p className="dashboard-subtitle">
-            {filteredInstructors.length} багш олдлоо
+            {filteredInstructors.length} Багш 
           </p>
         </div>
       </div>
