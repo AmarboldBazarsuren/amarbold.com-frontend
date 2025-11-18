@@ -1,3 +1,5 @@
+/* Layout.css - Navbar button стайлтай */
+
 .layout {
   min-height: 100vh;
   display: flex;
@@ -57,6 +59,7 @@
   gap: 8px;
 }
 
+/* 🔥 nav-item BUTTON БОЛСОН */
 .nav-item {
   display: flex;
   align-items: center;
@@ -64,20 +67,27 @@
   padding: 10px 20px;
   border-radius: 8px;
   text-decoration: none;
-  color: #b0b0b0;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #ffffff;
   font-weight: 500;
+  font-size: 15px;
+  cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+  font-family: inherit;
 }
 
 .nav-item:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.05);
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.08);
+  border-color: rgba(0, 212, 255, 0.2);
 }
 
 .nav-item.active {
   color: #00d4ff;
-  background: rgba(0, 212, 255, 0.1);
+  background: rgba(0, 212, 255, 0.12);
+  border-color: rgba(0, 212, 255, 0.3);
 }
 
 .nav-item.active::after {
@@ -224,6 +234,7 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* 🔥 mobile-nav-item BUTTON БОЛСОН */
 .mobile-nav-item {
   display: flex;
   align-items: center;
@@ -231,9 +242,15 @@
   padding: 14px 20px;
   border-radius: 8px;
   text-decoration: none;
+  background: transparent;
+  border: none;
   color: #b0b0b0;
   font-weight: 500;
+  font-size: 15px;
+  width: 100%;
+  cursor: pointer;
   transition: all 0.3s ease;
+  text-align: left;
 }
 
 .mobile-nav-item:hover,
@@ -254,7 +271,10 @@
   color: #ff3b30;
   cursor: pointer;
   font-weight: 500;
+  font-size: 15px;
   transition: all 0.3s ease;
+  width: 100%;
+  text-align: left;
 }
 
 .mobile-logout-btn:hover {

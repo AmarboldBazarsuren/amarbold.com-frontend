@@ -1,21 +1,24 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, BookOpen, User, LogOut, Menu, X, Shield, Users } from 'lucide-react';
 import './Layout.css';
 
 function Layout({ children, user, onLogout }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isActive = (path) => location.pathname === path;
 
   const navItems = [
-    { path: '/dashboard', icon: Home, label: 'Dashboard' },
-    { path: '/my-courses', icon: BookOpen, label: 'Худалдаж авсан хичээлүүд' },
+    { path: '/dashboard', icon: Home, label: 'Нүүр' },
+    { path: '/courses', icon: BookOpen, label: 'Хичээлүүд' }, // 🔥 ШИНЭ
+    { path: '/instructors', icon: Users, label: 'Багш нар' }, // 🔥 ШИНЭ
+    { path: '/my-courses', icon: BookOpen, label: 'Миний хичээлүүд' },
     { path: '/profile', icon: User, label: 'Профайл' },
   ];
 
-  // ✅ Admin эсвэл Test Admin эрхтэй бол Admin хэсэг нэмэх
+  // Admin эрхтэй бол админ хэсэг нэмэх
   if (user?.role === 'admin' || user?.role === 'test_admin') {
     navItems.push({ 
       path: '/admin', 
@@ -24,7 +27,6 @@ function Layout({ children, user, onLogout }) {
       adminOnly: true 
     });
     
-    // Test Admin эсвэл Admin - Миний суралцагчид
     navItems.push({ 
       path: '/my-students', 
       icon: Users, 
@@ -33,7 +35,7 @@ function Layout({ children, user, onLogout }) {
     });
   }
 
-  // ✅ Зөвхөн Super Admin эрхтэй бол Users удирдлага нэмэх
+  // Super Admin - Хэрэглэгчид удирдлага
   if (user?.role === 'admin') {
     navItems.push({ 
       path: '/admin/users', 
@@ -42,7 +44,6 @@ function Layout({ children, user, onLogout }) {
       superAdminOnly: true 
     });
     
-    // ✅ ШИНЭ - Ангилал удирдах
     navItems.push({ 
       path: '/admin/categories', 
       icon: BookOpen, 
@@ -50,6 +51,11 @@ function Layout({ children, user, onLogout }) {
       superAdminOnly: true 
     });
   }
+
+  const handleNavClick = (path) => {
+    navigate(path);
+    setMobileMenuOpen(false);
+  };
 
   return (
     <div className="layout">
@@ -64,16 +70,16 @@ function Layout({ children, user, onLogout }) {
           {/* Desktop Navigation */}
           <div className="navbar-menu">
             {navItems.map((item) => (
-              <Link
+              <button
                 key={item.path}
-                to={item.path}
+                onClick={() => handleNavClick(item.path)}
                 className={`nav-item ${isActive(item.path) ? 'active' : ''} ${
                   item.superAdminOnly ? 'super-admin' : item.adminOnly ? 'admin' : ''
                 }`}
               >
                 <item.icon size={20} />
                 <span>{item.label}</span>
-              </Link>
+              </button>
             ))}
           </div>
 
@@ -114,17 +120,16 @@ function Layout({ children, user, onLogout }) {
         {mobileMenuOpen && (
           <div className="mobile-menu">
             {navItems.map((item) => (
-              <Link
+              <button
                 key={item.path}
-                to={item.path}
+                onClick={() => handleNavClick(item.path)}
                 className={`mobile-nav-item ${isActive(item.path) ? 'active' : ''} ${
                   item.superAdminOnly ? 'super-admin' : item.adminOnly ? 'admin' : ''
                 }`}
-                onClick={() => setMobileMenuOpen(false)}
               >
                 <item.icon size={20} />
                 <span>{item.label}</span>
-              </Link>
+              </button>
             ))}
             <button 
               onClick={() => {

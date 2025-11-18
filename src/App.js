@@ -5,6 +5,8 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import CoursesPage from './pages/CoursesPage'; // 🔥 ШИНЭ
+import InstructorsPage from './pages/InstructorsPage'; // 🔥 ШИНЭ
 import Profile from './pages/Profile';
 import MyCourses from './pages/MyCourses';
 import CourseDetail from './pages/CourseDetail';
@@ -67,13 +69,37 @@ function App() {
             element={user ? <Navigate to="/dashboard" /> : <Register onLogin={handleLogin} />} 
           />
 
-          {/* Protected routes */}
+          {/* Dashboard */}
           <Route 
             path="/dashboard" 
             element={
               user ? (
                 <Layout user={user} onLogout={handleLogout}>
                   <Dashboard />
+                </Layout>
+              ) : <Navigate to="/login" />
+            } 
+          />
+
+          {/* 🔥 ШИНЭ - Хичээлүүд хуудас */}
+          <Route 
+            path="/courses" 
+            element={
+              user ? (
+                <Layout user={user} onLogout={handleLogout}>
+                  <CoursesPage />
+                </Layout>
+              ) : <Navigate to="/login" />
+            } 
+          />
+
+          {/* 🔥 ШИНЭ - Багш нар хуудас */}
+          <Route 
+            path="/instructors" 
+            element={
+              user ? (
+                <Layout user={user} onLogout={handleLogout}>
+                  <InstructorsPage />
                 </Layout>
               ) : <Navigate to="/login" />
             } 
@@ -112,7 +138,6 @@ function App() {
             } 
           />
 
-          {/* Course Manage Route */}
           <Route 
             path="/course/:id/manage" 
             element={
@@ -124,7 +149,6 @@ function App() {
             } 
           />
 
-          {/* Багшийн дэлгэрэнгүй хуудас */}
           <Route 
             path="/instructor/:id" 
             element={
@@ -136,7 +160,6 @@ function App() {
             } 
           />
 
-          {/* My Students route */}
           <Route 
             path="/my-students"
             element={
@@ -148,7 +171,6 @@ function App() {
             }
           />
 
-          {/* Admin Dashboard route */}
           <Route 
             path="/admin" 
             element={
@@ -160,7 +182,6 @@ function App() {
             }
           />
 
-          {/* Admin Users route */}
           <Route 
             path="/admin/users" 
             element={
@@ -172,7 +193,6 @@ function App() {
             }
           />
 
-          {/* Admin Categories route */}
           <Route 
             path="/admin/categories" 
             element={
@@ -184,7 +204,6 @@ function App() {
             }
           />
 
-          {/* Lesson Player */}
           <Route 
             path="/course/:courseId/learn" 
             element={
@@ -193,6 +212,7 @@ function App() {
               ) : <Navigate to="/login" />
             } 
           />
+          
           <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
       </Router>
