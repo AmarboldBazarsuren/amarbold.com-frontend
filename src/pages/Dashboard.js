@@ -89,14 +89,7 @@ function Dashboard() {
   return (
     <div className="dashboard">
       {/* Header */}
-      <div className="dashboard-header">
-        <div className="header-content">
-          <h1 className="dashboard-title">Хичээлүүд</h1>
-          <p className="dashboard-subtitle">
-            {courses.length} хичээл олдлоо
-          </p>
-        </div>
-      </div>
+      
 
       {/* 🔥 ХИЧЭЭЛҮҮД - CAROUSEL */}
       {courses.length > 0 && (
