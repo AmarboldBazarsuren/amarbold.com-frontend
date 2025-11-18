@@ -95,7 +95,7 @@ function Dashboard() {
       {courses.length > 0 && (
         <div className="section-wrapper">
           <CourseCarousel
-            title="Бүх хичээлүүд"
+            title="Шинэ хичээлүүд"
             courses={courses}
             onCourseClick={handleCourseClick}
           />
