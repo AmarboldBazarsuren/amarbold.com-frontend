@@ -1,7 +1,5 @@
 // src/pages/Dashboard.js - ШИНЭЧИЛСЭН
 
-// src/pages/Dashboard.js - ШИНЭЧИЛСЭН DESIGN
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Dashboard.css';
@@ -9,7 +7,8 @@ import api from '../config/api';
 
 // Components
 import DashboardStats from '../components/dashboard/DashboardStats';
-import CourseCarousel from '../components/dashboard/CourseCarousel';
+import CourseCarousel from '../components/dashboard/CourseCarousel'; // 🔥 Carousel
+import InstructorCarousel from '../components/dashboard/InstructorCarousel'; // 🔥 Carousel
 
 function Dashboard() {
   const [courses, setCourses] = useState([]);
@@ -66,10 +65,6 @@ function Dashboard() {
     }
   };
 
-  const recentCourses = [...courses]
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-    .slice(0, 8);
-
   const recentInstructors = [...instructors]
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     .slice(0, 12);
@@ -94,58 +89,39 @@ function Dashboard() {
   return (
     <div className="dashboard">
       {/* Header */}
-     
+      <div className="dashboard-header">
+        <div className="header-content">
+          <h1 className="dashboard-title">Хичээлүүд</h1>
+          <p className="dashboard-subtitle">
+            {courses.length} хичээл олдлоо
+          </p>
+        </div>
+      </div>
 
-      {/* 🔥 Сүүлд нэмэгдсэн хичээлүүд - ЖИЖИГ */}
-      {recentCourses.length > 0 && (
+      {/* 🔥 ХИЧЭЭЛҮҮД - GRID VIEW */}
+      {courses.length > 0 && (
         <div className="section-wrapper">
-          <CourseCarousel
-            title="Сүүлд нэмэгдсэн хичээлүүд"
-            courses={recentCourses}
+          <CourseGrid
+            courses={courses}
             onCourseClick={handleCourseClick}
           />
         </div>
       )}
 
-      {/* 🔥 Багш нар - ЗӨВХӨН ЗУРАГ */}
+      {/* 🔥 БАГШ НАР - CAROUSEL */}
       {recentInstructors.length > 0 && (
         <div className="section-wrapper">
-          <div className="instructors-simple-section">
-            <h2 className="section-title-simple">Багш нар</h2>
-            <div className="instructors-simple-grid">
-              {recentInstructors.map((instructor) => (
-                <div 
-                  key={instructor.id} 
-                  className="instructor-simple-card"
-                  onClick={() => handleInstructorClick(instructor.id)}
-                >
-                  {instructor.profile_image ? (
-                    <img 
-                      src={instructor.profile_image} 
-                      alt={instructor.name}
-                      className="instructor-simple-image"
-                    />
-                  ) : (
-                    <div className="instructor-simple-placeholder">
-                      {instructor.name?.charAt(0) || 'B'}
-                    </div>
-                  )}
-                  <div className="instructor-simple-info">
-                    <h3>{instructor.name}</h3>
-                    {instructor.teaching_categories && (
-                      <p>{instructor.teaching_categories}</p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <InstructorCarousel
+            title="Багш нар"
+            instructors={recentInstructors}
+            onInstructorClick={handleInstructorClick}
+          />
         </div>
       )}
 
       {/* 🔥 Статистик - ДООД ТАЛД */}
       <div className="section-wrapper">
-        <h2 className="section-title-simple">INFORMATION</h2>
+        <h2 className="section-title-simple">МЭДЭЭЛЭЛ</h2>
         <DashboardStats 
           coursesCount={stats.totalCourses}
           instructorsCount={stats.totalInstructors}

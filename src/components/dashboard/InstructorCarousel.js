@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, BookOpen, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 function InstructorCarousel({ title, instructors, onInstructorClick }) {
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -18,7 +18,7 @@ function InstructorCarousel({ title, instructors, onInstructorClick }) {
   }, [instructors]);
 
   const scroll = (direction) => {
-    const scrollAmount = 320 + 28; // card width + gap
+    const scrollAmount = 130; // 110px + 20px gap
     const newPosition = direction === 'left' 
       ? Math.max(0, scrollPosition - scrollAmount)
       : Math.min(maxScroll, scrollPosition + scrollAmount);
@@ -105,7 +105,7 @@ function InstructorCarousel({ title, instructors, onInstructorClick }) {
       </div>
 
       <div 
-        className="instructors-carousel"
+        className="instructors-carousel-simple"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -117,7 +117,7 @@ function InstructorCarousel({ title, instructors, onInstructorClick }) {
       >
         <div 
           ref={carouselRef}
-          className="carousel-track"
+          className="carousel-track-simple"
           style={{ 
             transform: `translateX(-${scrollPosition}px)`,
             transition: isDragging ? 'none' : 'transform 0.5s ease'
@@ -126,7 +126,7 @@ function InstructorCarousel({ title, instructors, onInstructorClick }) {
           {instructors.map((instructor) => (
             <div 
               key={instructor.id} 
-              className="carousel-item"
+              className="carousel-item-simple"
               onClick={(e) => {
                 if (isDragging) {
                   e.preventDefault();
@@ -136,50 +136,23 @@ function InstructorCarousel({ title, instructors, onInstructorClick }) {
               }}
               style={{ cursor: isDragging ? 'grabbing' : 'pointer' }}
             >
-              <div className="instructor-card">
-                <div className="instructor-banner">
-                  {instructor.profile_banner ? (
-                    <img src={instructor.profile_banner} alt="" />
-                  ) : (
-                    <div className="banner-gradient"></div>
-                  )}
-                </div>
-                
-                <div className="instructor-content">
-                  <div className="instructor-avatar-large">
-                    {instructor.profile_image ? (
-                      <img src={instructor.profile_image} alt={instructor.name} />
-                    ) : (
-                      <div className="avatar-placeholder">
-                        {instructor.name?.charAt(0) || 'B'}
-                      </div>
-                    )}
+              <div className="instructor-simple-card">
+                {instructor.profile_image ? (
+                  <img 
+                    src={instructor.profile_image} 
+                    alt={instructor.name}
+                    className="instructor-simple-image"
+                  />
+                ) : (
+                  <div className="instructor-simple-placeholder">
+                    {instructor.name?.charAt(0) || 'B'}
                   </div>
-                  
-                  <h3 className="instructor-name">{instructor.name}</h3>
-                  
+                )}
+                <div className="instructor-simple-info">
+                  <h3>{instructor.name}</h3>
                   {instructor.teaching_categories && (
-                    <p className="instructor-category">
-                      {instructor.teaching_categories}
-                    </p>
+                    <p>{instructor.teaching_categories}</p>
                   )}
-                  
-                  {instructor.bio && instructor.bio !== 'Танилцуулга нэмэгдээгүй байна' && (
-                    <p className="instructor-bio">
-                      {instructor.bio.substring(0, 100)}...
-                    </p>
-                  )}
-                  
-                  <div className="instructor-stats">
-                    <div className="stat-item">
-                      <BookOpen size={18} />
-                      <span>{instructor.total_courses || 0} хичээл</span>
-                    </div>
-                    <div className="stat-item">
-                      <Users size={18} />
-                      <span>{instructor.total_students || 0} суралцагч</span>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>

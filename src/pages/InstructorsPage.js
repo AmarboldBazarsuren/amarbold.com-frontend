@@ -68,7 +68,7 @@ function InstructorsPage() {
         showCategoryFilter={false}
       />
 
-      {/* 🔥 Жижиг Grid - Dashboard-той адил */}
+      {/* 🔥 БАГШ НАРЫН GRID - CAROUSEL БИШ */}
       <div className="instructors-simple-section">
         <div className="instructors-simple-grid">
           {filteredInstructors.map((instructor) => (
