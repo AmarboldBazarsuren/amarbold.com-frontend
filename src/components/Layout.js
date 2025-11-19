@@ -14,7 +14,7 @@ function Layout({ children, user, onLogout }) {
     { path: '/dashboard', icon: Home, label: 'Нүүр' },
     { path: '/courses', icon: BookOpen, label: 'Хичээлүүд' }, // 🔥 ШИНЭ
     { path: '/instructors', icon: Users, label: 'Багш нар' }, // 🔥 ШИНЭ
-    { path: '/my-courses', icon: BookOpen, label: 'Миний хичээлүүд' },
+    { path: '/my-courses', icon: BookOpen, label: 'Худалдаж авсан хичээлүүд' },
     { path: '/profile', icon: User, label: 'Профайл' },
   ];
 
