@@ -1,9 +1,8 @@
 /* ==================== DASHBOARD MAIN ==================== */
 .dashboard {
   animation: fadeIn 0.5s ease;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 @keyframes fadeIn {
@@ -55,8 +54,6 @@
   margin-bottom: 20px;
   padding-bottom: 20px;
   border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-  width: 100%;
-  box-sizing: border-box;
 }
 
 .section-wrapper:last-child {
@@ -65,7 +62,7 @@
 }
 
 .section-title-simple {
-  font-size: 32px;
+  font-size: 18px;
   font-weight: 700;
   color: #ffffff;
   margin-bottom: 32px;
@@ -74,7 +71,6 @@
 /* ==================== COURSE CAROUSEL - ХЭВТЭЭ ХЭЛБЭР ==================== */
 .courses-carousel-section {
   margin-bottom: 1px;
-  width: 100%;
 }
 
 .carousel-header {
@@ -89,6 +85,7 @@
   font-weight: 700;
   color: #ffffff;
   margin-bottom: 2px;
+
 }
 
 .carousel-controls {
@@ -127,7 +124,6 @@
   padding: 4px;
   cursor: grab;
   user-select: none;
-  width: 100%;
 }
 
 .courses-carousel:active {
@@ -144,12 +140,11 @@
 
 /* 🔥 ХЭВТЭЭ ХЭЛБЭРТЭЙ CARD - 16:9 харьцаатай */
 .carousel-item {
-  flex: 0 0 280px;
-  max-width: 280px;
-  min-width: 280px;
+  flex: 0 0 180px; /* ✅ ТОГТМОЛ ӨРГӨН */
+  max-width: 180px;
+  min-width: 180px; /* ✅ ЖИЖИГРЭХГҮЙ */
   cursor: pointer;
 }
-
 /* 🔥 COURSE CARD - Зураг + Мэдээлэл тусдаа */
 .course-card {
   background: transparent;
@@ -159,7 +154,6 @@
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
-  pointer-events: auto;
 }
 
 .course-card:hover {
@@ -170,16 +164,14 @@
 .course-card .course-image {
   position: relative;
   width: 100%;
-  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 100%;
   overflow: hidden;
   background: #000000;
   border-radius: 8px;
 }
 
+
 .course-card .course-image img {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -194,13 +186,13 @@
 .course-card .course-badge {
   position: absolute;
   top: 12px;
-  left: 12px;
+  left: 1px;
   padding: 6px 12px;
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(8px);
   border-radius: 6px;
   color: #ffffff;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -224,14 +216,14 @@
 
 /* ГАРЧИГ - ЗУРГАН ГАДНА, ЗАЙ БАГАТАЙ */
 .course-card .course-content {
-  padding: 12px 0 0 0;
+  padding: 8px 0 0 0;
 }
 
 .course-card .course-title {
   font-size: 16px;
   font-weight: 700;
   color: #ffffff;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -249,7 +241,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
   background: transparent;
 }
 
@@ -257,7 +249,7 @@
 .course-card .course-instructor {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 3px;
   padding: 0;
   border: none;
   background: transparent;
@@ -292,7 +284,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0;
-  margin-top: 8px;
+  margin-top: 2px;
 }
 
 /* RATING & VIEWS */
@@ -321,6 +313,7 @@
 .course-card .course-price {
   display: flex;
   align-items: center;
+  margin-top: -15px;
 }
 
 .course-card .free-badge {
@@ -365,9 +358,8 @@
 /* ==================== COURSES GRID ==================== */
 .courses-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 24px;
-  width: 100%;
 }
 
 /* ==================== БАГШ НАРЫН ЖИЖИГ GRID ==================== */
@@ -379,7 +371,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 24px;
-  width: 100%;
 }
 
 .instructor-simple-card {
@@ -448,7 +439,6 @@
 /* ==================== БАГШ НАРЫН БӨӨРӨНХИЙ CAROUSEL ==================== */
 .instructors-carousel-section {
   margin-bottom: 0;
-  width: 100%;
 }
 
 .instructors-carousel-simple {
@@ -457,7 +447,6 @@
   padding: 4px;
   cursor: grab;
   user-select: none;
-  width: 100%;
 }
 
 .instructors-carousel-simple:active {
@@ -475,7 +464,6 @@
 .carousel-item-simple {
   flex: 0 0 140px;
   max-width: 140px;
-  cursor: pointer;
 }
 
 /* ==================== STATS ==================== */
@@ -483,7 +471,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 24px;
-  width: 100%;
 }
 
 .stat-card {
@@ -552,27 +539,18 @@
 }
 
 /* ==================== RESPONSIVE ==================== */
-@media (max-width: 1200px) {
-  .carousel-item {
-    flex: 0 0 260px;
-    max-width: 260px;
-    min-width: 260px;
-  }
-}
-
 @media (max-width: 1024px) {
   .dashboard-title {
     font-size: 40px;
   }
 
   .carousel-item {
-    flex: 0 0 240px;
-    max-width: 240px;
-    min-width: 240px;
+    flex: 0 0 300px;
+    max-width: 300px;
   }
 
   .courses-grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
   
   .instructors-simple-grid {
@@ -586,12 +564,8 @@
 
   .instructor-simple-image,
   .instructor-simple-placeholder {
-    width: 80px;
-    height: 80px;
-  }
-  
-  .instructor-simple-placeholder {
-    font-size: 36px;
+    width: 110px;
+    height: 110px;
   }
 }
 
@@ -613,13 +587,16 @@
   }
 
   .carousel-item {
-    flex: 0 0 220px;
-    max-width: 220px;
-    min-width: 220px;
+    flex: 0 0 280px;
+    max-width: 280px;
+  }
+
+  .course-card .course-image {
+    height: 160px;
   }
 
   .courses-grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 16px;
   }
 
@@ -639,12 +616,12 @@
   
   .instructor-simple-image,
   .instructor-simple-placeholder {
-    width: 70px;
-    height: 70px;
+    width: 90px;
+    height: 90px;
   }
   
   .instructor-simple-placeholder {
-    font-size: 32px;
+    font-size: 36px;
   }
 
   .instructor-simple-info h3 {
@@ -658,23 +635,15 @@
 
 @media (max-width: 480px) {
   .carousel-item {
-    flex: 0 0 200px;
-    max-width: 200px;
-    min-width: 200px;
+    flex: 0 0 240px;
+    max-width: 240px;
+  }
+
+  .course-card .course-image {
+    height: 135px;
   }
 
   .courses-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .carousel-item-simple {
-    flex: 0 0 90px;
-    max-width: 90px;
-  }
-  
-  .instructor-simple-image,
-  .instructor-simple-placeholder {
-    width: 60px;
-    height: 60px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   }
 }
