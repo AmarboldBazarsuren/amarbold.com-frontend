@@ -8,6 +8,10 @@ function InstructorCarousel({ title, instructors, onInstructorClick }) {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [startScrollPosition, setStartScrollPosition] = useState(0);
+  const [velocity, setVelocity] = useState(0);
+  const [lastX, setLastX] = useState(0);
+  const [lastTime, setLastTime] = useState(0);
+  const animationRef = useRef(null);
 
   useEffect(() => {
     if (carouselRef.current) {
@@ -17,65 +21,122 @@ function InstructorCarousel({ title, instructors, onInstructorClick }) {
     }
   }, [instructors]);
 
+  // 🔥 MOMENTUM SCROLL - Зуурсны дараа өөрөө гүйнэ
+  useEffect(() => {
+    if (!isDragging && Math.abs(velocity) > 0.5) {
+      const animate = () => {
+        setVelocity((v) => v * 0.95); // Аажмаар удааширна
+        setScrollPosition((pos) => {
+          const newPos = pos + velocity;
+          return Math.max(0, Math.min(maxScroll, newPos));
+        });
+
+        if (Math.abs(velocity) > 0.5) {
+          animationRef.current = requestAnimationFrame(animate);
+        }
+      };
+      animationRef.current = requestAnimationFrame(animate);
+    }
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [isDragging, velocity, maxScroll]);
+
   const scroll = (direction) => {
-    const scrollAmount = 130; // 110px + 20px gap
+    const scrollAmount = 164; // 140px + 24px gap
     const newPosition = direction === 'left' 
       ? Math.max(0, scrollPosition - scrollAmount)
       : Math.min(maxScroll, scrollPosition + scrollAmount);
     
     setScrollPosition(newPosition);
+    setVelocity(0);
   };
 
-  // Mouse drag handlers
-  const handleMouseDown = (e) => {
+  // 🔥 DRAG START
+  const handleDragStart = (pageX) => {
     setIsDragging(true);
-    setStartX(e.pageX);
+    setStartX(pageX);
+    setLastX(pageX);
+    setLastTime(Date.now());
     setStartScrollPosition(scrollPosition);
-    if (carouselRef.current) {
-      carouselRef.current.style.cursor = 'grabbing';
+    setVelocity(0);
+    
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
     }
   };
 
-  const handleMouseMove = (e) => {
+  // 🔥 DRAG MOVE
+  const handleDragMove = (pageX) => {
     if (!isDragging) return;
-    e.preventDefault();
-    const x = e.pageX;
-    const walk = (startX - x) * 1.5;
+    
+    const currentTime = Date.now();
+    const timeDiff = currentTime - lastTime;
+    
+    if (timeDiff > 0) {
+      const currentVelocity = (lastX - pageX) / timeDiff * 16; // 60fps
+      setVelocity(currentVelocity);
+    }
+    
+    setLastX(pageX);
+    setLastTime(currentTime);
+    
+    const walk = (startX - pageX) * 1.2;
     const newPosition = Math.max(0, Math.min(maxScroll, startScrollPosition + walk));
     setScrollPosition(newPosition);
   };
 
-  const handleMouseUp = () => {
+  // 🔥 DRAG END - Momentum эхэлнэ
+  const handleDragEnd = () => {
     setIsDragging(false);
-    if (carouselRef.current) {
-      carouselRef.current.style.cursor = 'grab';
-    }
+    // velocity state-д аль хэдийн байна, useEffect автоматаар momentum эхлүүлнэ
+  };
+
+  // Mouse handlers
+  const handleMouseDown = (e) => {
+    e.preventDefault();
+    handleDragStart(e.pageX);
+  };
+
+  const handleMouseMove = (e) => {
+    handleDragMove(e.pageX);
+  };
+
+  const handleMouseUp = () => {
+    handleDragEnd();
   };
 
   const handleMouseLeave = () => {
-    setIsDragging(false);
-    if (carouselRef.current) {
-      carouselRef.current.style.cursor = 'grab';
+    if (isDragging) {
+      handleDragEnd();
     }
   };
 
   // Touch handlers
   const handleTouchStart = (e) => {
-    setIsDragging(true);
-    setStartX(e.touches[0].pageX);
-    setStartScrollPosition(scrollPosition);
+    handleDragStart(e.touches[0].pageX);
   };
 
   const handleTouchMove = (e) => {
-    if (!isDragging) return;
-    const x = e.touches[0].pageX;
-    const walk = (startX - x) * 1.2;
-    const newPosition = Math.max(0, Math.min(maxScroll, startScrollPosition + walk));
-    setScrollPosition(newPosition);
+    handleDragMove(e.touches[0].pageX);
   };
 
   const handleTouchEnd = () => {
-    setIsDragging(false);
+    handleDragEnd();
+  };
+
+  // Card click handler - Drag хийж байвал дарахгүй
+  const handleCardClick = (instructorId, e) => {
+    const dragDistance = Math.abs(startX - lastX);
+    if (dragDistance > 10) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    onInstructorClick(instructorId);
   };
 
   if (instructors.length === 0) {
@@ -120,20 +181,14 @@ function InstructorCarousel({ title, instructors, onInstructorClick }) {
           className="carousel-track-simple"
           style={{ 
             transform: `translateX(-${scrollPosition}px)`,
-            transition: isDragging ? 'none' : 'transform 0.5s ease'
+            transition: 'none'
           }}
         >
           {instructors.map((instructor) => (
             <div 
               key={instructor.id} 
               className="carousel-item-simple"
-              onClick={(e) => {
-                if (isDragging) {
-                  e.preventDefault();
-                  return;
-                }
-                onInstructorClick(instructor.id);
-              }}
+              onClick={(e) => handleCardClick(instructor.id, e)}
               style={{ cursor: isDragging ? 'grabbing' : 'pointer' }}
             >
               <div className="instructor-simple-card">
@@ -142,6 +197,7 @@ function InstructorCarousel({ title, instructors, onInstructorClick }) {
                     src={instructor.profile_image} 
                     alt={instructor.name}
                     className="instructor-simple-image"
+                    draggable="false"
                   />
                 ) : (
                   <div className="instructor-simple-placeholder">
