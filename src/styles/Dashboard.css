@@ -186,13 +186,13 @@
 .course-card .course-badge {
   position: absolute;
   top: 12px;
-  left: 12px;
+  left: 1px;
   padding: 6px 12px;
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(8px);
   border-radius: 6px;
   color: #ffffff;
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;

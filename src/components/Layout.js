@@ -12,8 +12,8 @@ function Layout({ children, user, onLogout }) {
 
   const navItems = [
     { path: '/dashboard', icon: Home, label: 'Нүүр' },
-    { path: '/courses', icon: BookOpen, label: 'Хичээлүүд' }, // 🔥 ШИНЭ
-    { path: '/instructors', icon: Users, label: 'Багш нар' }, // 🔥 ШИНЭ
+    { path: '/courses', icon: BookOpen, label: 'Хичээлүүд' },
+    { path: '/instructors', icon: Users, label: 'Багш нар' },
     { path: '/my-courses', icon: BookOpen, label: 'Худалдаж авсан хичээлүүд' },
     { path: '/profile', icon: User, label: 'Профайл' },
   ];
@@ -57,110 +57,100 @@ function Layout({ children, user, onLogout }) {
     setMobileMenuOpen(false);
   };
 
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
   return (
     <div className="layout">
-      {/* Navigation Bar */}
-      <nav className="navbar">
-        <div className="navbar-container">
-          <Link to="/dashboard" className="navbar-logo">
+      {/* Mobile Menu Button */}
+      <button 
+        className="mobile-menu-btn"
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+      >
+        {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Sidebar Overlay - Mobile */}
+      <div 
+        className={`sidebar-overlay ${mobileMenuOpen ? 'active' : ''}`}
+        onClick={closeMobileMenu}
+      />
+
+      {/* SIDEBAR - Зүүн талд */}
+      <aside className={`sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+        {/* Logo */}
+        <div className="sidebar-logo">
+          <Link 
+            to="/dashboard" 
+            className="navbar-logo" 
+            onClick={closeMobileMenu}
+          >
             <span className="logo-text">Eduvia</span>
             <span className="logo-badge">.mn</span>
           </Link>
+        </div>
 
-          {/* Desktop Navigation */}
-          <div className="navbar-menu">
-            {navItems.map((item) => (
-              <button
-                key={item.path}
-                onClick={() => handleNavClick(item.path)}
-                className={`nav-item ${isActive(item.path) ? 'active' : ''} ${
-                  item.superAdminOnly ? 'super-admin' : item.adminOnly ? 'admin' : ''
-                }`}
-              >
-                <item.icon size={20} />
-                <span>{item.label}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* User Info & Logout */}
-          <div className="navbar-actions">
-            <div className="user-info">
-              <div className="user-avatar">
-                {user?.name?.charAt(0).toUpperCase() || 'U'}
-              </div>
-              <div className="user-details">
-                <span className="user-name">{user?.name}</span>
-                {user?.role === 'admin' && (
-                  <span className="user-role super-admin-badge">Super Admin</span>
-                )}
-                {user?.role === 'test_admin' && (
-                  <span className="user-role admin-badge">Багш</span>
-                )}
-                {user?.role === 'user' && (
-                  <span className="user-role">Хэрэглэгч</span>
-                )}
-              </div>
-            </div>
-            <button onClick={onLogout} className="btn-logout">
-              <LogOut size={20} />
+        {/* Navigation */}
+        <nav className="sidebar-nav">
+          {navItems.map((item) => (
+            <button
+              key={item.path}
+              onClick={() => handleNavClick(item.path)}
+              className={`nav-item ${isActive(item.path) ? 'active' : ''} ${
+                item.superAdminOnly ? 'super-admin' : item.adminOnly ? 'admin' : ''
+              }`}
+            >
+              <item.icon size={20} />
+              <span>{item.label}</span>
             </button>
-          </div>
+          ))}
+        </nav>
 
-          {/* Mobile Menu Button */}
-          <button 
-            className="mobile-menu-btn"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        {/* User Info & Logout */}
+        <div className="sidebar-footer">
+          <div className="user-info">
+            <div className="user-avatar">
+              {user?.name?.charAt(0).toUpperCase() || 'U'}
+            </div>
+            <div className="user-details">
+              <span className="user-name">{user?.name}</span>
+              {user?.role === 'admin' && (
+                <span className="user-role super-admin-badge">Super Admin</span>
+              )}
+              {user?.role === 'test_admin' && (
+                <span className="user-role admin-badge">Багш</span>
+              )}
+              {user?.role === 'user' && (
+                <span className="user-role">Хэрэглэгч</span>
+              )}
+            </div>
+          </div>
+          <button onClick={onLogout} className="btn-logout">
+            <LogOut size={20} />
+            <span>Гарах</span>
           </button>
         </div>
+      </aside>
 
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="mobile-menu">
-            {navItems.map((item) => (
-              <button
-                key={item.path}
-                onClick={() => handleNavClick(item.path)}
-                className={`mobile-nav-item ${isActive(item.path) ? 'active' : ''} ${
-                  item.superAdminOnly ? 'super-admin' : item.adminOnly ? 'admin' : ''
-                }`}
-              >
-                <item.icon size={20} />
-                <span>{item.label}</span>
-              </button>
-            ))}
-            <button 
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onLogout();
-              }} 
-              className="mobile-logout-btn"
-            >
-              <LogOut size={20} />
-              <span>Гарах</span>
-            </button>
+      {/* Main Content - Sidebar-ын хажууд */}
+      <div className="layout-content">
+        <main className="main-content">
+          {children}
+        </main>
+
+        {/* Footer */}
+        <footer className="footer">
+          <div className="footer-container">
+            <p>&copy; 2024 Eduvia.mn - Бүх эрх хуулиар хамгаалагдсан</p>
+            <div className="footer-links">
+              <a href="/terms">Үйлчилгээний нөхцөл</a>
+              <a href="/privacy">Нууцлалын бодлого</a>
+              <a href="/contact">Холбоо барих</a>
+            </div>
           </div>
-        )}
-      </nav>
-
-      {/* Main Content */}
-      <main className="main-content">
-        {children}
-      </main>
-
-      {/* Footer */}
-      <footer className="footer">
-        <div className="footer-container">
-          <p>&copy; 2024 Eduvia.mn - Бүх эрх хуулиар хамгаалагдсан</p>
-          <div className="footer-links">
-            <a href="/terms">Үйлчилгээний нөхцөл</a>
-            <a href="/privacy">Нууцлалын бодлого</a>
-            <a href="/contact">Холбоо барих</a>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   );
 }
