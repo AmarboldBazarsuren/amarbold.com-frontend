@@ -1,143 +1,231 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 function InstructorCarousel({ title, instructors, onInstructorClick }) {
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const carouselRef = useRef(null);
   const [maxScroll, setMaxScroll] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [startScrollPosition, setStartScrollPosition] = useState(0);
-  const [velocity, setVelocity] = useState(0);
-  const [lastX, setLastX] = useState(0);
-  const [lastTime, setLastTime] = useState(0);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  
+  const carouselRef = useRef(null);
+  const trackRef = useRef(null);
+  const isDraggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const currentXRef = useRef(0);
+  const velocityRef = useRef(0);
+  const lastXRef = useRef(0);
+  const lastTimeRef = useRef(0);
   const animationRef = useRef(null);
+  const scrollPosRef = useRef(0);
+  const rafRef = useRef(null);
 
   useEffect(() => {
-    if (carouselRef.current) {
-      const track = carouselRef.current;
-      const maxScrollWidth = track.scrollWidth - track.clientWidth;
+    if (trackRef.current && carouselRef.current) {
+      const maxScrollWidth = trackRef.current.scrollWidth - carouselRef.current.clientWidth;
       setMaxScroll(maxScrollWidth);
+      setCanScrollRight(maxScrollWidth > 0);
     }
   }, [instructors]);
 
-  // 🔥 MOMENTUM SCROLL - Зуурсны дараа өөрөө гүйнэ
-  useEffect(() => {
-    if (!isDragging && Math.abs(velocity) > 0.5) {
-      const animate = () => {
-        setVelocity((v) => v * 0.95); // Аажмаар удааширна
-        setScrollPosition((pos) => {
-          const newPos = pos + velocity;
-          return Math.max(0, Math.min(maxScroll, newPos));
-        });
+  const updateButtons = useCallback(() => {
+    setCanScrollLeft(scrollPosRef.current > 10);
+    setCanScrollRight(scrollPosRef.current < maxScroll - 10);
+  }, [maxScroll]);
 
-        if (Math.abs(velocity) > 0.5) {
-          animationRef.current = requestAnimationFrame(animate);
+  // 🔥 ULTRA SMOOTH MOMENTUM
+  const animateMomentum = useCallback(() => {
+    if (Math.abs(velocityRef.current) > 0.1) {
+      velocityRef.current *= 0.94;
+      scrollPosRef.current += velocityRef.current;
+
+      if (scrollPosRef.current < 0) {
+        scrollPosRef.current *= 0.7;
+        velocityRef.current *= 0.5;
+        if (Math.abs(scrollPosRef.current) < 1) {
+          scrollPosRef.current = 0;
+          velocityRef.current = 0;
         }
-      };
-      animationRef.current = requestAnimationFrame(animate);
-    }
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
+      } else if (scrollPosRef.current > maxScroll) {
+        const overshoot = scrollPosRef.current - maxScroll;
+        scrollPosRef.current = maxScroll + overshoot * 0.7;
+        velocityRef.current *= 0.5;
+        if (overshoot < 1) {
+          scrollPosRef.current = maxScroll;
+          velocityRef.current = 0;
+        }
       }
-    };
-  }, [isDragging, velocity, maxScroll]);
+
+      if (trackRef.current) {
+        trackRef.current.style.transform = `translate3d(-${scrollPosRef.current}px, 0, 0)`;
+      }
+
+      updateButtons();
+      rafRef.current = requestAnimationFrame(animateMomentum);
+    } else {
+      velocityRef.current = 0;
+      updateButtons();
+    }
+  }, [maxScroll, updateButtons]);
 
   const scroll = (direction) => {
-    const scrollAmount = 164; // 140px + 24px gap
+    const scrollAmount = 200;
     const newPosition = direction === 'left' 
-      ? Math.max(0, scrollPosition - scrollAmount)
-      : Math.min(maxScroll, scrollPosition + scrollAmount);
+      ? Math.max(0, scrollPosRef.current - scrollAmount)
+      : Math.min(maxScroll, scrollPosRef.current + scrollAmount);
     
-    setScrollPosition(newPosition);
-    setVelocity(0);
-  };
+    scrollPosRef.current = newPosition;
+    velocityRef.current = 0;
+    
+    if (trackRef.current) {
+      trackRef.current.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+      trackRef.current.style.transform = `translate3d(-${newPosition}px, 0, 0)`;
+      
+      setTimeout(() => {
+        if (trackRef.current) {
+          trackRef.current.style.transition = 'none';
+        }
+        updateButtons();
+      }, 800);
+    }
 
-  // 🔥 DRAG START
-  const handleDragStart = (pageX) => {
-    setIsDragging(true);
-    setStartX(pageX);
-    setLastX(pageX);
-    setLastTime(Date.now());
-    setStartScrollPosition(scrollPosition);
-    setVelocity(0);
-    
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
     }
   };
 
-  // 🔥 DRAG MOVE
-  const handleDragMove = (pageX) => {
-    if (!isDragging) return;
-    
-    const currentTime = Date.now();
-    const timeDiff = currentTime - lastTime;
-    
+  const handleDragStart = useCallback((pageX) => {
+    isDraggingRef.current = true;
+    startXRef.current = pageX;
+    currentXRef.current = pageX;
+    lastXRef.current = pageX;
+    lastTimeRef.current = performance.now();
+    velocityRef.current = 0;
+
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+    }
+
+    if (trackRef.current) {
+      trackRef.current.style.transition = 'none';
+    }
+
+    if (carouselRef.current) {
+      carouselRef.current.style.cursor = 'grabbing';
+      carouselRef.current.style.userSelect = 'none';
+    }
+  }, []);
+
+  const handleDragMove = useCallback((pageX) => {
+    if (!isDraggingRef.current) return;
+
+    currentXRef.current = pageX;
+    const currentTime = performance.now();
+    const timeDiff = currentTime - lastTimeRef.current;
+
     if (timeDiff > 0) {
-      const currentVelocity = (lastX - pageX) / timeDiff * 16; // 60fps
-      setVelocity(currentVelocity);
+      const distance = lastXRef.current - pageX;
+      velocityRef.current = (distance / timeDiff) * 16;
+    }
+
+    lastXRef.current = pageX;
+    lastTimeRef.current = currentTime;
+
+    const totalDistance = startXRef.current - pageX;
+    let newPos = scrollPosRef.current + totalDistance;
+    
+    if (newPos < 0) {
+      newPos = newPos * 0.3;
+    } else if (newPos > maxScroll) {
+      const overshoot = newPos - maxScroll;
+      newPos = maxScroll + overshoot * 0.3;
     }
     
-    setLastX(pageX);
-    setLastTime(currentTime);
-    
-    const walk = (startX - pageX) * 1.2;
-    const newPosition = Math.max(0, Math.min(maxScroll, startScrollPosition + walk));
-    setScrollPosition(newPosition);
-  };
+    startXRef.current = pageX;
+    scrollPosRef.current = newPos;
 
-  // 🔥 DRAG END - Momentum эхэлнэ
-  const handleDragEnd = () => {
-    setIsDragging(false);
-    // velocity state-д аль хэдийн байна, useEffect автоматаар momentum эхлүүлнэ
-  };
+    if (trackRef.current) {
+      trackRef.current.style.transform = `translate3d(-${newPos}px, 0, 0)`;
+    }
+  }, [maxScroll]);
 
-  // Mouse handlers
-  const handleMouseDown = (e) => {
+  const handleDragEnd = useCallback(() => {
+    isDraggingRef.current = false;
+
+    if (carouselRef.current) {
+      carouselRef.current.style.cursor = 'grab';
+      carouselRef.current.style.userSelect = '';
+    }
+
+    if (scrollPosRef.current < 0) {
+      velocityRef.current = Math.abs(velocityRef.current);
+    } else if (scrollPosRef.current > maxScroll) {
+      velocityRef.current = -Math.abs(velocityRef.current);
+    }
+
+    if (Math.abs(velocityRef.current) > 0.1) {
+      rafRef.current = requestAnimationFrame(animateMomentum);
+    } else {
+      updateButtons();
+    }
+  }, [animateMomentum, maxScroll, updateButtons]);
+
+  const handleMouseDown = useCallback((e) => {
     e.preventDefault();
     handleDragStart(e.pageX);
-  };
+  }, [handleDragStart]);
 
-  const handleMouseMove = (e) => {
-    handleDragMove(e.pageX);
-  };
+  const handleMouseMove = useCallback((e) => {
+    if (isDraggingRef.current) {
+      e.preventDefault();
+      handleDragMove(e.pageX);
+    }
+  }, [handleDragMove]);
 
-  const handleMouseUp = () => {
-    handleDragEnd();
-  };
-
-  const handleMouseLeave = () => {
-    if (isDragging) {
+  const handleMouseUp = useCallback(() => {
+    if (isDraggingRef.current) {
       handleDragEnd();
     }
-  };
+  }, [handleDragEnd]);
 
-  // Touch handlers
-  const handleTouchStart = (e) => {
+  const handleMouseLeave = useCallback(() => {
+    if (isDraggingRef.current) {
+      handleDragEnd();
+    }
+  }, [handleDragEnd]);
+
+  const handleTouchStart = useCallback((e) => {
     handleDragStart(e.touches[0].pageX);
-  };
+  }, [handleDragStart]);
 
-  const handleTouchMove = (e) => {
-    handleDragMove(e.touches[0].pageX);
-  };
+  const handleTouchMove = useCallback((e) => {
+    if (isDraggingRef.current) {
+      e.preventDefault();
+      handleDragMove(e.touches[0].pageX);
+    }
+  }, [handleDragMove]);
 
-  const handleTouchEnd = () => {
-    handleDragEnd();
-  };
+  const handleTouchEnd = useCallback(() => {
+    if (isDraggingRef.current) {
+      handleDragEnd();
+    }
+  }, [handleDragEnd]);
 
-  // Card click handler - Drag хийж байвал дарахгүй
-  const handleCardClick = (instructorId, e) => {
-    const dragDistance = Math.abs(startX - lastX);
-    if (dragDistance > 10) {
+  const handleCardClick = useCallback((instructorId, e) => {
+    const dragDistance = Math.abs(startXRef.current - currentXRef.current);
+    if (dragDistance > 5) {
       e.preventDefault();
       e.stopPropagation();
       return;
     }
     onInstructorClick(instructorId);
-  };
+  }, [onInstructorClick]);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
 
   if (instructors.length === 0) {
     return null;
@@ -151,14 +239,14 @@ function InstructorCarousel({ title, instructors, onInstructorClick }) {
           <button 
             className="carousel-btn"
             onClick={() => scroll('left')}
-            disabled={scrollPosition === 0}
+            disabled={!canScrollLeft}
           >
             <ChevronLeft size={20} />
           </button>
           <button 
             className="carousel-btn"
             onClick={() => scroll('right')}
-            disabled={scrollPosition >= maxScroll}
+            disabled={!canScrollRight}
           >
             <ChevronRight size={20} />
           </button>
@@ -166,6 +254,7 @@ function InstructorCarousel({ title, instructors, onInstructorClick }) {
       </div>
 
       <div 
+        ref={carouselRef}
         className="instructors-carousel-simple"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -174,14 +263,21 @@ function InstructorCarousel({ title, instructors, onInstructorClick }) {
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+        style={{ 
+          cursor: 'grab',
+          touchAction: 'pan-y',
+          WebkitTapHighlightColor: 'transparent'
+        }}
       >
         <div 
-          ref={carouselRef}
+          ref={trackRef}
           className="carousel-track-simple"
           style={{ 
-            transform: `translateX(-${scrollPosition}px)`,
-            transition: 'none'
+            transform: 'translate3d(0px, 0, 0)',
+            transition: 'none',
+            willChange: 'transform',
+            backfaceVisibility: 'hidden',
+            perspective: 1000
           }}
         >
           {instructors.map((instructor) => (
@@ -189,7 +285,12 @@ function InstructorCarousel({ title, instructors, onInstructorClick }) {
               key={instructor.id} 
               className="carousel-item-simple"
               onClick={(e) => handleCardClick(instructor.id, e)}
-              style={{ cursor: isDragging ? 'grabbing' : 'pointer' }}
+              style={{ 
+                cursor: 'pointer',
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
+                WebkitTouchCallout: 'none'
+              }}
             >
               <div className="instructor-simple-card">
                 {instructor.profile_image ? (
@@ -198,6 +299,11 @@ function InstructorCarousel({ title, instructors, onInstructorClick }) {
                     alt={instructor.name}
                     className="instructor-simple-image"
                     draggable="false"
+                    style={{ 
+                      pointerEvents: 'none',
+                      userSelect: 'none',
+                      WebkitUserDrag: 'none'
+                    }}
                   />
                 ) : (
                   <div className="instructor-simple-placeholder">

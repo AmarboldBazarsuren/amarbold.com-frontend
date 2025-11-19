@@ -1,8 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Clock, Star } from 'lucide-react';
 
 function CourseCarousel({ title, courses, onCourseClick }) {
   const [maxScroll, setMaxScroll] = useState(0);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  
   const carouselRef = useRef(null);
   const trackRef = useRef(null);
   const isDraggingRef = useRef(false);
@@ -13,42 +16,61 @@ function CourseCarousel({ title, courses, onCourseClick }) {
   const lastTimeRef = useRef(0);
   const animationRef = useRef(null);
   const scrollPosRef = useRef(0);
+  const rafRef = useRef(null);
 
   useEffect(() => {
     if (trackRef.current && carouselRef.current) {
       const maxScrollWidth = trackRef.current.scrollWidth - carouselRef.current.clientWidth;
       setMaxScroll(maxScrollWidth);
+      setCanScrollRight(maxScrollWidth > 0);
     }
   }, [courses]);
 
-  // 🔥 MOMENTUM ANIMATION - useRef ашиглаж state update багасгана
-  const animateMomentum = () => {
-    if (Math.abs(velocityRef.current) > 0.3) {
-      velocityRef.current *= 0.92; // Удааших хурд
+  // 🔥 UPDATE BUTTONS
+  const updateButtons = useCallback(() => {
+    setCanScrollLeft(scrollPosRef.current > 10);
+    setCanScrollRight(scrollPosRef.current < maxScroll - 10);
+  }, [maxScroll]);
+
+  // 🔥 ULTRA SMOOTH MOMENTUM - 120fps ready
+  const animateMomentum = useCallback(() => {
+    if (Math.abs(velocityRef.current) > 0.1) {
+      velocityRef.current *= 0.94; // Илүү удаан удааширна
       scrollPosRef.current += velocityRef.current;
 
-      // Boundary check
+      // Elastic bounce effect
       if (scrollPosRef.current < 0) {
-        scrollPosRef.current = 0;
-        velocityRef.current = 0;
+        scrollPosRef.current *= 0.7;
+        velocityRef.current *= 0.5;
+        if (Math.abs(scrollPosRef.current) < 1) {
+          scrollPosRef.current = 0;
+          velocityRef.current = 0;
+        }
       } else if (scrollPosRef.current > maxScroll) {
-        scrollPosRef.current = maxScroll;
-        velocityRef.current = 0;
+        const overshoot = scrollPosRef.current - maxScroll;
+        scrollPosRef.current = maxScroll + overshoot * 0.7;
+        velocityRef.current *= 0.5;
+        if (overshoot < 1) {
+          scrollPosRef.current = maxScroll;
+          velocityRef.current = 0;
+        }
       }
 
-      // DOM шууд засна - React state-гүй
+      // GPU optimized transform
       if (trackRef.current) {
-        trackRef.current.style.transform = `translateX(-${scrollPosRef.current}px)`;
+        trackRef.current.style.transform = `translate3d(-${scrollPosRef.current}px, 0, 0)`;
       }
 
-      animationRef.current = requestAnimationFrame(animateMomentum);
+      updateButtons();
+      rafRef.current = requestAnimationFrame(animateMomentum);
     } else {
       velocityRef.current = 0;
+      updateButtons();
     }
-  };
+  }, [maxScroll, updateButtons]);
 
   const scroll = (direction) => {
-    const scrollAmount = 320 + 28;
+    const scrollAmount = 350;
     const newPosition = direction === 'left' 
       ? Math.max(0, scrollPosRef.current - scrollAmount)
       : Math.min(maxScroll, scrollPosRef.current + scrollAmount);
@@ -57,32 +79,33 @@ function CourseCarousel({ title, courses, onCourseClick }) {
     velocityRef.current = 0;
     
     if (trackRef.current) {
-      trackRef.current.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-      trackRef.current.style.transform = `translateX(-${newPosition}px)`;
+      trackRef.current.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+      trackRef.current.style.transform = `translate3d(-${newPosition}px, 0, 0)`;
       
       setTimeout(() => {
         if (trackRef.current) {
           trackRef.current.style.transition = 'none';
         }
-      }, 600);
+        updateButtons();
+      }, 800);
     }
 
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
     }
   };
 
-  // 🔥 DRAG START
-  const handleDragStart = (pageX) => {
+  // 🔥 SMOOTH DRAG START
+  const handleDragStart = useCallback((pageX) => {
     isDraggingRef.current = true;
     startXRef.current = pageX;
     currentXRef.current = pageX;
     lastXRef.current = pageX;
-    lastTimeRef.current = Date.now();
+    lastTimeRef.current = performance.now(); // Илүү нарийвчлалтай
     velocityRef.current = 0;
 
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
     }
 
     if (trackRef.current) {
@@ -91,102 +114,129 @@ function CourseCarousel({ title, courses, onCourseClick }) {
 
     if (carouselRef.current) {
       carouselRef.current.style.cursor = 'grabbing';
+      carouselRef.current.style.userSelect = 'none';
     }
-  };
+  }, []);
 
-  // 🔥 DRAG MOVE - Маш хурдан, state update байхгүй
-  const handleDragMove = (pageX) => {
+  // 🔥 ULTRA SMOOTH DRAG MOVE
+  const handleDragMove = useCallback((pageX) => {
     if (!isDraggingRef.current) return;
 
     currentXRef.current = pageX;
-    const currentTime = Date.now();
+    const currentTime = performance.now();
     const timeDiff = currentTime - lastTimeRef.current;
 
-    // Velocity тооцоолох
     if (timeDiff > 0) {
-      velocityRef.current = (lastXRef.current - pageX) / timeDiff * 20; // Илүү хүчтэй
+      const distance = lastXRef.current - pageX;
+      velocityRef.current = (distance / timeDiff) * 16; // 60fps base
     }
 
     lastXRef.current = pageX;
     lastTimeRef.current = currentTime;
 
-    // Scroll position шинэчлэх
-    const distance = startXRef.current - pageX;
-    const newPos = Math.max(0, Math.min(maxScroll, scrollPosRef.current + distance));
+    const totalDistance = startXRef.current - pageX;
+    let newPos = scrollPosRef.current + totalDistance;
+    
+    // Rubber band effect on edges
+    if (newPos < 0) {
+      newPos = newPos * 0.3;
+    } else if (newPos > maxScroll) {
+      const overshoot = newPos - maxScroll;
+      newPos = maxScroll + overshoot * 0.3;
+    }
     
     startXRef.current = pageX;
     scrollPosRef.current = newPos;
 
-    // DOM шууд засна
+    // Direct GPU transform
     if (trackRef.current) {
-      trackRef.current.style.transform = `translateX(-${newPos}px)`;
+      trackRef.current.style.transform = `translate3d(-${newPos}px, 0, 0)`;
     }
-  };
+  }, [maxScroll]);
 
-  // 🔥 DRAG END - Momentum эхлүүлнэ
-  const handleDragEnd = () => {
+  // 🔥 SMOOTH DRAG END
+  const handleDragEnd = useCallback(() => {
     isDraggingRef.current = false;
 
     if (carouselRef.current) {
       carouselRef.current.style.cursor = 'grab';
+      carouselRef.current.style.userSelect = '';
     }
 
-    // Momentum эхлүүлэх
-    if (Math.abs(velocityRef.current) > 0.3) {
-      animationRef.current = requestAnimationFrame(animateMomentum);
+    // Snap back if overscrolled
+    if (scrollPosRef.current < 0) {
+      velocityRef.current = Math.abs(velocityRef.current);
+    } else if (scrollPosRef.current > maxScroll) {
+      velocityRef.current = -Math.abs(velocityRef.current);
     }
-  };
+
+    // Start momentum if velocity is significant
+    if (Math.abs(velocityRef.current) > 0.1) {
+      rafRef.current = requestAnimationFrame(animateMomentum);
+    } else {
+      updateButtons();
+    }
+  }, [animateMomentum, maxScroll, updateButtons]);
 
   // Mouse handlers
-  const handleMouseDown = (e) => {
+  const handleMouseDown = useCallback((e) => {
     e.preventDefault();
     handleDragStart(e.pageX);
-  };
+  }, [handleDragStart]);
 
-  const handleMouseMove = (e) => {
-    handleDragMove(e.pageX);
-  };
+  const handleMouseMove = useCallback((e) => {
+    if (isDraggingRef.current) {
+      e.preventDefault();
+      handleDragMove(e.pageX);
+    }
+  }, [handleDragMove]);
 
-  const handleMouseUp = () => {
-    handleDragEnd();
-  };
-
-  const handleMouseLeave = () => {
+  const handleMouseUp = useCallback(() => {
     if (isDraggingRef.current) {
       handleDragEnd();
     }
-  };
+  }, [handleDragEnd]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (isDraggingRef.current) {
+      handleDragEnd();
+    }
+  }, [handleDragEnd]);
 
   // Touch handlers
-  const handleTouchStart = (e) => {
+  const handleTouchStart = useCallback((e) => {
     handleDragStart(e.touches[0].pageX);
-  };
+  }, [handleDragStart]);
 
-  const handleTouchMove = (e) => {
-    e.preventDefault(); // Prevent scroll
-    handleDragMove(e.touches[0].pageX);
-  };
+  const handleTouchMove = useCallback((e) => {
+    if (isDraggingRef.current) {
+      e.preventDefault();
+      handleDragMove(e.touches[0].pageX);
+    }
+  }, [handleDragMove]);
 
-  const handleTouchEnd = () => {
-    handleDragEnd();
-  };
+  const handleTouchEnd = useCallback(() => {
+    if (isDraggingRef.current) {
+      handleDragEnd();
+    }
+  }, [handleDragEnd]);
 
   // Card click handler
-  const handleCardClick = (courseId, e) => {
+  const handleCardClick = useCallback((courseId, e) => {
     const dragDistance = Math.abs(startXRef.current - currentXRef.current);
-    if (dragDistance > 10) {
+    if (dragDistance > 5) {
       e.preventDefault();
       e.stopPropagation();
       return;
     }
     onCourseClick(courseId);
-  };
+  }, [onCourseClick]);
 
   // Cleanup
   useEffect(() => {
     return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
       }
     };
   }, []);
@@ -203,14 +253,14 @@ function CourseCarousel({ title, courses, onCourseClick }) {
           <button 
             className="carousel-btn"
             onClick={() => scroll('left')}
-            disabled={scrollPosRef.current === 0}
+            disabled={!canScrollLeft}
           >
             <ChevronLeft size={20} />
           </button>
           <button 
             className="carousel-btn"
             onClick={() => scroll('right')}
-            disabled={scrollPosRef.current >= maxScroll}
+            disabled={!canScrollRight}
           >
             <ChevronRight size={20} />
           </button>
@@ -229,16 +279,19 @@ function CourseCarousel({ title, courses, onCourseClick }) {
         onTouchEnd={handleTouchEnd}
         style={{ 
           cursor: 'grab',
-          touchAction: 'pan-y' // Vertical scroll зөвшөөрнө, horizontal disable
+          touchAction: 'pan-y',
+          WebkitTapHighlightColor: 'transparent'
         }}
       >
         <div 
           ref={trackRef}
           className="carousel-track"
           style={{ 
-            transform: 'translateX(0px)',
+            transform: 'translate3d(0px, 0, 0)',
             transition: 'none',
-            willChange: 'transform'
+            willChange: 'transform',
+            backfaceVisibility: 'hidden',
+            perspective: 1000
           }}
         >
           {courses.map((course) => (
@@ -247,9 +300,10 @@ function CourseCarousel({ title, courses, onCourseClick }) {
               className="carousel-item"
               onClick={(e) => handleCardClick(course.id, e)}
               style={{ 
-                cursor: isDraggingRef.current ? 'grabbing' : 'pointer',
+                cursor: 'pointer',
                 userSelect: 'none',
-                WebkitUserSelect: 'none'
+                WebkitUserSelect: 'none',
+                WebkitTouchCallout: 'none'
               }}
             >
               <div className="course-card">
@@ -258,7 +312,11 @@ function CourseCarousel({ title, courses, onCourseClick }) {
                     src={course.thumbnail || '/placeholder-course.jpg'} 
                     alt={course.title}
                     draggable="false"
-                    style={{ pointerEvents: 'none' }}
+                    style={{ 
+                      pointerEvents: 'none',
+                      userSelect: 'none',
+                      WebkitUserDrag: 'none'
+                    }}
                   />
                   <div className="course-badge">{course.category}</div>
                   {course.discount_percent && (
@@ -307,7 +365,7 @@ function CourseCarousel({ title, courses, onCourseClick }) {
                         </>
                       )}
                     </div>
-                    <button className="btn-enroll">
+                    <button className="btn-enroll" onClick={(e) => e.stopPropagation()}>
                       Үзэх
                     </button>
                   </div>

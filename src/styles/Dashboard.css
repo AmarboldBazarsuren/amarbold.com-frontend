@@ -382,9 +382,9 @@
   transition: all 0.3s ease;
 }
 
-.instructor-simple-card:hover {
+/* .instructor-simple-card:hover {
   transform: translateY(-8px);
-}
+} */
 
 .instructor-simple-image,
 .instructor-simple-placeholder {
@@ -449,9 +449,9 @@
   user-select: none;
 }
 
-/* .instructors-carousel-simple:active {
+.instructors-carousel-simple:active {
   cursor: grabbing;
-} */
+}
 
 .carousel-track-simple {
   display: flex;
