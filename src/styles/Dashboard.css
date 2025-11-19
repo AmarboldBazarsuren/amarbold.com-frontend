@@ -140,11 +140,11 @@
 
 /* 🔥 ХЭВТЭЭ ХЭЛБЭРТЭЙ CARD - 16:9 харьцаатай */
 .carousel-item {
-  flex: 200 200 320px;
-  max-width: 320px;
+  flex: 0 0 180px; /* ✅ ТОГТМОЛ ӨРГӨН */
+  max-width: 180px;
+  min-width: 180px; /* ✅ ЖИЖИГРЭХГҮЙ */
   cursor: pointer;
 }
-
 /* 🔥 COURSE CARD - Зураг + Мэдээлэл тусдаа */
 .course-card {
   background: transparent;
@@ -169,6 +169,7 @@
   background: #000000;
   border-radius: 8px;
 }
+
 
 .course-card .course-image img {
   width: 100%;
