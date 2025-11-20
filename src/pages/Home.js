@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Users, Award, TrendingUp, ArrowRight, Sparkles } from 'lucide-react';
+import { BookOpen, Users, TrendingUp, ArrowRight, Sparkles } from 'lucide-react'; // ✅ Award устгасан
 import CourseCarousel from '../components/dashboard/CourseCarousel';
 import InstructorCarousel from '../components/dashboard/InstructorCarousel';
 import '../styles/Home.css';
@@ -18,11 +18,8 @@ function Home({ user }) {
   });
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchPublicData();
-  }, []);
-
-  const fetchPublicData = async () => {
+  // ✅ useCallback ашиглан dependency warning арилгах
+  const fetchPublicData = useCallback(async () => {
     try {
       // ✅ PUBLIC COURSES - Token шаардахгүй
       const coursesRes = await api.get('/api/public/courses');
@@ -36,7 +33,7 @@ function Home({ user }) {
         try {
           instructorsRes = await api.get('/api/instructors');
         } catch (error) {
-          console.log('Bagsh tatахад алдаа (нэвтрээгүй):', error.message);
+          console.log('Bagsh татахад алдаа (нэвтрээгүй):', error.message);
         }
       }
 
@@ -66,7 +63,11 @@ function Home({ user }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]); // ✅ user dependency нэмсэн
+
+  useEffect(() => {
+    fetchPublicData();
+  }, [fetchPublicData]); // ✅ fetchPublicData dependency нэмсэн
 
   const handleCourseClick = (courseId) => {
     if (user) {
@@ -154,7 +155,7 @@ function Home({ user }) {
         </div>
       </section>
 
-      {/* ✅ PUBLIC COURSES SECTION - CAROUSEL */}
+      {/* ✅ PUBLIC COURSES SECTION */}
       <section className="public-courses-section">
         <div className="container">
           {loading ? (
@@ -184,7 +185,7 @@ function Home({ user }) {
         </div>
       </section>
 
-      {/* ✅ INSTRUCTORS SECTION - CAROUSEL */}
+      {/* ✅ INSTRUCTORS SECTION */}
       {user && instructors.length > 0 && (
         <section className="public-instructors-section">
           <div className="container">
