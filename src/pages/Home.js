@@ -1,12 +1,10 @@
-// src/pages/Home.js
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Users, Award, TrendingUp, ArrowRight, Sparkles } from 'lucide-react';
 import CourseCarousel from '../components/dashboard/CourseCarousel';
 import InstructorCarousel from '../components/dashboard/InstructorCarousel';
 import '../styles/Home.css';
-import api from '../config/api';  // ✅ Нэмэх
+import api from '../config/api';
 
 function Home({ user }) {
   const [courses, setCourses] = useState([]);
@@ -26,21 +24,24 @@ function Home({ user }) {
 
   const fetchPublicData = async () => {
     try {
-      // ✅ Public endpoint - token шаардахгүй
-      const [coursesRes, statsRes, instructorsRes] = await Promise.all([
-        api.get('/api/public/courses'),
-        api.get('/api/public/stats'),
-        user 
-          ? api.get('/api/instructors', {
-              headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            })
-          : Promise.resolve({ data: { success: true, data: [] } })
-      ]);
+      // ✅ PUBLIC COURSES - Token шаардахгүй
+      const coursesRes = await api.get('/api/public/courses');
+      
+      // ✅ PUBLIC STATS - Token шаардахгүй
+      const statsRes = await api.get('/api/public/stats');
+      
+      // ✅ INSTRUCTORS - Зөвхөн нэвтэрсэн хэрэглэгчид
+      let instructorsRes = { data: { success: true, data: [] } };
+      if (user) {
+        try {
+          instructorsRes = await api.get('/api/instructors');
+        } catch (error) {
+          console.log('Bagsh tatахад алдаа (нэвтрээгүй):', error.message);
+        }
+      }
 
       if (coursesRes.data.success) {
-        // Сүүлд нэмэгдсэн 8 хичээл
-        const recentCourses = coursesRes.data.data.slice(0, 8);
-        setCourses(recentCourses);
+        setCourses(coursesRes.data.data.slice(0, 8));
       }
 
       if (statsRes.data.success) {
@@ -48,12 +49,20 @@ function Home({ user }) {
       }
 
       if (instructorsRes.data.success) {
-        // Сүүлд нэмэгдсэн 8 багш
-        const recentInstructors = instructorsRes.data.data.slice(0, 8);
-        setInstructors(recentInstructors);
+        setInstructors(instructorsRes.data.data.slice(0, 8));
       }
     } catch (error) {
-      console.error('Өгөгдөл татахад алдаа:', error);
+      console.error('❌ Өгөгдөл татахад алдаа:', error);
+      
+      // ✅ Алдаа гарсан ч хуудас харагдах ёстой
+      setCourses([]);
+      setInstructors([]);
+      setStats({
+        totalCourses: 0,
+        totalInstructors: 0,
+        activeInstructors: 0,
+        averageRating: '4.8'
+      });
     } finally {
       setLoading(false);
     }
@@ -63,7 +72,6 @@ function Home({ user }) {
     if (user) {
       navigate(`/course/${courseId}`);
     } else {
-      // Нэвтрэх шаардлагатай
       alert('Хичээл үзэхийн тулд эхлээд бүртгүүлнэ үү');
       navigate('/login');
     }
@@ -138,7 +146,6 @@ function Home({ user }) {
               <BookOpen size={32} />
               <span>1000+ Видео хичээл</span>
             </div>
-         
             <div className="floating-card card-3">
               <TrendingUp size={32} />
               <span>Шат дараалалтай</span>
@@ -230,7 +237,6 @@ function Home({ user }) {
                 суралцаарай
               </p>
             </div>
-          
           </div>
         </div>
       </section>

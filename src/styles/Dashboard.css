@@ -388,8 +388,8 @@
 
 .instructor-simple-image,
 .instructor-simple-placeholder {
-  width: 90px;
-  height: 90px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   margin-bottom: 12px;
   transition: all 0.3s ease;
@@ -417,7 +417,7 @@
 }
 
 .instructor-simple-info h3 {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: #ffffff;
   margin-bottom: 4px;
@@ -428,7 +428,7 @@
 }
 
 .instructor-simple-info p {
-  font-size: 14px;
+  font-size: 12px;
   color: #00d4ff;
   overflow: hidden;
   text-overflow: ellipsis;
